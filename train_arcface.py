@@ -37,7 +37,7 @@ def train(model, device, train_loader, loss_softmax, loss_arcface, optimizer_nn,
     for batch_idx, (data, target) in enumerate(train_loader):
         data, target = data.to(device), target.to(device)
 
-        features, _ = model(data)
+        features = model(data)
         logits = loss_arcface(features, target)
         loss = loss_softmax(logits, target)
 
@@ -66,7 +66,7 @@ def test(model, device, test_loader, loss_softmax, loss_arcface):
         for data, target in test_loader:
             data, target = data.to(device), target.to(device)
 
-            feats, _ = model(data)
+            feats = model(data)
             logits = loss_arcface(feats, target)
             _, predicted = torch.max(logits.data, 1)
             total += target.size(0)

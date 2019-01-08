@@ -3,6 +3,7 @@ from __future__ import division
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from pdb import set_trace as bp
 
 class Net(nn.Module):
     def __init__(self, features_dim):
@@ -29,7 +30,7 @@ class Net(nn.Module):
         self.prelu_weight = nn.Parameter(torch.Tensor(1).fill_(0.25))
 
         # self.fc1 = nn.Linear(3*3*512, features_dim)
-        self.fc1 = nn.Linear(819200, features_dim)
+        self.fc1 = nn.Linear(204800, features_dim)
 
         self.fc3 = nn.Linear(features_dim, 10)
 
@@ -50,9 +51,10 @@ class Net(nn.Module):
         x = F.max_pool2d(x, kernel_size=mp_ks, stride=mp_strd)
 
         # x = x.view(-1, 3*3*512) # Flatten
-        x = x.view(-1, 819200) # Flatten
-
+        # x = x.view(-1, 819200) # Flatten
+        x = x.view(-1, x.size(1)*x.size(2)*x.size(3)) # Flatten
+        
         features3d = F.prelu(self.fc1(x), self.prelu_weight)
         x = self.fc3(features3d)
     
-        return features3d, x
+        return features3d
