@@ -24,7 +24,7 @@ NUM_OF_CLASSES = 10
 BATCH_SIZE_TEST = 1000
 EPOCHS = 20
 LOG_INTERVAL = 10
-        
+NUM_WORKERS = 2       
 
 def train(model, device, train_loader, loss_softmax, loss_arcface, optimizer_nn, optimzer_arcface, epoch):
     model.train()
@@ -75,7 +75,7 @@ def test(model, device, test_loader, loss_softmax, loss_arcface):
 device = torch.device("cuda" if use_cuda else "cpu")
 
 ####### Data setup
-train_loader, test_loader = get_data(use_cuda, BATCH_SIZE, BATCH_SIZE_TEST)
+train_loader, test_loader = get_data(use_cuda, NUM_WORKERS, BATCH_SIZE, BATCH_SIZE_TEST)
     
 ####### Model setup
 model = Net().to(device)
