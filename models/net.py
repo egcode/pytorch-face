@@ -10,8 +10,8 @@ class Net(nn.Module):
         krnl_sz=3
         strd = 1
         self.features_dim = features_dim
-                    
-        self.conv1 = nn.Conv2d(in_channels=1, out_channels=20, kernel_size=krnl_sz, stride=strd, padding=1)
+
+        self.conv1 = nn.Conv2d(in_channels=3, out_channels=20, kernel_size=krnl_sz, stride=strd, padding=1)
         self.conv2 = nn.Conv2d(in_channels=20, out_channels=50, kernel_size=krnl_sz, stride=strd, padding=1)
         self.prelu1_1 = nn.PReLU()
         self.prelu1_2 = nn.PReLU()
@@ -28,7 +28,9 @@ class Net(nn.Module):
 
         self.prelu_weight = nn.Parameter(torch.Tensor(1).fill_(0.25))
 
-        self.fc1 = nn.Linear(3*3*512, features_dim)
+        # self.fc1 = nn.Linear(3*3*512, features_dim)
+        self.fc1 = nn.Linear(819200, features_dim)
+
         self.fc3 = nn.Linear(features_dim, 10)
 
     def forward(self, x):
@@ -47,7 +49,9 @@ class Net(nn.Module):
         x = self.prelu3_2(self.conv6(x))
         x = F.max_pool2d(x, kernel_size=mp_ks, stride=mp_strd)
 
-        x = x.view(-1, 3*3*512) # Flatten
+        # x = x.view(-1, 3*3*512) # Flatten
+        x = x.view(-1, 819200) # Flatten
+
         features3d = F.prelu(self.fc1(x), self.prelu_weight)
         x = self.fc3(features3d)
     

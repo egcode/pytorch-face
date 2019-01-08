@@ -19,13 +19,14 @@ use_cuda = torch.cuda.is_available()
 print("Use CUDA: " + str(use_cuda))
 
 
-BATCH_SIZE = 100
-FEATURES_DIM = 55
+BATCH_SIZE = 11
+FEATURES_DIM = 31
 NUM_OF_CLASSES = 10
 BATCH_SIZE_TEST = 1000
 EPOCHS = 20
 LOG_INTERVAL = 10
-NUM_WORKERS = 2       
+NUM_WORKERS = 2
+# MODEL_TYPE = 'resnet18_face'
 MODEL_TYPE = 'resnet18'
 # MODEL_TYPE = 'resnet34'
 # MODEL_TYPE = 'resnet50'
@@ -80,11 +81,14 @@ def test(model, device, test_loader, loss_softmax, loss_arcface):
 device = torch.device("cuda" if use_cuda else "cpu")
 
 ####### Data setup
-train_loader, test_loader = get_data(use_cuda, NUM_WORKERS, BATCH_SIZE, BATCH_SIZE_TEST)
+data_dir = '../Computer-Vision/datasets/CASIA-WebFace_160'
+train_loader, test_loader = get_data(data_dir, device, NUM_WORKERS, BATCH_SIZE, BATCH_SIZE_TEST)
     
 ####### Model setup
-# if MODEL_TYPE == 'resnet18':
+# if MODEL_TYPE == 'resnet18_face':
 #     model = resnet_face18(use_se=False)
+# if MODEL_TYPE == 'resnet18':
+#     model = resnet18()
 # elif MODEL_TYPE == 'resnet34':
 #     model = resnet34()
 # elif MODEL_TYPE == 'resnet50':
