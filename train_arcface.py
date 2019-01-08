@@ -10,8 +10,9 @@ import math
 from pdb import set_trace as bp
 
 from losses.Arcface_loss import Arcface_loss
-from models.net import Net
 from dataset.get_data import get_data
+from models.net import Net
+from models.resnet import *
 
 print("Pytorch version:  " + str(torch.__version__))
 use_cuda = torch.cuda.is_available()
@@ -19,12 +20,16 @@ print("Use CUDA: " + str(use_cuda))
 
 
 BATCH_SIZE = 100
-FEATURES_DIM = 3
+FEATURES_DIM = 55
 NUM_OF_CLASSES = 10
 BATCH_SIZE_TEST = 1000
 EPOCHS = 20
 LOG_INTERVAL = 10
 NUM_WORKERS = 2       
+MODEL_TYPE = 'resnet18'
+# MODEL_TYPE = 'resnet34'
+# MODEL_TYPE = 'resnet50'
+
 
 def train(model, device, train_loader, loss_softmax, loss_arcface, optimizer_nn, optimzer_arcface, epoch):
     model.train()
@@ -78,7 +83,16 @@ device = torch.device("cuda" if use_cuda else "cpu")
 train_loader, test_loader = get_data(use_cuda, NUM_WORKERS, BATCH_SIZE, BATCH_SIZE_TEST)
     
 ####### Model setup
-model = Net().to(device)
+# if MODEL_TYPE == 'resnet18':
+#     model = resnet_face18(use_se=False)
+# elif MODEL_TYPE == 'resnet34':
+#     model = resnet34()
+# elif MODEL_TYPE == 'resnet50':
+#     model = resnet50()
+
+model = Net(features_dim=FEATURES_DIM)
+model = model.to(device)
+
 loss_softmax = nn.CrossEntropyLoss().to(device)
 loss_arcface = Arcface_loss(num_classes=10, feat_dim=FEATURES_DIM, device=device).to(device)
 

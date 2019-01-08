@@ -5,10 +5,11 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 class Net(nn.Module):
-    def __init__(self):
+    def __init__(self, features_dim):
         super(Net, self).__init__()
         krnl_sz=3
         strd = 1
+        self.features_dim = features_dim
                     
         self.conv1 = nn.Conv2d(in_channels=1, out_channels=20, kernel_size=krnl_sz, stride=strd, padding=1)
         self.conv2 = nn.Conv2d(in_channels=20, out_channels=50, kernel_size=krnl_sz, stride=strd, padding=1)
@@ -27,8 +28,8 @@ class Net(nn.Module):
 
         self.prelu_weight = nn.Parameter(torch.Tensor(1).fill_(0.25))
 
-        self.fc1 = nn.Linear(3*3*512, 3)
-        self.fc3 = nn.Linear(3, 10)
+        self.fc1 = nn.Linear(3*3*512, features_dim)
+        self.fc3 = nn.Linear(features_dim, 10)
 
     def forward(self, x):
         mp_ks=2
