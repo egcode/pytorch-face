@@ -20,7 +20,7 @@ print("Use CUDA: " + str(use_cuda))
 
 
 BATCH_SIZE = 11
-FEATURES_DIM = 31
+FEATURES_DIM = 512
 NUM_OF_CLASSES = 10
 BATCH_SIZE_TEST = 1000
 EPOCHS = 20
@@ -85,20 +85,20 @@ data_dir = '../Computer-Vision/datasets/CASIA-WebFace_160'
 train_loader, test_loader = get_data(data_dir, device, NUM_WORKERS, BATCH_SIZE, BATCH_SIZE_TEST)
     
 ####### Model setup
-# if MODEL_TYPE == 'resnet18_face':
-#     model = resnet_face18(use_se=False)
-# if MODEL_TYPE == 'resnet18':
-#     model = resnet18()
-# elif MODEL_TYPE == 'resnet34':
-#     model = resnet34()
-# elif MODEL_TYPE == 'resnet50':
-#     model = resnet50()
+if MODEL_TYPE == 'resnet18_face':
+    model = resnet_face18(use_se=False)
+if MODEL_TYPE == 'resnet18':
+    model = resnet18()
+elif MODEL_TYPE == 'resnet34':
+    model = resnet34()
+elif MODEL_TYPE == 'resnet50':
+    model = resnet50()
 
-model = Net(features_dim=FEATURES_DIM)
+# model = Net(features_dim=FEATURES_DIM)
 model = model.to(device)
 
 loss_softmax = nn.CrossEntropyLoss().to(device)
-loss_arcface = Arcface_loss(num_classes=10, feat_dim=FEATURES_DIM, device=device).to(device)
+loss_arcface = Arcface_loss(num_classes=len(train_loader.dataset.classes), feat_dim=FEATURES_DIM, device=device).to(device)
 
 # optimzer nn
 optimizer_nn = optim.SGD(model.parameters(), lr=0.001, momentum=0.9, weight_decay=0.0005)
