@@ -11,6 +11,7 @@ from pdb import set_trace as bp
 
 from losses.Arcface_loss import Arcface_loss
 from models.net import Net
+from dataset.get_data import get_data
 
 print("Pytorch version:  " + str(torch.__version__))
 use_cuda = torch.cuda.is_available()
@@ -71,28 +72,12 @@ def test(model, device, test_loader, loss_softmax, loss_arcface):
 
 ###################################################################
 
-torch.manual_seed(1)
 device = torch.device("cuda" if use_cuda else "cpu")
 
 ####### Data setup
-
-kwargs = {'num_workers': 1, 'pin_memory': True} if use_cuda else {}
-train_loader = torch.utils.data.DataLoader(
-    datasets.MNIST('./data', train=True, download=True,
-                   transform=transforms.Compose([
-                       transforms.ToTensor(),
-                       transforms.Normalize((0.1307,), (0.3081,))
-                   ])),
-    batch_size=BATCH_SIZE, shuffle=True, **kwargs)
-test_loader = torch.utils.data.DataLoader(
-    datasets.MNIST('./data', train=False, transform=transforms.Compose([
-                       transforms.ToTensor(),
-                       transforms.Normalize((0.1307,), (0.3081,))
-                   ])),
-    batch_size=BATCH_SIZE_TEST, shuffle=True, **kwargs)
-
+train_loader, test_loader = get_data(use_cuda, BATCH_SIZE, BATCH_SIZE_TEST)
+    
 ####### Model setup
-
 model = Net().to(device)
 loss_softmax = nn.CrossEntropyLoss().to(device)
 loss_arcface = Arcface_loss(num_classes=10, feat_dim=FEATURES_DIM, device=device).to(device)
