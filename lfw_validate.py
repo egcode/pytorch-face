@@ -9,7 +9,6 @@ from torch.utils import data
 import numpy as np
 from torchvision import transforms as T
 import torchvision
-import cv2
 import sys
 
 from pdb import set_trace as bp
@@ -66,32 +65,19 @@ class LFW(data.Dataset):
 
 
 
-if __name__ == '__main__':
+
+def lfw_validate(model, embedding_size):
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    model.eval()
+    model.to(device)
 
     lfw_dataset = LFW(lfw_dir='../Computer-Vision/datasets/lfw_160',
                      lfw_pairs = './pairs.txt')
-    lfw_loader = data.DataLoader(lfw_dataset, batch_size=100,
+    lfw_loader = torch.utils.data.DataLoader(lfw_dataset, batch_size=100,
                                                 shuffle=False, num_workers=NUM_WORKERS)
 
 
-
-#############################################
-
-    ####### Model setup
-    if MODEL_TYPE == 'resnet18':
-        model = resnet18()
-    elif MODEL_TYPE == 'resnet34':
-        model = resnet34()
-    elif MODEL_TYPE == 'resnet50':
-        model = resnet50()
-
-    model.eval()
-    model.load_state_dict(torch.load("resnet18-model-arcface.pth"))
-    model.to(device)
-
-#############################################
     print('Runnning forward pass on LFW images')
     
     use_flipped_images = False
@@ -101,17 +87,13 @@ if __name__ == '__main__':
     subtract_mean = False
     use_fixed_image_standardization = False
 
-    # Enqueue one epoch of image paths and labels
     nrof_images = lfw_dataset.nrof_embeddings 
-    embedding_size = 512
 
     emb_array = np.zeros((nrof_images, embedding_size))
     lab_array = np.zeros((nrof_images,))
     for i, (data, label) in enumerate(lfw_loader):
 
         data, label = data.to(device), label.to(device)
-        # print("data batch: " + str(data))
-        # print("label batch: " + str(label))
 
         emb = model(data).detach().cpu().numpy()
         lab = label.detach().cpu().numpy()
@@ -124,13 +106,12 @@ if __name__ == '__main__':
             sys.stdout.flush()
     print('')
 
-
     embeddings = emb_array
     # np.save('embeddings.npy', embeddings) 
     # embeddings = np.load('embeddings.npy')
 
-    # bp()
-    # assert np.array_equal(lab_array, np.arange(nrof_images))==True, 'Wrong labels used for evaluation, possibly caused by training examples left in the input pipeline'
+    
+    assert np.array_equal(lab_array, np.arange(nrof_images))==True, 'Wrong labels used for evaluation, possibly caused by training examples left in the input pipeline'
     tpr, fpr, accuracy, val, val_std, far = lfw.evaluate(embeddings, lfw_dataset.actual_issame, nrof_folds=lfw_nrof_folds, distance_metric=distance_metric, subtract_mean=subtract_mean)
     
     print('Accuracy: %2.5f+-%2.5f' % (np.mean(accuracy), np.std(accuracy)))
@@ -142,3 +123,19 @@ if __name__ == '__main__':
     # print('Equal Error Rate (EER): %1.3f' % eer)
     
 
+if __name__ == '__main__':
+    #############################################
+
+    ####### Model setup
+    if MODEL_TYPE == 'resnet18':
+        model = resnet18()
+    elif MODEL_TYPE == 'resnet34':
+        model = resnet34()
+    elif MODEL_TYPE == 'resnet50':
+        model = resnet50()
+
+    model.load_state_dict(torch.load("resnet18-model-arcface.pth"))
+    embedding_size = model.fc5.out_features
+
+#############################################
+    lfw_validate(model, embedding_size)
