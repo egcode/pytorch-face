@@ -116,5 +116,5 @@ for epoch in range(1, EPOCHS + 1):
     train(model, device, train_loader, loss_softmax, loss_arcface, optimizer_nn, optimzer_arcface, epoch)
     test(model, device, test_loader, loss_softmax, loss_arcface)
 
-torch.save(model.state_dict(),"mnist_cnn-arcface.pt")        
-torch.save(loss_arcface.state_dict(),"mnist_loss-arcface.pt")        
+torch.save(model.state_dict(),"resnet18-model-arcface.pth")        
+torch.save(loss_arcface.state_dict(),"resnet18_loss-arcface.pth")        
