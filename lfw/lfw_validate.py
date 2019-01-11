@@ -11,9 +11,8 @@ from torchvision import transforms as T
 import torchvision
 import sys
 
-from pdb import set_trace as bp
-from skimage import io, transform
-import imageio
+# from skimage import io, transform
+# import imageio
 
 import lfw
 from sklearn import metrics
@@ -24,7 +23,6 @@ from pdb import set_trace as bp
 from models.resnet import *
 
 NUM_WORKERS = 2
-# MODEL_TYPE = 'resnet18_face'
 MODEL_TYPE = 'resnet18'
 # MODEL_TYPE = 'resnet34'
 # MODEL_TYPE = 'resnet50'
@@ -73,7 +71,7 @@ def lfw_validate(model, embedding_size):
     model.to(device)
 
     lfw_dataset = LFW(lfw_dir='../Computer-Vision/datasets/lfw_160',
-                     lfw_pairs = './pairs.txt')
+                     lfw_pairs = 'lfw//pairs.txt')
     lfw_loader = torch.utils.data.DataLoader(lfw_dataset, batch_size=100,
                                                 shuffle=False, num_workers=NUM_WORKERS)
 
@@ -105,11 +103,11 @@ def lfw_validate(model, embedding_size):
             print('.', end='')
             sys.stdout.flush()
     print('')
-
     embeddings = emb_array
-    # np.save('embeddings.npy', embeddings) 
-    # embeddings = np.load('embeddings.npy')
 
+
+    # np.save('embeddings.npy', embeddings) 
+    # embeddings = np.load('lfw/embeddings.npy')
     
     assert np.array_equal(lab_array, np.arange(nrof_images))==True, 'Wrong labels used for evaluation, possibly caused by training examples left in the input pipeline'
     tpr, fpr, accuracy, val, val_std, far = lfw.evaluate(embeddings, lfw_dataset.actual_issame, nrof_folds=lfw_nrof_folds, distance_metric=distance_metric, subtract_mean=subtract_mean)
@@ -134,7 +132,7 @@ if __name__ == '__main__':
     elif MODEL_TYPE == 'resnet50':
         model = resnet50()
 
-    model.load_state_dict(torch.load("resnet18-model-arcface.pth"))
+    model.load_state_dict(torch.load("lfw/resnet18-model-arcface.pth"))
     embedding_size = model.fc5.out_features
 
 #############################################

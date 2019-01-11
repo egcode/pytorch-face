@@ -1,3 +1,6 @@
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -85,8 +88,6 @@ data_dir = '../Computer-Vision/datasets/CASIA-WebFace_160'
 train_loader, test_loader = get_data(data_dir, device, NUM_WORKERS, BATCH_SIZE, BATCH_SIZE_TEST)
     
 ####### Model setup
-if MODEL_TYPE == 'resnet18_face':
-    model = resnet_face18(use_se=False)
 if MODEL_TYPE == 'resnet18':
     model = resnet18()
 elif MODEL_TYPE == 'resnet34':
