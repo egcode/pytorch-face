@@ -1,38 +1,25 @@
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
-
 import os
+import sys
 from PIL import Image
 import torch
 from torch.utils import data
 import numpy as np
 from torchvision import transforms as T
 import torchvision
-import sys
-
-# from skimage import io, transform
-# import imageio
-
 import lfw
 from sklearn import metrics
 from scipy.optimize import brentq
 from scipy import interpolate
 
-from pdb import set_trace as bp
 from models.resnet import *
-
-NUM_WORKERS = 2
-MODEL_TYPE = 'resnet18'
-# MODEL_TYPE = 'resnet34'
-# MODEL_TYPE = 'resnet50'
-
+from pdb import set_trace as bp
 
 class LFW(data.Dataset):
     
-    def __init__(self, lfw_dir, lfw_pairs, input_shape=(1, 160, 160)):
-        self.input_shape = input_shape
-
+    def __init__(self, lfw_dir, lfw_pairs):
 
         # Read the file containing the pairs used for testing
         pairs = lfw.read_pairs(os.path.expanduser(lfw_pairs))
@@ -57,33 +44,24 @@ class LFW(data.Dataset):
         label = self.labels_array[index]
         return data.float(), label
 
-
     def __len__(self):
         return len(self.paths)
 
 
+def lfw_validate_model(lfw_dir, lfw_pairs, batch_size, num_workers, model, embedding_size, device):
 
-
-def lfw_validate(model, embedding_size):
-
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     model.eval()
     model.to(device)
 
-    lfw_dataset = LFW(lfw_dir='../Computer-Vision/datasets/lfw_160',
-                     lfw_pairs = 'lfw//pairs.txt')
-    lfw_loader = torch.utils.data.DataLoader(lfw_dataset, batch_size=100,
-                                                shuffle=False, num_workers=NUM_WORKERS)
-
-
+    lfw_dataset = LFW(lfw_dir=lfw_dir,
+                     lfw_pairs=lfw_pairs)
+    lfw_loader = torch.utils.data.DataLoader(lfw_dataset, batch_size=batch_size,
+                                                shuffle=False, num_workers=num_workers)
     print('Runnning forward pass on LFW images')
-    
-    use_flipped_images = False
-    lfw_batch_size = 100
+
     lfw_nrof_folds = 10 
     distance_metric = 0
     subtract_mean = False
-    use_fixed_image_standardization = False
 
     nrof_images = lfw_dataset.nrof_embeddings 
 
@@ -105,35 +83,33 @@ def lfw_validate(model, embedding_size):
     print('')
     embeddings = emb_array
 
-
     # np.save('embeddings.npy', embeddings) 
     # embeddings = np.load('lfw/embeddings.npy')
     
     assert np.array_equal(lab_array, np.arange(nrof_images))==True, 'Wrong labels used for evaluation, possibly caused by training examples left in the input pipeline'
     tpr, fpr, accuracy, val, val_std, far = lfw.evaluate(embeddings, lfw_dataset.actual_issame, nrof_folds=lfw_nrof_folds, distance_metric=distance_metric, subtract_mean=subtract_mean)
     
+    return tpr, fpr, accuracy, val, val_std, far
+    
+
+if __name__ == '__main__':
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
+    ####### Model setup
+    model = resnet18()
+    model.load_state_dict(torch.load("lfw/resnet18-model-arcface.pth"))
+    embedding_size = model.fc5.out_features
+
+    ######## LFW setup
+    lfw_dir='../Computer-Vision/datasets/lfw_160'
+    lfw_pairs = 'lfw//pairs.txt'
+    batch_size = 100
+    num_workers = 2
+    tpr, fpr, accuracy, val, val_std, far = lfw_validate_model(lfw_dir, lfw_pairs, batch_size, num_workers, model, embedding_size, device)
+
     print('Accuracy: %2.5f+-%2.5f' % (np.mean(accuracy), np.std(accuracy)))
     print('Validation rate: %2.5f+-%2.5f @ FAR=%2.5f' % (val, val_std, far))
-    
     auc = metrics.auc(fpr, tpr)
     print('Area Under Curve (AUC): %1.3f' % auc)
     # eer = brentq(lambda x: 1. - x - interpolate.interp1d(fpr, tpr)(x), 0., 1.)
     # print('Equal Error Rate (EER): %1.3f' % eer)
-    
-
-if __name__ == '__main__':
-    #############################################
-
-    ####### Model setup
-    if MODEL_TYPE == 'resnet18':
-        model = resnet18()
-    elif MODEL_TYPE == 'resnet34':
-        model = resnet34()
-    elif MODEL_TYPE == 'resnet50':
-        model = resnet50()
-
-    model.load_state_dict(torch.load("lfw/resnet18-model-arcface.pth"))
-    embedding_size = model.fc5.out_features
-
-#############################################
-    lfw_validate(model, embedding_size)
