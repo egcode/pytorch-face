@@ -49,19 +49,12 @@ class LFW(data.Dataset):
         return len(self.paths)
 
 
-def lfw_validate_model(lfw_dir, lfw_pairs, batch_size, num_workers, model, embedding_size, device):
-
-    lfw_dataset = LFW(lfw_dir=lfw_dir,
-                     lfw_pairs=lfw_pairs)
-    lfw_loader = torch.utils.data.DataLoader(lfw_dataset, batch_size=batch_size,
-                                                shuffle=False, num_workers=num_workers)
+def lfw_validate_model(model, lfw_loader, nrof_images, embedding_size, device):
     print('Runnning forward pass on LFW images')
 
     lfw_nrof_folds = 10 
     distance_metric = 0
     subtract_mean = False
-
-    nrof_images = lfw_dataset.nrof_embeddings 
 
     emb_array = np.zeros((nrof_images, embedding_size))
     lab_array = np.zeros((nrof_images,))
@@ -101,12 +94,16 @@ if __name__ == '__main__':
     embedding_size = model.fc5.out_features
     model.eval()
 
-    ######## LFW setup
+    ######## LFW dataset setup
     lfw_dir='../Computer-Vision/datasets/lfw_160'
     lfw_pairs = 'lfw//pairs.txt'
     batch_size = 100
     num_workers = 2
-    tpr, fpr, accuracy, val, val_std, far = lfw_validate_model(lfw_dir, lfw_pairs, batch_size, num_workers, model, embedding_size, device)
+    lfw_dataset = LFW(lfw_dir=lfw_dir, lfw_pairs=lfw_pairs)
+    lfw_loader = torch.utils.data.DataLoader(lfw_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
+
+    ### LFW validate
+    tpr, fpr, accuracy, val, val_std, far = lfw_validate_model(model, lfw_loader, lfw_dataset.nrof_embeddings, embedding_size, device)
 
     print('Accuracy: %2.5f+-%2.5f' % (np.mean(accuracy), np.std(accuracy)))
     print('Validation rate: %2.5f+-%2.5f @ FAR=%2.5f' % (val, val_std, far))
