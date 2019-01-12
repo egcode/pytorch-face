@@ -73,23 +73,24 @@ def train(model, device, train_loader, loss_softmax, loss_arcface, optimizer_nn,
                 100. * batch_idx / len(train_loader), loss.item()))
 
 
-def test(model, device, test_loader, loss_softmax, loss_arcface):
-    model.eval()
-    correct = 0
-    total = 0
-    with torch.no_grad():
-        for data, target in test_loader:
-            data, target = data.to(device), target.to(device)
+def test(model, device, test_loader, loss_softmax, loss_arcface, epoch):
+    if epoch % TEST_INTERVAL == 0 or epoch == EPOCHS:
+        model.eval()
+        correct = 0
+        total = 0
+        with torch.no_grad():
+            for data, target in test_loader:
+                data, target = data.to(device), target.to(device)
 
-            feats = model(data)
-            logits = loss_arcface(feats, target)
-            _, predicted = torch.max(logits.data, 1)
-            total += target.size(0)
-            correct += (predicted == target.data).sum()
+                feats = model(data)
+                logits = loss_arcface(feats, target)
+                _, predicted = torch.max(logits.data, 1)
+                total += target.size(0)
+                correct += (predicted == target.data).sum()
 
-    print('\nTest set:, Accuracy: {}/{} ({:.0f}%)\n'.format(
-        correct, len(test_loader.dataset),
-        100. * correct / len(test_loader.dataset)))    
+        print('\nTest set:, Accuracy: {}/{} ({:.0f}%)\n'.format(
+            correct, len(test_loader.dataset),
+            100. * correct / len(test_loader.dataset)))    
 
 def validate_lfw(model, lfw_loader, lfw_dataset, device, epoch):
     if epoch % LFW_INTERVAL == 0 or epoch == EPOCHS:
@@ -155,9 +156,9 @@ if __name__ == '__main__':
         sheduler_arcface.step()
 
         # train(model, device, train_loader, loss_softmax, loss_arcface, optimizer_nn, optimzer_arcface, epoch)
-        # test(model, device, test_loader, loss_softmax, loss_arcface)
+        test(model, device, test_loader, loss_softmax, loss_arcface, epoch)
         # validate_lfw(model, lfw_loader, lfw_dataset, device, epoch)
-        save_model(model, MODEL_TYPE, epoch)
+        # save_model(model, MODEL_TYPE, epoch)
 
     # torch.save(model.state_dict(),"resnet18-model-arcface.pth")        
     # torch.save(loss_arcface.state_dict(),"resnet18_loss-arcface.pth")        
