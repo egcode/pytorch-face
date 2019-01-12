@@ -43,6 +43,9 @@ LFW_DIR='../Computer-Vision/datasets/lfw_160'
 LFW_PAIRS = 'lfw//pairs.txt'
 LFW_BATCH_SIZE = 100
 
+MODEL_SAVE_INTERVAL = 1
+TEST_INTERVAL = 1
+LFW_INTERVAL = 1
 
 def train(model, device, train_loader, loss_softmax, loss_arcface, optimizer_nn, optimzer_arcface, epoch):
     model.train()
@@ -89,19 +92,27 @@ def test(model, device, test_loader, loss_softmax, loss_arcface):
         100. * correct / len(test_loader.dataset)))    
 
 def validate_lfw(model, lfw_loader, lfw_dataset, device, epoch):
-    model.eval()
-    embedding_size = model.fc5.out_features
+    if epoch % LFW_INTERVAL == 0 or epoch == EPOCHS:
+        model.eval()
+        embedding_size = model.fc5.out_features
 
-    tpr, fpr, accuracy, val, val_std, far = lfw_validate_model(model, lfw_loader, lfw_dataset, embedding_size, device)
+        tpr, fpr, accuracy, val, val_std, far = lfw_validate_model(model, lfw_loader, lfw_dataset, embedding_size, device)
 
-    print('\nEpoch: '+str(epoch))
-    print('Accuracy: %2.5f+-%2.5f' % (np.mean(accuracy), np.std(accuracy)))
-    print('Validation rate: %2.5f+-%2.5f @ FAR=%2.5f' % (val, val_std, far))
-    auc = metrics.auc(fpr, tpr)
-    print('Area Under Curve (AUC): %1.3f' % auc)
-    # eer = brentq(lambda x: 1. - x - interpolate.interp1d(fpr, tpr)(x), 0., 1.)
-    # print('Equal Error Rate (EER): %1.3f' % eer)
-    
+        print('\nEpoch: '+str(epoch))
+        print('Accuracy: %2.5f+-%2.5f' % (np.mean(accuracy), np.std(accuracy)))
+        print('Validation rate: %2.5f+-%2.5f @ FAR=%2.5f' % (val, val_std, far))
+        auc = metrics.auc(fpr, tpr)
+        print('Area Under Curve (AUC): %1.3f' % auc)
+        # eer = brentq(lambda x: 1. - x - interpolate.interp1d(fpr, tpr)(x), 0., 1.)
+        # print('Equal Error Rate (EER): %1.3f' % eer)
+
+
+def save_model(model, type, epoch):
+    # save_name = os.path.join(save_path, name + '_' + str(iter_cnt) + '.pth')
+    # torch.save(model.state_dict(), save_name)
+    if epoch % MODEL_SAVE_INTERVAL == 0 or epoch == EPOCHS:
+        save_name = os.path.join('checkpoints', type + '_' + str(epoch) + '.pth')
+        print("Save Model name: " + str(save_name))
 ###################################################################
 
 
@@ -143,9 +154,10 @@ if __name__ == '__main__':
         sheduler_nn.step()
         sheduler_arcface.step()
 
-        train(model, device, train_loader, loss_softmax, loss_arcface, optimizer_nn, optimzer_arcface, epoch)
-        test(model, device, test_loader, loss_softmax, loss_arcface)
-        validate_lfw(model, lfw_loader, lfw_dataset, device, epoch)
-        
+        # train(model, device, train_loader, loss_softmax, loss_arcface, optimizer_nn, optimzer_arcface, epoch)
+        # test(model, device, test_loader, loss_softmax, loss_arcface)
+        # validate_lfw(model, lfw_loader, lfw_dataset, device, epoch)
+        save_model(model, MODEL_TYPE, epoch)
+
     # torch.save(model.state_dict(),"resnet18-model-arcface.pth")        
     # torch.save(loss_arcface.state_dict(),"resnet18_loss-arcface.pth")        
