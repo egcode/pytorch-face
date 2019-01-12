@@ -10,6 +10,7 @@ from torch.utils.data import DataLoader
 import torch.optim.lr_scheduler as lr_scheduler
 import numpy as np
 import math
+import argparse
 from sklearn import metrics
 
 from losses.Arcface_loss import Arcface_loss
@@ -92,12 +93,18 @@ def test(model, device, test_loader, loss_softmax, loss_arcface, epoch):
             correct, len(test_loader.dataset),
             100. * correct / len(test_loader.dataset)))    
 
-def validate_lfw(model, lfw_loader, lfw_dataset, device, epoch):
+def validate_lfw(args, model, lfw_loader, lfw_dataset, device, epoch):
     if epoch % LFW_INTERVAL == 0 or epoch == EPOCHS:
         model.eval()
         embedding_size = model.fc5.out_features
 
-        tpr, fpr, accuracy, val, val_std, far = lfw_validate_model(model, lfw_loader, lfw_dataset, embedding_size, device)
+        # tpr, fpr, accuracy, val, val_std, far = lfw_validate_model(model, lfw_loader, lfw_dataset, embedding_size, device)
+
+        # lfw_nrof_folds = 10 
+        # distance_metric = 0
+        # subtract_mean = False
+        tpr, fpr, accuracy, val, val_std, far = lfw_validate_model(model, lfw_loader, lfw_dataset, embedding_size, device,
+                                                                    args.lfw_nrof_folds, args.lfw_distance_metric, args.lfw_subtract_mean)
 
         print('\nEpoch: '+str(epoch))
         print('Accuracy: %2.5f+-%2.5f' % (np.mean(accuracy), np.std(accuracy)))
@@ -117,7 +124,7 @@ def save_model(model, type, epoch):
 ###################################################################
 
 
-if __name__ == '__main__':
+def main(args):
     
     device = torch.device("cuda" if use_cuda else "cpu")
 
@@ -154,11 +161,34 @@ if __name__ == '__main__':
     for epoch in range(1, EPOCHS + 1):
         sheduler_nn.step()
         sheduler_arcface.step()
-
+        bp()
         # train(model, device, train_loader, loss_softmax, loss_arcface, optimizer_nn, optimzer_arcface, epoch)
-        test(model, device, test_loader, loss_softmax, loss_arcface, epoch)
-        # validate_lfw(model, lfw_loader, lfw_dataset, device, epoch)
+        # test(model, device, test_loader, loss_softmax, loss_arcface, epoch)
+        validate_lfw(args, model, lfw_loader, lfw_dataset, device, epoch)
         # save_model(model, MODEL_TYPE, epoch)
 
     # torch.save(model.state_dict(),"resnet18-model-arcface.pth")        
     # torch.save(loss_arcface.state_dict(),"resnet18_loss-arcface.pth")        
+
+
+def parse_arguments(argv):
+    parser = argparse.ArgumentParser()
+
+    # Parameters for validation on LFW
+    parser.add_argument('--lfw_pairs', type=str,
+        help='The file containing the pairs to use for validation.', default='lfw//pairs.txt')
+    parser.add_argument('--lfw_dir', type=str,
+        help='Path to the data directory containing aligned face patches.', default='../Computer-Vision/datasets/lfw_160')
+    parser.add_argument('--lfw_batch_size', type=int,
+        help='Number of images to process in a batch in the LFW test set.', default=100)
+    parser.add_argument('--lfw_nrof_folds', type=int,
+        help='Number of folds to use for cross validation. Mainly used for testing.', default=10)
+    parser.add_argument('--lfw_distance_metric', type=int,
+        help='Type of distance metric to use. 0: Euclidian, 1:Cosine similarity distance.', default=0)
+    parser.add_argument('--lfw_subtract_mean', 
+        help='Subtract feature mean before calculating distance.', action='store_true', default=False)
+    return parser.parse_args(argv)
+  
+
+if __name__ == '__main__':
+    main(parse_arguments(sys.argv[1:]))

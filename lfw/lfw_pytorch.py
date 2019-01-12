@@ -49,12 +49,9 @@ class LFW(data.Dataset):
         return len(self.paths)
 
 
-def lfw_validate_model(model, lfw_loader, lfw_dataset, embedding_size, device):
+def lfw_validate_model(model, lfw_loader, lfw_dataset, embedding_size, device, lfw_nrof_folds, distance_metric, subtract_mean):
     print('Runnning forward pass on LFW images')
 
-    lfw_nrof_folds = 10 
-    distance_metric = 0
-    subtract_mean = False
     nrof_images = lfw_dataset.nrof_embeddings
 
     emb_array = np.zeros((nrof_images, embedding_size))
@@ -104,7 +101,11 @@ if __name__ == '__main__':
     lfw_loader = torch.utils.data.DataLoader(lfw_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
 
     ### LFW validate
-    tpr, fpr, accuracy, val, val_std, far = lfw_validate_model(model, lfw_loader, lfw_dataset, embedding_size, device)
+    lfw_nrof_folds = 10 
+    distance_metric = 0
+    subtract_mean = False
+    tpr, fpr, accuracy, val, val_std, far = lfw_validate_model(model, lfw_loader, lfw_dataset, embedding_size, device,
+                                                                lfw_nrof_folds, distance_metric, subtract_mean)
 
     print('Accuracy: %2.5f+-%2.5f' % (np.mean(accuracy), np.std(accuracy)))
     print('Validation rate: %2.5f+-%2.5f @ FAR=%2.5f' % (val, val_std, far))
