@@ -33,10 +33,15 @@ BATCH_SIZE_TEST = 1000
 EPOCHS = 20
 LOG_INTERVAL = 10
 NUM_WORKERS = 2
+DATA_DIR = '../Computer-Vision/datasets/CASIA-WebFace_160'
+
 # MODEL_TYPE = 'resnet18_face'
 MODEL_TYPE = 'resnet18'
 # MODEL_TYPE = 'resnet34'
 # MODEL_TYPE = 'resnet50'
+LFW_DIR='../Computer-Vision/datasets/lfw_160'
+LFW_PAIRS = 'lfw//pairs.txt'
+LFW_BATCH_SIZE = 100
 
 
 def train(model, device, train_loader, loss_softmax, loss_arcface, optimizer_nn, optimzer_arcface, epoch):
@@ -83,15 +88,11 @@ def test(model, device, test_loader, loss_softmax, loss_arcface):
         correct, len(test_loader.dataset),
         100. * correct / len(test_loader.dataset)))    
 
-def validate_lfw(model, device, epoch):
+def validate_lfw(model, lfw_loader, lfw_dataset, device, epoch):
     model.eval()
     embedding_size = model.fc5.out_features
 
-    ######## LFW setup
-    lfw_dir='../Computer-Vision/datasets/lfw_160'
-    lfw_pairs = 'lfw//pairs.txt'
-    lfw_batch_size = 100
-    tpr, fpr, accuracy, val, val_std, far = lfw_validate_model(lfw_dir, lfw_pairs, lfw_batch_size, NUM_WORKERS, model, embedding_size, device)
+    tpr, fpr, accuracy, val, val_std, far = lfw_validate_model(model, lfw_loader, lfw_dataset, embedding_size, device)
 
     print('\nEpoch: '+str(epoch))
     print('Accuracy: %2.5f+-%2.5f' % (np.mean(accuracy), np.std(accuracy)))
@@ -109,9 +110,12 @@ if __name__ == '__main__':
     device = torch.device("cuda" if use_cuda else "cpu")
 
     ####### Data setup
-    data_dir = '../Computer-Vision/datasets/CASIA-WebFace_160'
-    train_loader, test_loader = get_data(data_dir, device, NUM_WORKERS, BATCH_SIZE, BATCH_SIZE_TEST)
-        
+    train_loader, test_loader = get_data(DATA_DIR, device, NUM_WORKERS, BATCH_SIZE, BATCH_SIZE_TEST)
+
+    ######## LFW Data setup
+    lfw_dataset = LFW(lfw_dir=LFW_DIR, lfw_pairs=LFW_PAIRS)
+    lfw_loader = torch.utils.data.DataLoader(lfw_dataset, batch_size=LFW_BATCH_SIZE, shuffle=False, num_workers=NUM_WORKERS)
+    
     ####### Model setup
     if MODEL_TYPE == 'resnet18':
         model = resnet18()
@@ -141,7 +145,7 @@ if __name__ == '__main__':
 
         train(model, device, train_loader, loss_softmax, loss_arcface, optimizer_nn, optimzer_arcface, epoch)
         test(model, device, test_loader, loss_softmax, loss_arcface)
-        validate_lfw(model, device, epoch)
+        validate_lfw(model, lfw_loader, lfw_dataset, device, epoch)
         
-    torch.save(model.state_dict(),"resnet18-model-arcface.pth")        
-    torch.save(loss_arcface.state_dict(),"resnet18_loss-arcface.pth")        
+    # torch.save(model.state_dict(),"resnet18-model-arcface.pth")        
+    # torch.save(loss_arcface.state_dict(),"resnet18_loss-arcface.pth")        
