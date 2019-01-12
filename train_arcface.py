@@ -40,9 +40,6 @@ DATA_DIR = '../Computer-Vision/datasets/CASIA-WebFace_160'
 MODEL_TYPE = 'resnet18'
 # MODEL_TYPE = 'resnet34'
 # MODEL_TYPE = 'resnet50'
-LFW_DIR='../Computer-Vision/datasets/lfw_160'
-LFW_PAIRS = 'lfw//pairs.txt'
-LFW_BATCH_SIZE = 100
 
 MODEL_SAVE_INTERVAL = 1
 TEST_INTERVAL = 1
@@ -98,11 +95,6 @@ def validate_lfw(args, model, lfw_loader, lfw_dataset, device, epoch):
         model.eval()
         embedding_size = model.fc5.out_features
 
-        # tpr, fpr, accuracy, val, val_std, far = lfw_validate_model(model, lfw_loader, lfw_dataset, embedding_size, device)
-
-        # lfw_nrof_folds = 10 
-        # distance_metric = 0
-        # subtract_mean = False
         tpr, fpr, accuracy, val, val_std, far = lfw_validate_model(model, lfw_loader, lfw_dataset, embedding_size, device,
                                                                     args.lfw_nrof_folds, args.lfw_distance_metric, args.lfw_subtract_mean)
 
@@ -132,8 +124,8 @@ def main(args):
     train_loader, test_loader = get_data(DATA_DIR, device, NUM_WORKERS, BATCH_SIZE, BATCH_SIZE_TEST)
 
     ######## LFW Data setup
-    lfw_dataset = LFW(lfw_dir=LFW_DIR, lfw_pairs=LFW_PAIRS)
-    lfw_loader = torch.utils.data.DataLoader(lfw_dataset, batch_size=LFW_BATCH_SIZE, shuffle=False, num_workers=NUM_WORKERS)
+    lfw_dataset = LFW(lfw_dir=args.lfw_dir, lfw_pairs=args.lfw_pairs)
+    lfw_loader = torch.utils.data.DataLoader(lfw_dataset, batch_size=args.lfw_batch_size, shuffle=False, num_workers=NUM_WORKERS)
     
     ####### Model setup
     if MODEL_TYPE == 'resnet18':
@@ -161,7 +153,7 @@ def main(args):
     for epoch in range(1, EPOCHS + 1):
         sheduler_nn.step()
         sheduler_arcface.step()
-        bp()
+        
         # train(model, device, train_loader, loss_softmax, loss_arcface, optimizer_nn, optimzer_arcface, epoch)
         # test(model, device, test_loader, loss_softmax, loss_arcface, epoch)
         validate_lfw(args, model, lfw_loader, lfw_dataset, device, epoch)
