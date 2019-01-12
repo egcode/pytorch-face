@@ -51,9 +51,6 @@ class LFW(data.Dataset):
 
 def lfw_validate_model(lfw_dir, lfw_pairs, batch_size, num_workers, model, embedding_size, device):
 
-    model.eval()
-    model.to(device)
-
     lfw_dataset = LFW(lfw_dir=lfw_dir,
                      lfw_pairs=lfw_pairs)
     lfw_loader = torch.utils.data.DataLoader(lfw_dataset, batch_size=batch_size,
@@ -68,20 +65,21 @@ def lfw_validate_model(lfw_dir, lfw_pairs, batch_size, num_workers, model, embed
 
     emb_array = np.zeros((nrof_images, embedding_size))
     lab_array = np.zeros((nrof_images,))
-    for i, (data, label) in enumerate(lfw_loader):
+    with torch.no_grad():
+        for i, (data, label) in enumerate(lfw_loader):
 
-        data, label = data.to(device), label.to(device)
+            data, label = data.to(device), label.to(device)
 
-        emb = model(data).detach().cpu().numpy()
-        lab = label.detach().cpu().numpy()
+            emb = model(data).detach().cpu().numpy()
+            lab = label.detach().cpu().numpy()
 
-        lab_array[lab] = lab
-        emb_array[lab, :] = emb
+            lab_array[lab] = lab
+            emb_array[lab, :] = emb
 
-        if i % 10 == 9:
-            print('.', end='')
-            sys.stdout.flush()
-    print('')
+            if i % 10 == 9:
+                print('.', end='')
+                sys.stdout.flush()
+        print('')
     embeddings = emb_array
 
     # np.save('embeddings.npy', embeddings) 
@@ -99,7 +97,9 @@ if __name__ == '__main__':
     ####### Model setup
     model = resnet18()
     model.load_state_dict(torch.load("lfw/resnet18-model-arcface.pth"))
+    model.to(device)
     embedding_size = model.fc5.out_features
+    model.eval()
 
     ######## LFW setup
     lfw_dir='../Computer-Vision/datasets/lfw_160'

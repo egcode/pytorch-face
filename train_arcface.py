@@ -84,6 +84,7 @@ def test(model, device, test_loader, loss_softmax, loss_arcface):
         100. * correct / len(test_loader.dataset)))    
 
 def validate_lfw(model, device, epoch):
+    model.eval()
     embedding_size = model.fc5.out_features
 
     ######## LFW setup
