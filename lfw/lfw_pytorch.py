@@ -9,12 +9,13 @@ from torch.utils import data
 import numpy as np
 from torchvision import transforms as T
 import torchvision
-import lfw
 from sklearn import metrics
 from scipy.optimize import brentq
 from scipy import interpolate
 
+from lfw.lfw_helper import *
 from models.resnet import *
+
 from pdb import set_trace as bp
 
 class LFW(data.Dataset):
@@ -22,10 +23,10 @@ class LFW(data.Dataset):
     def __init__(self, lfw_dir, lfw_pairs):
 
         # Read the file containing the pairs used for testing
-        pairs = lfw.read_pairs(os.path.expanduser(lfw_pairs))
+        pairs = read_pairs(os.path.expanduser(lfw_pairs))
 
         # Get the paths for the corresponding images
-        self.paths, self.actual_issame = lfw.get_paths(os.path.expanduser(lfw_dir), pairs)
+        self.paths, self.actual_issame = get_paths(os.path.expanduser(lfw_dir), pairs)
         self.nrof_embeddings = len(self.actual_issame)*2  # nrof_pairs * nrof_images_per_pair
         self.labels_array = np.arange(0,self.nrof_embeddings)
 
@@ -87,7 +88,7 @@ def lfw_validate_model(lfw_dir, lfw_pairs, batch_size, num_workers, model, embed
     # embeddings = np.load('lfw/embeddings.npy')
     
     assert np.array_equal(lab_array, np.arange(nrof_images))==True, 'Wrong labels used for evaluation, possibly caused by training examples left in the input pipeline'
-    tpr, fpr, accuracy, val, val_std, far = lfw.evaluate(embeddings, lfw_dataset.actual_issame, nrof_folds=lfw_nrof_folds, distance_metric=distance_metric, subtract_mean=subtract_mean)
+    tpr, fpr, accuracy, val, val_std, far = evaluate(embeddings, lfw_dataset.actual_issame, nrof_folds=lfw_nrof_folds, distance_metric=distance_metric, subtract_mean=subtract_mean)
     
     return tpr, fpr, accuracy, val, val_std, far
     
