@@ -19,6 +19,8 @@ from models.resnet import *
 from lfw.lfw_pytorch import *
 from lfw.lfw_helper import *
 from datetime import datetime
+from six import iteritems
+from subprocess import Popen, PIPE
 from pdb import set_trace as bp
 
 
@@ -46,12 +48,6 @@ def train(args, model, device, train_loader, loss_softmax, loss_arcface, optimiz
             print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
                 epoch, batch_idx * len(data), len(train_loader.dataset),
                 100. * batch_idx / len(train_loader), loss.item()))
-
-def save(args, model_dir, model, type, epoch):
-    if epoch % args.model_save_interval == 0 or epoch == args.epochs:
-        save_name = os.path.join(model_dir, type + '_' + str(epoch) + '.pth')
-        print("Saving Model name: " + str(save_name))
-        torch.save(model.state_dict(), save_name)        
 
 def test(args, model, device, test_loader, loss_softmax, loss_arcface, epoch):
     if epoch % args.test_interval == 0 or epoch == args.epochs:
@@ -90,21 +86,75 @@ def validate_lfw(args, model, lfw_loader, lfw_dataset, device, epoch):
 
 ###################################################################
 
+def save_model(args, model_dir, model, type, epoch):
+    if epoch % args.model_save_interval == 0 or epoch == args.epochs:
+        save_name = os.path.join(model_dir, type + '_' + str(epoch) + '.pth')
+        print("Saving Model name: " + str(save_name))
+        torch.save(model.state_dict(), save_name)        
+
+def write_arguments_to_file(args, filename):
+    with open(filename, 'w') as f:
+        for key, value in iteritems(vars(args)):
+            f.write('%s: %s\n' % (key, str(value)))
+
+def store_revision_info(src_path, output_dir, arg_string):
+    try:
+        # Get git hash
+        cmd = ['git', 'rev-parse', 'HEAD']
+        gitproc = Popen(cmd, stdout = PIPE, cwd=src_path)
+        (stdout, _) = gitproc.communicate()
+        git_hash = stdout.strip()
+    except OSError as e:
+        git_hash = ' '.join(cmd) + ': ' +  e.strerror
+  
+    try:
+        # Get local changes
+        cmd = ['git', 'diff', 'HEAD']
+        gitproc = Popen(cmd, stdout = PIPE, cwd=src_path)
+        (stdout, _) = gitproc.communicate()
+        git_diff = stdout.strip()
+    except OSError as e:
+        git_diff = ' '.join(cmd) + ': ' +  e.strerror
+    
+    # Store a text file in the log directory
+    rev_info_filename = os.path.join(output_dir, 'revision_info.txt')
+    with open(rev_info_filename, "w") as text_file:
+        text_file.write('arguments: %s\n--------------------\n' % arg_string)
+        text_file.write('pytorch version: %s\n--------------------\n' % torch.__version__)  # @UndefinedVariable
+        text_file.write('git hash: %s\n--------------------\n' % git_hash)
+        text_file.write('%s' % git_diff)
+
+###################################################################
+
 def main(args):
+
+    # Dirs
+    subdir = datetime.strftime(datetime.now(), '%Y%m%d-%H%M%S')
+    out_dir = os.path.join(os.path.expanduser(args.out_dir), subdir)
+    if not os.path.isdir(out_dir):  # Create the out directory if it doesn't exist
+        os.makedirs(out_dir)
+    model_dir = os.path.join(os.path.expanduser(out_dir), 'model')
+    if not os.path.isdir(model_dir):  # Create the model directory if it doesn't exist
+        os.makedirs(model_dir)
+
+    # stat_file_name = os.path.join(out_dir, 'stat.h5')
+
+    # Write arguments to a text file
+    write_arguments_to_file(args, os.path.join(out_dir, 'arguments.txt'))
+        
+    # Store some git revision info in a text file in the log directory
+    src_path,_ = os.path.split(os.path.realpath(__file__))
+    store_revision_info(src_path, out_dir, ' '.join(sys.argv))
+
+
+    ################################################
+    ################### Pytorch: ###################
+    ################################################
+
     print("Pytorch version:  " + str(torch.__version__))
     use_cuda = torch.cuda.is_available()
     print("Use CUDA: " + str(use_cuda))
 
-    # Dirs
-    subdir = datetime.strftime(datetime.now(), '%Y%m%d-%H%M%S')
-    log_dir = os.path.join(os.path.expanduser(args.logs_out_dir), subdir)
-    if not os.path.isdir(log_dir):  # Create the log directory if it doesn't exist
-        os.makedirs(log_dir)
-    model_dir = os.path.join(os.path.expanduser(args.checkpoints_out_dir), subdir)
-    if not os.path.isdir(model_dir):  # Create the model directory if it doesn't exist
-        os.makedirs(model_dir)
-
-    
     device = torch.device("cuda" if use_cuda else "cpu")
 
     ####### Data setup
@@ -145,18 +195,16 @@ def main(args):
         sheduler_arcface.step()
         
         # train(args, model, device, train_loader, loss_softmax, loss_arcface, optimizer_nn, optimzer_arcface, epoch)
-        save(args, model_dir, model, args.model_type, epoch)
+        save_model(args, model_dir, model, args.model_type, epoch)
         # test(args, model, device, test_loader, loss_softmax, loss_arcface, epoch)
         # validate_lfw(args, model, lfw_loader, lfw_dataset, device, epoch)
 
 
 def parse_arguments(argv):
     parser = argparse.ArgumentParser()
-    # Logs    
-    parser.add_argument('--logs_out_dir', type=str, 
-        help='Directory where to write event logs.', default='./out_logs')
-    parser.add_argument('--checkpoints_out_dir', type=str,
-        help='Directory where to write trained models.', default='./out_checkpoints')
+    # Out    
+    parser.add_argument('--out_dir', type=str, 
+        help='Directory where to trained models and event logs.', default='./out')
 
     # Training
     parser.add_argument('--epochs', type=int,
