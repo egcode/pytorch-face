@@ -18,6 +18,7 @@ from models.net import Net
 from models.resnet import *
 from lfw.lfw_pytorch import *
 from lfw.lfw_helper import *
+from datetime import datetime
 from pdb import set_trace as bp
 
 
@@ -82,11 +83,11 @@ def validate_lfw(args, model, lfw_loader, lfw_dataset, device, epoch):
         # eer = brentq(lambda x: 1. - x - interpolate.interp1d(fpr, tpr)(x), 0., 1.)
         # print('Equal Error Rate (EER): %1.3f' % eer)
 
-def save(args, model, type, epoch):
+def save(args, model_dir, model, type, epoch):
     if epoch % args.model_save_interval == 0 or epoch == args.epochs:
-        save_name = os.path.join('checkpoints', type + '_' + str(epoch) + '.pth')
-        print("Save Model name: " + str(save_name))
-        # torch.save(model.state_dict(), save_name)        
+        save_name = os.path.join(model_dir, type + '_' + str(epoch) + '.pth')
+        print("Saving Model name: " + str(save_name))
+        torch.save(model.state_dict(), save_name)        
 
 ###################################################################
 
@@ -95,23 +96,36 @@ def main(args):
     use_cuda = torch.cuda.is_available()
     print("Use CUDA: " + str(use_cuda))
 
+    # Dirs
+    subdir = datetime.strftime(datetime.now(), '%Y%m%d-%H%M%S')
+    log_dir = os.path.join(os.path.expanduser(args.logs_out_dir), subdir)
+    if not os.path.isdir(log_dir):  # Create the log directory if it doesn't exist
+        os.makedirs(log_dir)
+    model_dir = os.path.join(os.path.expanduser(args.checkpoints_out_dir), subdir)
+    if not os.path.isdir(model_dir):  # Create the model directory if it doesn't exist
+        os.makedirs(model_dir)
+
+    
     device = torch.device("cuda" if use_cuda else "cpu")
 
     ####### Data setup
+    print('Data directory: %s' % args.data_dir)
     train_loader, test_loader = get_data(args.data_dir, device, args.num_workers, args.batch_size, args.batch_size_test)
 
     ######## LFW Data setup
+    print('LFW directory: %s' % args.lfw_dir)
     lfw_dataset = LFW(lfw_dir=args.lfw_dir, lfw_pairs=args.lfw_pairs)
     lfw_loader = torch.utils.data.DataLoader(lfw_dataset, batch_size=args.lfw_batch_size, shuffle=False, num_workers=args.num_workers)
     
     ####### Model setup
+    print('Model type: %s' % args.model_type)
     if args.model_type == 'resnet18':
         model = resnet18()
     elif args.model_type == 'resnet34':
         model = resnet34()
     elif args.model_type == 'resnet50':
         model = resnet50()
-
+    
     # model = Net(features_dim=args.features_dim)
     model = model.to(device)
 
@@ -132,13 +146,19 @@ def main(args):
         sheduler_arcface.step()
         
         # train(args, model, device, train_loader, loss_softmax, loss_arcface, optimizer_nn, optimzer_arcface, epoch)
-        save(args, model, args.model_type, epoch)
+        save(args, model_dir, model, args.model_type, epoch)
         # test(args, model, device, test_loader, loss_softmax, loss_arcface, epoch)
         # validate_lfw(args, model, lfw_loader, lfw_dataset, device, epoch)
 
 
 def parse_arguments(argv):
     parser = argparse.ArgumentParser()
+    # Logs    
+    parser.add_argument('--logs_out_dir', type=str, 
+        help='Directory where to write event logs.', default='./out_logs')
+    parser.add_argument('--checkpoints_out_dir', type=str,
+        help='Directory where to write trained models.', default='./out_checkpoints')
+
     # Training
     parser.add_argument('--epochs', type=int,
         help='Training epochs training.', default=13)
