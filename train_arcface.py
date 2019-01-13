@@ -20,10 +20,6 @@ from lfw.lfw_pytorch import *
 from lfw.lfw_helper import *
 from pdb import set_trace as bp
 
-print("Pytorch version:  " + str(torch.__version__))
-use_cuda = torch.cuda.is_available()
-print("Use CUDA: " + str(use_cuda))
-
 
 BATCH_SIZE = 11
 FEATURES_DIM = 512
@@ -111,7 +107,10 @@ def save_model(args, model, type, epoch):
 
 
 def main(args):
-    
+    print("Pytorch version:  " + str(torch.__version__))
+    use_cuda = torch.cuda.is_available()
+    print("Use CUDA: " + str(use_cuda))
+
     device = torch.device("cuda" if use_cuda else "cpu")
 
     ####### Data setup
