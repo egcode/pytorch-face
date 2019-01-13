@@ -12,26 +12,23 @@ import numpy as np
 import math
 import argparse
 from sklearn import metrics
-
 from losses.Arcface_loss import Arcface_loss
 from dataset.get_data import get_data
 from models.net import Net
 from models.resnet import *
-
 from lfw.lfw_pytorch import *
 from lfw.lfw_helper import *
+from pdb import set_trace as bp
 
 print("Pytorch version:  " + str(torch.__version__))
 use_cuda = torch.cuda.is_available()
 print("Use CUDA: " + str(use_cuda))
 
-from pdb import set_trace as bp
 
 BATCH_SIZE = 11
 FEATURES_DIM = 512
 NUM_OF_CLASSES = 10
 BATCH_SIZE_TEST = 1000
-EPOCHS = 20
 LOG_INTERVAL = 10
 NUM_WORKERS = 2
 DATA_DIR = '../Computer-Vision/datasets/CASIA-WebFace_160'
@@ -41,11 +38,8 @@ MODEL_TYPE = 'resnet18'
 # MODEL_TYPE = 'resnet34'
 # MODEL_TYPE = 'resnet50'
 
-MODEL_SAVE_INTERVAL = 1
-TEST_INTERVAL = 1
-LFW_INTERVAL = 1
 
-def train(model, device, train_loader, loss_softmax, loss_arcface, optimizer_nn, optimzer_arcface, epoch):
+def train(args, model, device, train_loader, loss_softmax, loss_arcface, optimizer_nn, optimzer_arcface, epoch):
     model.train()
     for batch_idx, (data, target) in enumerate(train_loader):
         data, target = data.to(device), target.to(device)
@@ -71,8 +65,8 @@ def train(model, device, train_loader, loss_softmax, loss_arcface, optimizer_nn,
                 100. * batch_idx / len(train_loader), loss.item()))
 
 
-def test(model, device, test_loader, loss_softmax, loss_arcface, epoch):
-    if epoch % TEST_INTERVAL == 0 or epoch == EPOCHS:
+def test(args, model, device, test_loader, loss_softmax, loss_arcface, epoch):
+    if epoch % args.test_interval == 0 or epoch == args.epochs:
         model.eval()
         correct = 0
         total = 0
@@ -91,7 +85,7 @@ def test(model, device, test_loader, loss_softmax, loss_arcface, epoch):
             100. * correct / len(test_loader.dataset)))    
 
 def validate_lfw(args, model, lfw_loader, lfw_dataset, device, epoch):
-    if epoch % LFW_INTERVAL == 0 or epoch == EPOCHS:
+    if epoch % args.lfw_interval == 0 or epoch == args.epochs:
         model.eval()
         embedding_size = model.fc5.out_features
 
@@ -107,10 +101,10 @@ def validate_lfw(args, model, lfw_loader, lfw_dataset, device, epoch):
         # print('Equal Error Rate (EER): %1.3f' % eer)
 
 
-def save_model(model, type, epoch):
+def save_model(args, model, type, epoch):
     # save_name = os.path.join(save_path, name + '_' + str(iter_cnt) + '.pth')
     # torch.save(model.state_dict(), save_name)
-    if epoch % MODEL_SAVE_INTERVAL == 0 or epoch == EPOCHS:
+    if epoch % args.model_save_interval == 0 or epoch == args.epochs:
         save_name = os.path.join('checkpoints', type + '_' + str(epoch) + '.pth')
         print("Save Model name: " + str(save_name))
 ###################################################################
@@ -150,14 +144,14 @@ def main(args):
     sheduler_arcface = lr_scheduler.StepLR(optimzer_arcface, 20, gamma=0.1)
 
 
-    for epoch in range(1, EPOCHS + 1):
+    for epoch in range(1, args.epochs + 1):
         sheduler_nn.step()
         sheduler_arcface.step()
         
-        # train(model, device, train_loader, loss_softmax, loss_arcface, optimizer_nn, optimzer_arcface, epoch)
-        # test(model, device, test_loader, loss_softmax, loss_arcface, epoch)
-        validate_lfw(args, model, lfw_loader, lfw_dataset, device, epoch)
-        # save_model(model, MODEL_TYPE, epoch)
+        # train(args, model, device, train_loader, loss_softmax, loss_arcface, optimizer_nn, optimzer_arcface, epoch)
+        # test(args, model, device, test_loader, loss_softmax, loss_arcface, epoch)
+        # validate_lfw(args, model, lfw_loader, lfw_dataset, device, epoch)
+        save_model(args, model, MODEL_TYPE, epoch)
 
     # torch.save(model.state_dict(),"resnet18-model-arcface.pth")        
     # torch.save(loss_arcface.state_dict(),"resnet18_loss-arcface.pth")        
@@ -165,6 +159,16 @@ def main(args):
 
 def parse_arguments(argv):
     parser = argparse.ArgumentParser()
+
+    parser.add_argument('--epochs', type=int,
+        help='Training epochs training.', default=13)
+
+    parser.add_argument('--model_save_interval', type=int,
+        help='Save model with every interval epochs.', default=1)
+    parser.add_argument('--test_interval', type=int,
+        help='Perform test with every interval epochs.', default=1)
+    parser.add_argument('--lfw_interval', type=int,
+        help='Perform LFW test with every interval epochs.', default=1)
 
     # Parameters for validation on LFW
     parser.add_argument('--lfw_pairs', type=str,
