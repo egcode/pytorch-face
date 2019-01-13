@@ -82,7 +82,6 @@ def validate_lfw(args, model, lfw_loader, lfw_dataset, device, epoch):
         # eer = brentq(lambda x: 1. - x - interpolate.interp1d(fpr, tpr)(x), 0., 1.)
         # print('Equal Error Rate (EER): %1.3f' % eer)
 
-
 def save(args, model, type, epoch):
     if epoch % args.model_save_interval == 0 or epoch == args.epochs:
         save_name = os.path.join('checkpoints', type + '_' + str(epoch) + '.pth')
@@ -90,7 +89,6 @@ def save(args, model, type, epoch):
         # torch.save(model.state_dict(), save_name)        
 
 ###################################################################
-
 
 def main(args):
     print("Pytorch version:  " + str(torch.__version__))
