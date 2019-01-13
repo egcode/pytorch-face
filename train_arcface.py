@@ -121,11 +121,11 @@ def main(args):
     lfw_loader = torch.utils.data.DataLoader(lfw_dataset, batch_size=args.lfw_batch_size, shuffle=False, num_workers=NUM_WORKERS)
     
     ####### Model setup
-    if MODEL_TYPE == 'resnet18':
+    if args.model_type == 'resnet18':
         model = resnet18()
-    elif MODEL_TYPE == 'resnet34':
+    elif args.model_type == 'resnet34':
         model = resnet34()
-    elif MODEL_TYPE == 'resnet50':
+    elif args.model_type == 'resnet50':
         model = resnet50()
 
     # model = Net(features_dim=FEATURES_DIM)
@@ -161,6 +161,9 @@ def parse_arguments(argv):
 
     parser.add_argument('--epochs', type=int,
         help='Training epochs training.', default=13)
+
+    parser.add_argument('--model_type', type=str,
+        help='Model type to use for training.', default='resnet18')
 
     parser.add_argument('--model_save_interval', type=int,
         help='Save model with every interval epochs.', default=1)
