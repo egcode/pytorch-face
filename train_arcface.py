@@ -83,12 +83,12 @@ def validate_lfw(args, model, lfw_loader, lfw_dataset, device, epoch):
         # print('Equal Error Rate (EER): %1.3f' % eer)
 
 
-def save_model(args, model, type, epoch):
-    # save_name = os.path.join(save_path, name + '_' + str(iter_cnt) + '.pth')
-    # torch.save(model.state_dict(), save_name)
+def save(args, model, type, epoch):
     if epoch % args.model_save_interval == 0 or epoch == args.epochs:
         save_name = os.path.join('checkpoints', type + '_' + str(epoch) + '.pth')
         print("Save Model name: " + str(save_name))
+        # torch.save(model.state_dict(), save_name)        
+
 ###################################################################
 
 
@@ -134,12 +134,9 @@ def main(args):
         sheduler_arcface.step()
         
         # train(args, model, device, train_loader, loss_softmax, loss_arcface, optimizer_nn, optimzer_arcface, epoch)
+        save(args, model, args.model_type, epoch)
         # test(args, model, device, test_loader, loss_softmax, loss_arcface, epoch)
         # validate_lfw(args, model, lfw_loader, lfw_dataset, device, epoch)
-        save_model(args, model, args.model_type, epoch)
-
-    # torch.save(model.state_dict(),"resnet18-model-arcface.pth")        
-    # torch.save(loss_arcface.state_dict(),"resnet18_loss-arcface.pth")        
 
 
 def parse_arguments(argv):
@@ -157,7 +154,7 @@ def parse_arguments(argv):
     parser.add_argument('--batch_size', type=int,
         help='Number of batches while training model.', default=11)
     parser.add_argument('--batch_size_test', type=int,
-        help='Number of batches while testing model.', default=1000)
+        help='Number of batches while testing model.', default=64)
     # Model
     parser.add_argument('--model_type', type=str,
         help='Model type to use for training.', default='resnet18')
