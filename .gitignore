@@ -4,6 +4,10 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Models out
+out_logs/
+out_checkpoints/
+
 data/
 # C extensions
 *.so
