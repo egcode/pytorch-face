@@ -21,20 +21,6 @@ from lfw.lfw_helper import *
 from pdb import set_trace as bp
 
 
-BATCH_SIZE = 11
-FEATURES_DIM = 512
-NUM_OF_CLASSES = 10
-BATCH_SIZE_TEST = 1000
-LOG_INTERVAL = 10
-NUM_WORKERS = 2
-DATA_DIR = '../Computer-Vision/datasets/CASIA-WebFace_160'
-
-# MODEL_TYPE = 'resnet18_face'
-MODEL_TYPE = 'resnet18'
-# MODEL_TYPE = 'resnet34'
-# MODEL_TYPE = 'resnet50'
-
-
 def train(args, model, device, train_loader, loss_softmax, loss_arcface, optimizer_nn, optimzer_arcface, epoch):
     model.train()
     for batch_idx, (data, target) in enumerate(train_loader):
@@ -55,7 +41,7 @@ def train(args, model, device, train_loader, loss_softmax, loss_arcface, optimiz
         optimizer_nn.step()
         optimzer_arcface.step()
 
-        if batch_idx % LOG_INTERVAL == 0:
+        if batch_idx % args.log_interval == 0:
             print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
                 epoch, batch_idx * len(data), len(train_loader.dataset),
                 100. * batch_idx / len(train_loader), loss.item()))
@@ -114,11 +100,11 @@ def main(args):
     device = torch.device("cuda" if use_cuda else "cpu")
 
     ####### Data setup
-    train_loader, test_loader = get_data(DATA_DIR, device, NUM_WORKERS, BATCH_SIZE, BATCH_SIZE_TEST)
+    train_loader, test_loader = get_data(args.data_dir, device, args.num_workers, args.batch_size, args.batch_size_test)
 
     ######## LFW Data setup
     lfw_dataset = LFW(lfw_dir=args.lfw_dir, lfw_pairs=args.lfw_pairs)
-    lfw_loader = torch.utils.data.DataLoader(lfw_dataset, batch_size=args.lfw_batch_size, shuffle=False, num_workers=NUM_WORKERS)
+    lfw_loader = torch.utils.data.DataLoader(lfw_dataset, batch_size=args.lfw_batch_size, shuffle=False, num_workers=args.num_workers)
     
     ####### Model setup
     if args.model_type == 'resnet18':
@@ -128,11 +114,11 @@ def main(args):
     elif args.model_type == 'resnet50':
         model = resnet50()
 
-    # model = Net(features_dim=FEATURES_DIM)
+    # model = Net(features_dim=args.features_dim)
     model = model.to(device)
 
     loss_softmax = nn.CrossEntropyLoss().to(device)
-    loss_arcface = Arcface_loss(num_classes=len(train_loader.dataset.classes), feat_dim=FEATURES_DIM, device=device).to(device)
+    loss_arcface = Arcface_loss(num_classes=len(train_loader.dataset.classes), feat_dim=args.features_dim, device=device).to(device)
 
     # optimzer nn
     optimizer_nn = optim.SGD(model.parameters(), lr=0.001, momentum=0.9, weight_decay=0.0005)
@@ -150,7 +136,7 @@ def main(args):
         # train(args, model, device, train_loader, loss_softmax, loss_arcface, optimizer_nn, optimzer_arcface, epoch)
         # test(args, model, device, test_loader, loss_softmax, loss_arcface, epoch)
         # validate_lfw(args, model, lfw_loader, lfw_dataset, device, epoch)
-        save_model(args, model, MODEL_TYPE, epoch)
+        save_model(args, model, args.model_type, epoch)
 
     # torch.save(model.state_dict(),"resnet18-model-arcface.pth")        
     # torch.save(loss_arcface.state_dict(),"resnet18_loss-arcface.pth")        
@@ -158,21 +144,33 @@ def main(args):
 
 def parse_arguments(argv):
     parser = argparse.ArgumentParser()
-
+    # Training
     parser.add_argument('--epochs', type=int,
         help='Training epochs training.', default=13)
-
+    parser.add_argument('--log_interval', type=int,
+        help='Perform logs every interval epochs .', default=10)
+    # Data
+    parser.add_argument('--data_dir', type=str,
+        help='Path to the data directory containing aligned face patches.', default='../Computer-Vision/datasets/CASIA-WebFace_160')
+    parser.add_argument('--num_workers', type=int,
+        help='Number of threads to use for data pipeline.', default=4)
+    parser.add_argument('--batch_size', type=int,
+        help='Number of batches while training model.', default=11)
+    parser.add_argument('--batch_size_test', type=int,
+        help='Number of batches while testing model.', default=1000)
+    # Model
     parser.add_argument('--model_type', type=str,
         help='Model type to use for training.', default='resnet18')
-
+    parser.add_argument('--features_dim', type=int,
+        help='Number of features for arcface loss.', default=512)
+    # Intervals
     parser.add_argument('--model_save_interval', type=int,
         help='Save model with every interval epochs.', default=1)
     parser.add_argument('--test_interval', type=int,
         help='Perform test with every interval epochs.', default=1)
     parser.add_argument('--lfw_interval', type=int,
         help='Perform LFW test with every interval epochs.', default=1)
-
-    # Parameters for validation on LFW
+    # LFW
     parser.add_argument('--lfw_pairs', type=str,
         help='The file containing the pairs to use for validation.', default='lfw//pairs.txt')
     parser.add_argument('--lfw_dir', type=str,
