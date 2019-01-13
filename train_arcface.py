@@ -47,6 +47,11 @@ def train(args, model, device, train_loader, loss_softmax, loss_arcface, optimiz
                 epoch, batch_idx * len(data), len(train_loader.dataset),
                 100. * batch_idx / len(train_loader), loss.item()))
 
+def save(args, model_dir, model, type, epoch):
+    if epoch % args.model_save_interval == 0 or epoch == args.epochs:
+        save_name = os.path.join(model_dir, type + '_' + str(epoch) + '.pth')
+        print("Saving Model name: " + str(save_name))
+        torch.save(model.state_dict(), save_name)        
 
 def test(args, model, device, test_loader, loss_softmax, loss_arcface, epoch):
     if epoch % args.test_interval == 0 or epoch == args.epochs:
@@ -82,12 +87,6 @@ def validate_lfw(args, model, lfw_loader, lfw_dataset, device, epoch):
         print('Area Under Curve (AUC): %1.3f' % auc)
         # eer = brentq(lambda x: 1. - x - interpolate.interp1d(fpr, tpr)(x), 0., 1.)
         # print('Equal Error Rate (EER): %1.3f' % eer)
-
-def save(args, model_dir, model, type, epoch):
-    if epoch % args.model_save_interval == 0 or epoch == args.epochs:
-        save_name = os.path.join(model_dir, type + '_' + str(epoch) + '.pth')
-        print("Saving Model name: " + str(save_name))
-        torch.save(model.state_dict(), save_name)        
 
 ###################################################################
 
