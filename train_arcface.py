@@ -18,7 +18,8 @@ from models.net import Net
 from models.resnet import *
 from lfw.lfw_pytorch import *
 from lfw.lfw_helper import *
-from datetime import datetime
+from datetime import datetime, timedelta
+import time
 from six import iteritems
 from subprocess import Popen, PIPE
 from pdb import set_trace as bp
@@ -26,15 +27,18 @@ from pdb import set_trace as bp
 
 def train(args, model, device, train_loader, loss_softmax, loss_arcface, optimizer_nn, optimzer_arcface, log_file_path, epoch):
     model.train()
+    t = time.time()
     for batch_idx, (data, target) in enumerate(train_loader):
+        tt = time.time()
+
         data, target = data.to(device), target.to(device)
 
         features = model(data)
         logits = loss_arcface(features, target)
         loss = loss_softmax(logits, target)
 
-        _, predicted = torch.max(logits.data, 1)
-        accuracy = (target.data == predicted).float().mean()
+        # _, predicted = torch.max(logits.data, 1)
+        # accuracy = (target.data == predicted).float().mean()
 
         optimizer_nn.zero_grad()
         optimzer_arcface.zero_grad()
@@ -44,11 +48,16 @@ def train(args, model, device, train_loader, loss_softmax, loss_arcface, optimiz
         optimizer_nn.step()
         optimzer_arcface.step()
 
-        if batch_idx % args.log_interval == 0:
-            log = 'Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
-                epoch, batch_idx * len(data), len(train_loader.dataset),
-                100. * batch_idx / len(train_loader), loss.item())
-            print_and_log(log_file_path, log)
+        time_for_batch = int(time.time() - tt)
+
+        log = 'Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f} \tbatch_time: {}'.format(
+            epoch, batch_idx * len(data), len(train_loader.dataset),
+            100. * batch_idx / len(train_loader), loss.item(), timedelta(seconds=time_for_batch))
+        print_and_log(log_file_path, log)
+
+    time_for_epoch = int(time.time() - t)
+    print_and_log(log_file_path, 'Total time for epoch: {}'.format(timedelta(seconds=time_for_epoch)))
+
 
 def test(args, model, device, test_loader, loss_softmax, loss_arcface, log_file_path, epoch):
     if epoch % args.test_interval == 0 or epoch == args.epochs:
@@ -223,8 +232,6 @@ def parse_arguments(argv):
     # Training
     parser.add_argument('--epochs', type=int,
         help='Training epochs training.', default=13)
-    parser.add_argument('--log_interval', type=int,
-        help='Print and write to logs every interval epochs.', default=10)
     # Data
     parser.add_argument('--data_dir', type=str,
         help='Path to the data directory containing aligned face patches.', default='../Computer-Vision/datasets/CASIA-WebFace_160')
