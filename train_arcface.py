@@ -211,8 +211,8 @@ def main(args):
     model = model.to(device)
 
     loss_softmax = nn.CrossEntropyLoss().to(device)
-    loss_arcface = Arcface_loss(num_classes=len(train_loader.dataset.classes), feat_dim=args.features_dim, device=device).to(device)
-
+    loss_arcface = Arcface_loss(num_classes=len(train_loader.dataset.classes), feat_dim=args.features_dim, device=device, s=args.margin_s, m=args.margin_m).to(device)
+    
     # optimzer nn
     optimizer_nn = optim.SGD(model.parameters(), lr=args.model_lr, momentum=0.9, weight_decay=0.0005)
     # optimizer_nn = torch.optim.Adam(model.parameters(), lr=0.001)
@@ -235,59 +235,39 @@ def main(args):
 def parse_arguments(argv):
     parser = argparse.ArgumentParser()
     # Out    
-    parser.add_argument('--out_dir', type=str, 
-        help='Directory where to trained models and event logs.', default='./out')
+    parser.add_argument('--out_dir', type=str,  help='Directory where to trained models and event logs.', default='./out')
     # Training
-    parser.add_argument('--epochs', type=int,
-        help='Training epochs training.', default=13)
+    parser.add_argument('--epochs', type=int, help='Training epochs training.', default=13)
     # Data
-    parser.add_argument('--data_dir', type=str,
-        help='Path to the data directory containing aligned face patches.', default='../Computer-Vision/datasets/CASIA-WebFace_160')
-    parser.add_argument('--num_workers', type=int,
-        help='Number of threads to use for data pipeline.', default=4)
-    parser.add_argument('--batch_size', type=int,
-        help='Number of batches while training model.', default=64)
-    parser.add_argument('--batch_size_test', type=int,
-        help='Number of batches while testing model.', default=128)
+    parser.add_argument('--data_dir', type=str, help='Path to the data directory containing aligned face patches.', default='../Computer-Vision/datasets/CASIA-WebFace_160')
+    parser.add_argument('--num_workers', type=int, help='Number of threads to use for data pipeline.', default=4)
+    parser.add_argument('--batch_size', type=int, help='Number of batches while training model.', default=64)
+    parser.add_argument('--batch_size_test', type=int, help='Number of batches while testing model.', default=128)
     # Model
-    parser.add_argument('--model_type', type=str,
-        help='Model type to use for training.', default='resnet18')
-    parser.add_argument('--features_dim', type=int,
-        help='Number of features for arcface loss.', default=512)
+    parser.add_argument('--model_type', type=str, help='Model type to use for training.', default='resnet18')
+    parser.add_argument('--features_dim', type=int, help='Number of features for arcface loss.', default=512)
     # Model Optimizer
-    parser.add_argument('--model_lr', type=float,
-        help='Learing rate of model optimizer.', default=0.001)
-    parser.add_argument('--model_lr_step', type=int,
-        help='Learing rate of model optimizer.', default=20)
-    parser.add_argument('--model_lr_gamma', type=float,
-        help='Learing rate of model optimizer.', default=0.1)
+    parser.add_argument('--model_lr', type=float, help='Learing rate of model optimizer.', default=0.001)
+    parser.add_argument('--model_lr_step', type=int, help='Learing rate of model optimizer.', default=20)
+    parser.add_argument('--model_lr_gamma', type=float, help='Learing rate of model optimizer.', default=0.1)
+    # Loss 
+    parser.add_argument('--margin_s', type=float, help='scale for feature.', default=7.0)
+    parser.add_argument('--margin_m', type=float, help='margin for loss.', default=0.2)    
     # Loss Optimizer
-    parser.add_argument('--arcface_lr', type=float,
-        help='Learing rate of model optimizer.', default=0.01)
-    parser.add_argument('--arcface_lr_step', type=int,
-        help='Learing rate of model optimizer.', default=20)
-    parser.add_argument('--arcface_lr_gamma', type=float,
-        help='Learing rate of model optimizer.', default=0.1)
+    parser.add_argument('--arcface_lr', type=float, help='Learing rate of model optimizer.', default=0.01)
+    parser.add_argument('--arcface_lr_step', type=int, help='Learing rate of model optimizer.', default=20)
+    parser.add_argument('--arcface_lr_gamma', type=float, help='Learing rate of model optimizer.', default=0.1)
     # Intervals
-    parser.add_argument('--model_save_interval', type=int,
-        help='Save model with every interval epochs.', default=1)
-    parser.add_argument('--test_interval', type=int,
-        help='Perform test with every interval epochs.', default=1)
-    parser.add_argument('--lfw_interval', type=int,
-        help='Perform LFW test with every interval epochs.', default=1)
+    parser.add_argument('--model_save_interval', type=int, help='Save model with every interval epochs.', default=1)
+    parser.add_argument('--test_interval', type=int, help='Perform test with every interval epochs.', default=1)
+    parser.add_argument('--lfw_interval', type=int, help='Perform LFW test with every interval epochs.', default=1)
     # LFW
-    parser.add_argument('--lfw_pairs', type=str,
-        help='The file containing the pairs to use for validation.', default='lfw//pairs.txt')
-    parser.add_argument('--lfw_dir', type=str,
-        help='Path to the data directory containing aligned face patches.', default='../Computer-Vision/datasets/lfw_160')
-    parser.add_argument('--lfw_batch_size', type=int,
-        help='Number of images to process in a batch in the LFW test set.', default=100)
-    parser.add_argument('--lfw_nrof_folds', type=int,
-        help='Number of folds to use for cross validation. Mainly used for testing.', default=10)
-    parser.add_argument('--lfw_distance_metric', type=int,
-        help='Type of distance metric to use. 0: Euclidian, 1:Cosine similarity distance.', default=0)
-    parser.add_argument('--lfw_subtract_mean', 
-        help='Subtract feature mean before calculating distance.', action='store_true', default=False)
+    parser.add_argument('--lfw_pairs', type=str, help='The file containing the pairs to use for validation.', default='lfw//pairs.txt')
+    parser.add_argument('--lfw_dir', type=str, help='Path to the data directory containing aligned face patches.', default='../Computer-Vision/datasets/lfw_160')
+    parser.add_argument('--lfw_batch_size', type=int, help='Number of images to process in a batch in the LFW test set.', default=100)
+    parser.add_argument('--lfw_nrof_folds', type=int, help='Number of folds to use for cross validation. Mainly used for testing.', default=10)
+    parser.add_argument('--lfw_distance_metric', type=int, help='Type of distance metric to use. 0: Euclidian, 1:Cosine similarity distance.', default=0)
+    parser.add_argument('--lfw_subtract_mean', help='Subtract feature mean before calculating distance.', action='store_true', default=False)
     return parser.parse_args(argv)
   
 
