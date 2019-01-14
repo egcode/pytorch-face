@@ -62,6 +62,7 @@ def train(args, model, device, train_loader, loss_softmax, loss_arcface, optimiz
 def test(args, model, device, test_loader, loss_softmax, loss_arcface, log_file_path, epoch):
     if epoch % args.test_interval == 0 or epoch == args.epochs:
         model.eval()
+        t = time.time()
         correct = 0
         total = 0
         with torch.no_grad():
@@ -79,10 +80,15 @@ def test(args, model, device, test_loader, loss_softmax, loss_arcface, log_file_
             100. * correct / len(test_loader.dataset))
         print_and_log(log_file_path, log)
 
+        time_for_test = int(time.time() - t)
+        print_and_log(log_file_path, 'Total time for test: {}'.format(timedelta(seconds=time_for_test)))
+
 
 def validate_lfw(args, model, lfw_loader, lfw_dataset, device, log_file_path, epoch):
     if epoch % args.lfw_interval == 0 or epoch == args.epochs:
         model.eval()
+        t = time.time()
+
         embedding_size = model.fc5.out_features
 
         tpr, fpr, accuracy, val, val_std, far = lfw_validate_model(model, lfw_loader, lfw_dataset, embedding_size, device,
@@ -101,6 +107,8 @@ def validate_lfw(args, model, lfw_loader, lfw_dataset, device, log_file_path, ep
 
         # eer = brentq(lambda x: 1. - x - interpolate.interp1d(fpr, tpr)(x), 0., 1.)
         # print('Equal Error Rate (EER): %1.3f' % eer)
+        time_for_lfw = int(time.time() - t)
+        print_and_log(log_file_path, 'Total time for LFW evaluation: {}'.format(timedelta(seconds=time_for_lfw)))
 
 
 
