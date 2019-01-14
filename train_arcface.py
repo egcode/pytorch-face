@@ -224,7 +224,7 @@ def parse_arguments(argv):
     parser.add_argument('--epochs', type=int,
         help='Training epochs training.', default=13)
     parser.add_argument('--log_interval', type=int,
-        help='Perform logs every interval epochs .', default=10)
+        help='Print and write to logs every interval epochs.', default=10)
     # Data
     parser.add_argument('--data_dir', type=str,
         help='Path to the data directory containing aligned face patches.', default='../Computer-Vision/datasets/CASIA-WebFace_160')
