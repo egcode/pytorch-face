@@ -206,6 +206,9 @@ def main(args):
         model = resnet34()
     elif args.model_type == 'resnet50':
         model = resnet50()
+    elif args.model_type == 'resnet_face50':
+        model = resnet_face50()
+
     
     # model = Net(features_dim=args.features_dim)
     model = model.to(device)
@@ -241,18 +244,18 @@ def parse_arguments(argv):
     # Data
     parser.add_argument('--data_dir', type=str, help='Path to the data directory containing aligned face patches.', default='../Computer-Vision/datasets/CASIA-WebFace_160')
     parser.add_argument('--num_workers', type=int, help='Number of threads to use for data pipeline.', default=4)
-    parser.add_argument('--batch_size', type=int, help='Number of batches while training model.', default=64)
-    parser.add_argument('--batch_size_test', type=int, help='Number of batches while testing model.', default=128)
+    parser.add_argument('--batch_size', type=int, help='Number of batches while training model.', default=512)
+    parser.add_argument('--batch_size_test', type=int, help='Number of batches while testing model.', default=512)
     # Model
-    parser.add_argument('--model_type', type=str, help='Model type to use for training.', default='resnet18')
+    parser.add_argument('--model_type', type=str, help='Model type to use for training.', default='resnet_face50')
     parser.add_argument('--features_dim', type=int, help='Number of features for arcface loss.', default=512)
     # Model Optimizer
-    parser.add_argument('--model_lr', type=float, help='Learing rate of model optimizer.', default=0.001)
+    parser.add_argument('--model_lr', type=float, help='Learing rate of model optimizer.', default=0.1)
     parser.add_argument('--model_lr_step', type=int, help='Learing rate of model optimizer.', default=20)
     parser.add_argument('--model_lr_gamma', type=float, help='Learing rate of model optimizer.', default=0.1)
     # Loss 
-    parser.add_argument('--margin_s', type=float, help='scale for feature.', default=7.0)
-    parser.add_argument('--margin_m', type=float, help='margin for loss.', default=0.2)    
+    parser.add_argument('--margin_s', type=float, help='scale for feature.', default=64.0)
+    parser.add_argument('--margin_m', type=float, help='margin for loss.', default=0.5)    
     # Loss Optimizer
     parser.add_argument('--arcface_lr', type=float, help='Learing rate of model optimizer.', default=0.01)
     parser.add_argument('--arcface_lr_step', type=int, help='Learing rate of model optimizer.', default=20)
