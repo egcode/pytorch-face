@@ -164,9 +164,7 @@ def main(args):
 
     log_file_path = os.path.join(out_dir, 'training_log.txt')
 
-    ################################################
     ################### Pytorch: ###################
-    ################################################
     print_and_log(log_file_path, "Pytorch version:  " + str(torch.__version__))
     use_cuda = torch.cuda.is_available()
     print_and_log(log_file_path, "Use CUDA: " + str(use_cuda))
@@ -198,13 +196,13 @@ def main(args):
     loss_arcface = Arcface_loss(num_classes=len(train_loader.dataset.classes), feat_dim=args.features_dim, device=device).to(device)
 
     # optimzer nn
-    optimizer_nn = optim.SGD(model.parameters(), lr=0.001, momentum=0.9, weight_decay=0.0005)
-    sheduler_nn = lr_scheduler.StepLR(optimizer_nn, 20, gamma=0.1)
+    optimizer_nn = optim.SGD(model.parameters(), lr=args.model_lr, momentum=0.9, weight_decay=0.0005)
+    # optimizer_nn = torch.optim.Adam(model.parameters(), lr=0.001)
+    sheduler_nn = lr_scheduler.StepLR(optimizer_nn, args.model_lr_step, gamma=args.model_lr_gamma)
 
     # optimzer cosface or arcface
-    optimzer_arcface = optim.SGD(loss_arcface.parameters(), lr=0.01)
-    sheduler_arcface = lr_scheduler.StepLR(optimzer_arcface, 20, gamma=0.1)
-
+    optimzer_arcface = optim.SGD(loss_arcface.parameters(), lr=args.arcface_lr)
+    sheduler_arcface = lr_scheduler.StepLR(optimzer_arcface, args.arcface_lr_step, gamma=args.arcface_lr_gamma)
 
     for epoch in range(1, args.epochs + 1):
         sheduler_nn.step()
@@ -232,14 +230,28 @@ def parse_arguments(argv):
     parser.add_argument('--num_workers', type=int,
         help='Number of threads to use for data pipeline.', default=4)
     parser.add_argument('--batch_size', type=int,
-        help='Number of batches while training model.', default=11)
+        help='Number of batches while training model.', default=64)
     parser.add_argument('--batch_size_test', type=int,
-        help='Number of batches while testing model.', default=64)
+        help='Number of batches while testing model.', default=128)
     # Model
     parser.add_argument('--model_type', type=str,
         help='Model type to use for training.', default='resnet18')
     parser.add_argument('--features_dim', type=int,
         help='Number of features for arcface loss.', default=512)
+    # Model Optimizer
+    parser.add_argument('--model_lr', type=float,
+        help='Learing rate of model optimizer.', default=0.001)
+    parser.add_argument('--model_lr_step', type=int,
+        help='Learing rate of model optimizer.', default=20)
+    parser.add_argument('--model_lr_gamma', type=float,
+        help='Learing rate of model optimizer.', default=0.1)
+    # Loss Optimizer
+    parser.add_argument('--arcface_lr', type=float,
+        help='Learing rate of model optimizer.', default=0.01)
+    parser.add_argument('--arcface_lr_step', type=int,
+        help='Learing rate of model optimizer.', default=20)
+    parser.add_argument('--arcface_lr_gamma', type=float,
+        help='Learing rate of model optimizer.', default=0.1)
     # Intervals
     parser.add_argument('--model_save_interval', type=int,
         help='Save model with every interval epochs.', default=1)
