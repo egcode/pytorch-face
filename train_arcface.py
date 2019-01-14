@@ -24,7 +24,7 @@ from subprocess import Popen, PIPE
 from pdb import set_trace as bp
 
 
-def train(args, model, device, train_loader, loss_softmax, loss_arcface, optimizer_nn, optimzer_arcface, epoch):
+def train(args, model, device, train_loader, loss_softmax, loss_arcface, optimizer_nn, optimzer_arcface, log_file_path, epoch):
     model.train()
     for batch_idx, (data, target) in enumerate(train_loader):
         data, target = data.to(device), target.to(device)
@@ -45,11 +45,12 @@ def train(args, model, device, train_loader, loss_softmax, loss_arcface, optimiz
         optimzer_arcface.step()
 
         if batch_idx % args.log_interval == 0:
-            print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
+            log = 'Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
                 epoch, batch_idx * len(data), len(train_loader.dataset),
-                100. * batch_idx / len(train_loader), loss.item()))
+                100. * batch_idx / len(train_loader), loss.item())
+            print_and_log(log_file_path, log)
 
-def test(args, model, device, test_loader, loss_softmax, loss_arcface, epoch):
+def test(args, model, device, test_loader, loss_softmax, loss_arcface, log_file_path, epoch):
     if epoch % args.test_interval == 0 or epoch == args.epochs:
         model.eval()
         correct = 0
@@ -64,11 +65,13 @@ def test(args, model, device, test_loader, loss_softmax, loss_arcface, epoch):
                 total += target.size(0)
                 correct += (predicted == target.data).sum()
 
-        print('\nTest set:, Accuracy: {}/{} ({:.0f}%)\n'.format(
+        log = '\nTest set:, Accuracy: {}/{} ({:.0f}%)\n'.format(
             correct, len(test_loader.dataset),
-            100. * correct / len(test_loader.dataset)))    
+            100. * correct / len(test_loader.dataset))
+        print_and_log(log_file_path, log)
 
-def validate_lfw(args, model, lfw_loader, lfw_dataset, device, epoch):
+
+def validate_lfw(args, model, lfw_loader, lfw_dataset, device, log_file_path, epoch):
     if epoch % args.lfw_interval == 0 or epoch == args.epochs:
         model.eval()
         embedding_size = model.fc5.out_features
@@ -76,20 +79,28 @@ def validate_lfw(args, model, lfw_loader, lfw_dataset, device, epoch):
         tpr, fpr, accuracy, val, val_std, far = lfw_validate_model(model, lfw_loader, lfw_dataset, embedding_size, device,
                                                                     args.lfw_nrof_folds, args.lfw_distance_metric, args.lfw_subtract_mean)
 
-        print('\nEpoch: '+str(epoch))
-        print('Accuracy: %2.5f+-%2.5f' % (np.mean(accuracy), np.std(accuracy)))
-        print('Validation rate: %2.5f+-%2.5f @ FAR=%2.5f' % (val, val_std, far))
+        # print('\nEpoch: '+str(epoch))
+        # print('Accuracy: %2.5f+-%2.5f' % (np.mean(accuracy), np.std(accuracy)))
+        # print('Validation rate: %2.5f+-%2.5f @ FAR=%2.5f' % (val, val_std, far))
+        print_and_log(log_file_path, '\nEpoch: '+str(epoch))
+        print_and_log(log_file_path, 'Accuracy: %2.5f+-%2.5f' % (np.mean(accuracy), np.std(accuracy)))
+        print_and_log(log_file_path, 'Validation rate: %2.5f+-%2.5f @ FAR=%2.5f' % (val, val_std, far))
+
         auc = metrics.auc(fpr, tpr)
-        print('Area Under Curve (AUC): %1.3f' % auc)
+        # print('Area Under Curve (AUC): %1.3f' % auc)
+        print_and_log(log_file_path, 'Area Under Curve (AUC): %1.3f' % auc)
+
         # eer = brentq(lambda x: 1. - x - interpolate.interp1d(fpr, tpr)(x), 0., 1.)
         # print('Equal Error Rate (EER): %1.3f' % eer)
 
+
+
 ###################################################################
 
-def save_model(args, model_dir, model, type, epoch):
+def save_model(args, model_dir, model, type, log_file_path, epoch):
     if epoch % args.model_save_interval == 0 or epoch == args.epochs:
         save_name = os.path.join(model_dir, type + '_' + str(epoch) + '.pth')
-        print("Saving Model name: " + str(save_name))
+        print_and_log(log_file_path, "Saving Model name: " + str(save_name))
         torch.save(model.state_dict(), save_name)        
 
 def write_arguments_to_file(args, filename):
@@ -124,6 +135,11 @@ def store_revision_info(src_path, output_dir, arg_string):
         text_file.write('git hash: %s\n--------------------\n' % git_hash)
         text_file.write('%s' % git_diff)
 
+def print_and_log(log_file_path, string_to_write):
+    print(string_to_write)
+    with open(log_file_path, "a") as log_file:
+        log_file.write(string_to_write + "\n")
+
 ###################################################################
 
 def main(args):
@@ -146,14 +162,14 @@ def main(args):
     src_path,_ = os.path.split(os.path.realpath(__file__))
     store_revision_info(src_path, out_dir, ' '.join(sys.argv))
 
+    log_file_path = os.path.join(out_dir, 'training_log.txt')
 
     ################################################
     ################### Pytorch: ###################
     ################################################
-
-    print("Pytorch version:  " + str(torch.__version__))
+    print_and_log(log_file_path, "Pytorch version:  " + str(torch.__version__))
     use_cuda = torch.cuda.is_available()
-    print("Use CUDA: " + str(use_cuda))
+    print_and_log(log_file_path, "Use CUDA: " + str(use_cuda))
 
     device = torch.device("cuda" if use_cuda else "cpu")
 
@@ -194,10 +210,10 @@ def main(args):
         sheduler_nn.step()
         sheduler_arcface.step()
         
-        # train(args, model, device, train_loader, loss_softmax, loss_arcface, optimizer_nn, optimzer_arcface, epoch)
-        save_model(args, model_dir, model, args.model_type, epoch)
-        # test(args, model, device, test_loader, loss_softmax, loss_arcface, epoch)
-        # validate_lfw(args, model, lfw_loader, lfw_dataset, device, epoch)
+        train(args, model, device, train_loader, loss_softmax, loss_arcface, optimizer_nn, optimzer_arcface, log_file_path, epoch)
+        save_model(args, model_dir, model, args.model_type, log_file_path, epoch)
+        test(args, model, device, test_loader, loss_softmax, loss_arcface, log_file_path, epoch)
+        validate_lfw(args, model, lfw_loader, lfw_dataset, device, log_file_path, epoch)
 
 
 def parse_arguments(argv):
@@ -205,7 +221,6 @@ def parse_arguments(argv):
     # Out    
     parser.add_argument('--out_dir', type=str, 
         help='Directory where to trained models and event logs.', default='./out')
-
     # Training
     parser.add_argument('--epochs', type=int,
         help='Training epochs training.', default=13)
