@@ -138,7 +138,8 @@ def store_revision_info(src_path, output_dir, arg_string):
 def print_and_log(log_file_path, string_to_write):
     print(string_to_write)
     with open(log_file_path, "a") as log_file:
-        log_file.write(string_to_write + "\n")
+        t = "[" + str(datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S')) + "] " 
+        log_file.write(t + string_to_write + "\n")
 
 ###################################################################
 
