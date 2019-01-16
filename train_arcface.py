@@ -242,7 +242,7 @@ def parse_arguments(argv):
     # Training
     parser.add_argument('--epochs', type=int, help='Training epochs training.', default=13)
     # Data
-    parser.add_argument('--data_dir', type=str, help='Path to the data directory containing aligned face patches.', default='../Computer-Vision/datasets/CASIA-WebFace_160')
+    parser.add_argument('--data_dir', type=str, help='Path to the data directory containing aligned face patches.', default='../datasets/CASIA-WebFace_160')
     parser.add_argument('--num_workers', type=int, help='Number of threads to use for data pipeline.', default=4)
     parser.add_argument('--batch_size', type=int, help='Number of batches while training model.', default=512)
     parser.add_argument('--batch_size_test', type=int, help='Number of batches while testing model.', default=512)
@@ -266,7 +266,7 @@ def parse_arguments(argv):
     parser.add_argument('--lfw_interval', type=int, help='Perform LFW test with every interval epochs.', default=1)
     # LFW
     parser.add_argument('--lfw_pairs', type=str, help='The file containing the pairs to use for validation.', default='lfw//pairs.txt')
-    parser.add_argument('--lfw_dir', type=str, help='Path to the data directory containing aligned face patches.', default='../Computer-Vision/datasets/lfw_160')
+    parser.add_argument('--lfw_dir', type=str, help='Path to the data directory containing aligned face patches.', default='../datasets/lfw_160')
     parser.add_argument('--lfw_batch_size', type=int, help='Number of images to process in a batch in the LFW test set.', default=100)
     parser.add_argument('--lfw_nrof_folds', type=int, help='Number of folds to use for cross validation. Mainly used for testing.', default=10)
     parser.add_argument('--lfw_distance_metric', type=int, help='Type of distance metric to use. 0: Euclidian, 1:Cosine similarity distance.', default=0)
