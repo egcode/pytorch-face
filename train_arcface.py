@@ -28,6 +28,7 @@ from pdb import set_trace as bp
 def train(args, model, device, train_loader, loss_softmax, loss_arcface, optimizer_nn, optimzer_arcface, log_file_path, model_dir, logger, epoch):
     model.train()
     t = time.time()
+    log_loss = 0
     for batch_idx, (data, target) in enumerate(train_loader):
         tt = time.time()
 
@@ -52,7 +53,9 @@ def train(args, model, device, train_loader, loss_softmax, loss_arcface, optimiz
             100. * batch_idx / len(train_loader), loss.item(), timedelta(seconds=time_for_batch))
         print_and_log(log_file_path, log)
 
-        logger.scalar_summary("loss", loss.item(), epoch)
+        log_loss = loss.item()
+
+    logger.scalar_summary("loss", log_loss, epoch)
 
     time_for_epoch = int(time.time() - t)
     print_and_log(log_file_path, 'Total time for epoch: {}'.format(timedelta(seconds=time_for_epoch)))
