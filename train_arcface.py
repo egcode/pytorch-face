@@ -202,7 +202,7 @@ def parse_arguments(argv):
     # Out    
     parser.add_argument('--out_dir', type=str,  help='Directory where to trained models and event logs.', default='./out')
     # Training
-    parser.add_argument('--epochs', type=int, help='Training epochs training.', default=13)
+    parser.add_argument('--epochs', type=int, help='Training epochs training.', default=32000)
     # Data
     parser.add_argument('--data_dir', type=str, help='Path to the data directory containing aligned face patches.', default='../datasets/CASIA-WebFace_160')
     parser.add_argument('--num_workers', type=int, help='Number of threads to use for data pipeline.', default=4)
@@ -213,14 +213,14 @@ def parse_arguments(argv):
     parser.add_argument('--features_dim', type=int, help='Number of features for arcface loss.', default=512)
     # Model Optimizer
     parser.add_argument('--model_lr', type=float, help='Learing rate of model optimizer.', default=0.1)
-    parser.add_argument('--model_lr_step', type=int, help='Learing rate of model optimizer.', default=20)
+    parser.add_argument('--model_lr_step', type=int, help='Learing rate of model optimizer.', default=20000)
     parser.add_argument('--model_lr_gamma', type=float, help='Learing rate of model optimizer.', default=0.1)
     # Loss 
     parser.add_argument('--margin_s', type=float, help='scale for feature.', default=64.0)
     parser.add_argument('--margin_m', type=float, help='margin for loss.', default=0.5)    
     # Loss Optimizer
     parser.add_argument('--arcface_lr', type=float, help='Learing rate of model optimizer.', default=0.01)
-    parser.add_argument('--arcface_lr_step', type=int, help='Learing rate of model optimizer.', default=20)
+    parser.add_argument('--arcface_lr_step', type=int, help='Learing rate of model optimizer.', default=20000)
     parser.add_argument('--arcface_lr_gamma', type=float, help='Learing rate of model optimizer.', default=0.1)
     # Intervals
     parser.add_argument('--model_save_interval', type=int, help='Save model with every interval epochs.', default=1)
