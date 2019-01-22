@@ -18,13 +18,14 @@ from models.net import Net
 from models.resnet import *
 from lfw.lfw_pytorch import *
 from lfw.lfw_helper import *
-from train_helpers import *
+from helpers import *
 from datetime import datetime, timedelta
 import time
+from logger import Logger
 from pdb import set_trace as bp
 
 
-def train(args, model, device, train_loader, loss_softmax, loss_arcface, optimizer_nn, optimzer_arcface, log_file_path, epoch):
+def train(args, model, device, train_loader, loss_softmax, loss_arcface, optimizer_nn, optimzer_arcface, log_file_path, model_dir, logger, epoch):
     model.train()
     t = time.time()
     for batch_idx, (data, target) in enumerate(train_loader):
@@ -35,9 +36,6 @@ def train(args, model, device, train_loader, loss_softmax, loss_arcface, optimiz
         features = model(data)
         logits = loss_arcface(features, target)
         loss = loss_softmax(logits, target)
-
-        # _, predicted = torch.max(logits.data, 1)
-        # accuracy = (target.data == predicted).float().mean()
 
         optimizer_nn.zero_grad()
         optimzer_arcface.zero_grad()
@@ -54,11 +52,14 @@ def train(args, model, device, train_loader, loss_softmax, loss_arcface, optimiz
             100. * batch_idx / len(train_loader), loss.item(), timedelta(seconds=time_for_batch))
         print_and_log(log_file_path, log)
 
+        logger.scalar_summary("loss", loss.item(), epoch)
+
     time_for_epoch = int(time.time() - t)
     print_and_log(log_file_path, 'Total time for epoch: {}'.format(timedelta(seconds=time_for_epoch)))
 
+    save_model(args, model_dir, model, log_file_path, epoch)
 
-def test(args, model, device, test_loader, loss_softmax, loss_arcface, log_file_path, epoch):
+def test(args, model, device, test_loader, loss_softmax, loss_arcface, log_file_path, logger, epoch):
     if epoch % args.test_interval == 0 or epoch == args.epochs:
         model.eval()
         t = time.time()
@@ -74,16 +75,19 @@ def test(args, model, device, test_loader, loss_softmax, loss_arcface, log_file_
                 total += target.size(0)
                 correct += (predicted == target.data).sum()
 
+        accuracy = 100. * correct / len(test_loader.dataset)
         log = '\nTest set:, Accuracy: {}/{} ({:.0f}%)\n'.format(
             correct, len(test_loader.dataset),
-            100. * correct / len(test_loader.dataset))
+            accuracy)
         print_and_log(log_file_path, log)
+
+        logger.scalar_summary("accuracy", accuracy, epoch)
 
         time_for_test = int(time.time() - t)
         print_and_log(log_file_path, 'Total time for test: {}'.format(timedelta(seconds=time_for_test)))
 
 
-def validate_lfw(args, model, lfw_loader, lfw_dataset, device, log_file_path, epoch):
+def validate_lfw(args, model, lfw_loader, lfw_dataset, device, log_file_path, logger, epoch):
     if epoch % args.lfw_interval == 0 or epoch == args.epochs:
         model.eval()
         t = time.time()
@@ -108,6 +112,11 @@ def validate_lfw(args, model, lfw_loader, lfw_dataset, device, log_file_path, ep
         # print('Equal Error Rate (EER): %1.3f' % eer)
         time_for_lfw = int(time.time() - t)
         print_and_log(log_file_path, 'Total time for LFW evaluation: {}'.format(timedelta(seconds=time_for_lfw)))
+
+        logger.scalar_summary("lfw_accuracy", np.mean(accuracy), epoch)
+        logger.scalar_summary("Validation_rate", val, epoch)
+        logger.scalar_summary("FAR", far, epoch)
+        logger.scalar_summary("Area_under_curve", auc, epoch)
 
 
 def main(args):
@@ -134,6 +143,7 @@ def main(args):
     store_revision_info(src_path, out_dir, ' '.join(sys.argv))
 
     log_file_path = os.path.join(out_dir, 'training_log.txt')
+    logger = Logger(tensorboard_dir)
 
     ################### Pytorch: ###################
     print_and_log(log_file_path, "Pytorch version:  " + str(torch.__version__))
@@ -182,10 +192,9 @@ def main(args):
         sheduler_nn.step()
         sheduler_arcface.step()
         
-        train(args, model, device, train_loader, loss_softmax, loss_arcface, optimizer_nn, optimzer_arcface, log_file_path, epoch)
-        save_model(args, model_dir, model, args.model_type, log_file_path, epoch)
-        test(args, model, device, test_loader, loss_softmax, loss_arcface, log_file_path, epoch)
-        validate_lfw(args, model, lfw_loader, lfw_dataset, device, log_file_path, epoch)
+        train(args, model, device, train_loader, loss_softmax, loss_arcface, optimizer_nn, optimzer_arcface, log_file_path, model_dir, logger, epoch)
+        test(args, model, device, test_loader, loss_softmax, loss_arcface, log_file_path, logger, epoch)
+        validate_lfw(args, model, lfw_loader, lfw_dataset, device, log_file_path, logger, epoch)
 
 
 def parse_arguments(argv):
