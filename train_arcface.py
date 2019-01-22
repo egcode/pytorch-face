@@ -223,9 +223,9 @@ def parse_arguments(argv):
     parser.add_argument('--arcface_lr_step', type=int, help='Learing rate of model optimizer.', default=20000)
     parser.add_argument('--arcface_lr_gamma', type=float, help='Learing rate of model optimizer.', default=0.1)
     # Intervals
-    parser.add_argument('--model_save_interval', type=int, help='Save model with every interval epochs.', default=1)
-    parser.add_argument('--test_interval', type=int, help='Perform test with every interval epochs.', default=1)
-    parser.add_argument('--lfw_interval', type=int, help='Perform LFW test with every interval epochs.', default=1)
+    parser.add_argument('--model_save_interval', type=int, help='Save model with every interval epochs.', default=10)
+    parser.add_argument('--test_interval', type=int, help='Perform test with every interval epochs.', default=10)
+    parser.add_argument('--lfw_interval', type=int, help='Perform LFW test with every interval epochs.', default=10)
     # LFW
     parser.add_argument('--lfw_pairs', type=str, help='The file containing the pairs to use for validation.', default='lfw//pairs.txt')
     parser.add_argument('--lfw_dir', type=str, help='Path to the data directory containing aligned face patches.', default='../datasets/lfw_160')
