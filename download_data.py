@@ -29,26 +29,43 @@ def download_file_from_google_drive(file_id, destination):
     
         URL = "https://drive.google.com/uc?export=download"
 
-        with open(destination, "wb") as f:
+        session = requests.Session()
+    
+        print("Downloading %s" % destination)
+        headers = {'Range':'bytes=0-'}
+        r = session.get(URL,headers=headers, params = { 'id' : file_id }, stream = True)
 
-            print("Downloading %s" % destination)
-            headers = {'Range':'bytes=0-'}
-            r = requests.get(URL,headers=headers, params = { 'id' : file_id }, stream=True)
-            rr = r.headers['Content-Range']
-            total_length=int(rr.partition('/')[-1])
+        token = get_confirm_token(r)
+        if token:
+            params = { 'id' : file_id, 'confirm' : token }
+            r = session.get(URL,headers=headers, params = params, stream = True)
+            save_response_content(r, destination)
+        else:
+            save_response_content(r, destination)
 
-            block_size = 1024
-            wrote = 0 
-            with open(destination, 'wb') as f:
-                for data in tqdm(r.iter_content(block_size), total=math.ceil(total_length//block_size) , unit='KB', unit_scale=True):
-                    wrote = wrote  + len(data)
-                    f.write(data)
-            if total_length != 0 and wrote != total_length:
-                print("ERROR, something went wrong")  
 
+def get_confirm_token(response):
+    for key, value in response.cookies.items():
+        if key.startswith('download_warning'):
+            return value
+    return None
+
+
+def save_response_content(r, destination):
+    rr = r.headers['Content-Range']
+    total_length=int(rr.partition('/')[-1])
+
+    block_size = 32768
+    wrote = 0 
+    with open(destination, 'wb') as f:
+        for data in tqdm(r.iter_content(block_size), total=math.ceil(total_length//block_size) , unit='KB', unit_scale=True):
+            wrote = wrote  + len(data)
+            f.write(data)
+    if total_length != 0 and wrote != total_length:
+        print("ERROR, something went wrong")  
 
 
 if __name__ == '__main__':
-    # download_and_extract_file('lfw_160', 'data/')
-    download_and_extract_file('go', 'data/')
-    # download_and_extract_file('CASIA_Webface_160', 'data/')
+    # download_and_extract_file('go', 'data/')
+    download_and_extract_file('lfw_160', 'data/')
+    download_and_extract_file('CASIA_Webface_160', 'data/')
