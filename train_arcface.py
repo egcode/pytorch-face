@@ -175,7 +175,9 @@ def main(args):
     elif args.model_type == 'resnet_face50':
         model = resnet_face50()
 
-    
+    if args.model_path != None:
+        model.load_state_dict(torch.load(args.model_path))
+
     # model = Net(features_dim=args.features_dim)
     model = model.to(device)
 
@@ -212,6 +214,7 @@ def parse_arguments(argv):
     parser.add_argument('--batch_size', type=int, help='Number of batches while training model.', default=512)
     parser.add_argument('--batch_size_test', type=int, help='Number of batches while testing model.', default=512)
     # Model
+    parser.add_argument('--model_path', type=str, help='Model weights if needed.', default=None)
     parser.add_argument('--model_type', type=str, help='Model type to use for training.', default='resnet_face50')
     parser.add_argument('--features_dim', type=int, help='Number of features for arcface loss.', default=512)
     # Model Optimizer
