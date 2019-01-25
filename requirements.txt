@@ -1,0 +1,6 @@
+torch
+torchvision
+tensorboard
+scipy
+scikit-learn
+requests
