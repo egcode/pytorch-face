@@ -4,3 +4,4 @@ tensorboard
 scipy
 scikit-learn
 requests
+opencv-python
