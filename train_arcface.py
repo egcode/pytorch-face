@@ -64,7 +64,7 @@ def train(args, model, device, train_loader, loss_softmax, loss_arcface, optimiz
     print_and_log(log_file_path, 'Total time for epoch: {}'.format(timedelta(seconds=time_for_epoch)))
 
     save_model(args, args.model_type, model_dir, model, log_file_path, epoch)
-    save_model(args, 'arcface', model_dir, model, log_file_path, epoch)
+    save_model(args, 'arcface', model_dir, loss_arcface, log_file_path, epoch)
 
 def test(args, model, device, test_loader, loss_softmax, loss_arcface, log_file_path, logger, epoch):
     if epoch % args.test_interval == 0 or epoch == args.epochs:
@@ -180,7 +180,10 @@ def main(args):
         model = resnet_face50()
 
     if args.model_path != None:
-        model.load_state_dict(torch.load(args.model_path))
+        if use_cuda:
+            model.load_state_dict(torch.load(args.model_path))
+        else:
+            model.load_state_dict(torch.load(args.model_path, map_location='cpu'))
 
     # model = Net(features_dim=args.features_dim)
     model = model.to(device)
@@ -189,7 +192,10 @@ def main(args):
     loss_arcface = Arcface_loss(num_classes=len(train_loader.dataset.classes), feat_dim=args.features_dim, device=device, s=args.margin_s, m=args.margin_m).to(device)
     
     if args.loss_path != None:
-        loss_arcface.load_state_dict(torch.load(args.loss_path))
+        if use_cuda:
+            loss_arcface.load_state_dict(torch.load(args.loss_path))
+        else:
+            loss_arcface.load_state_dict(torch.load(args.loss_path, map_location='cpu'))
 
     # optimzer nn
     optimizer_nn = optim.SGD(model.parameters(), lr=args.model_lr, momentum=0.9, weight_decay=0.0005)
