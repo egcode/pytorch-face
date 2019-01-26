@@ -44,9 +44,9 @@ def get_data(data_dir, device, num_workers, batch_size, batch_size_test):
                     for x in [TRAIN, TEST]}
 
     trainloader = torch.utils.data.DataLoader(image_datasets[TRAIN], batch_size=batch_size,
-                                                shuffle=False, num_workers=num_workers)
+                                                shuffle=True, num_workers=num_workers)
     testloader = torch.utils.data.DataLoader(image_datasets[TEST], batch_size=batch_size_test,
-                                                shuffle=False, num_workers=num_workers)
+                                                shuffle=True, num_workers=num_workers)
 
     # dataset_sizes = {x: len(image_datasets[x]) for x in ['train', 'test']}
 
