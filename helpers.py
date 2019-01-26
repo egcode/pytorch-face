@@ -9,9 +9,9 @@ from datetime import datetime
 
 ###################################################################
 
-def save_model(args, model_dir, model, log_file_path, epoch):
+def save_model(args, type, model_dir, model, log_file_path, epoch):
     if epoch % args.model_save_interval == 0 or epoch == args.epochs:
-        save_name = os.path.join(model_dir, args.model_type + '_' + str(epoch) + '.pth')
+        save_name = os.path.join(model_dir, type + '_' + str(epoch) + '.pth')
         print_and_log(log_file_path, "Saving Model name: " + str(save_name))
         torch.save(model.state_dict(), save_name)        
 

@@ -63,7 +63,8 @@ def train(args, model, device, train_loader, loss_softmax, loss_arcface, optimiz
     time_for_epoch = int(time.time() - t)
     print_and_log(log_file_path, 'Total time for epoch: {}'.format(timedelta(seconds=time_for_epoch)))
 
-    save_model(args, model_dir, model, log_file_path, epoch)
+    save_model(args, args.model_type, model_dir, model, log_file_path, epoch)
+    save_model(args, 'arcface', model_dir, model, log_file_path, epoch)
 
 def test(args, model, device, test_loader, loss_softmax, loss_arcface, log_file_path, logger, epoch):
     if epoch % args.test_interval == 0 or epoch == args.epochs:
@@ -187,6 +188,9 @@ def main(args):
     loss_softmax = nn.CrossEntropyLoss().to(device)
     loss_arcface = Arcface_loss(num_classes=len(train_loader.dataset.classes), feat_dim=args.features_dim, device=device, s=args.margin_s, m=args.margin_m).to(device)
     
+    if args.loss_path != None:
+        loss_arcface.load_state_dict(torch.load(args.loss_path))
+
     # optimzer nn
     optimizer_nn = optim.SGD(model.parameters(), lr=args.model_lr, momentum=0.9, weight_decay=0.0005)
     # optimizer_nn = torch.optim.Adam(model.parameters(), lr=0.001)
@@ -225,6 +229,7 @@ def parse_arguments(argv):
     parser.add_argument('--model_lr_step', type=int, help='Learing rate of model optimizer.', default=20000)
     parser.add_argument('--model_lr_gamma', type=float, help='Learing rate of model optimizer.', default=0.1)
     # Loss 
+    parser.add_argument('--loss_path', type=str, help='Loss weights if needed.', default=None)
     parser.add_argument('--margin_s', type=float, help='scale for feature.', default=64.0)
     parser.add_argument('--margin_m', type=float, help='margin for loss.', default=0.5)    
     # Loss Optimizer
