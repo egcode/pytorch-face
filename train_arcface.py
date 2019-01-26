@@ -55,6 +55,9 @@ def train(args, model, device, train_loader, loss_softmax, loss_arcface, optimiz
 
         log_loss = loss.item()
 
+        # loss_epoch_and_percent - last two digits - Percent of epoch completed
+        logger.scalar_summary("loss_epoch_and_percent", log_loss, (epoch*100)+(100. * batch_idx / len(train_loader)))
+
     logger.scalar_summary("loss", log_loss, epoch)
 
     time_for_epoch = int(time.time() - t)
