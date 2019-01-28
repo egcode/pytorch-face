@@ -178,6 +178,8 @@ def main(args):
         model = resnet50()
     elif args.model_type == 'resnet_face50':
         model = resnet_face50()
+    elif args.model_type == 'resnet_face18':
+        model = resnet_face18
 
     if args.model_path != None:
         if use_cuda:
