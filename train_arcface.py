@@ -191,7 +191,7 @@ def main(args):
     model = model.to(device)
 
     loss_softmax = nn.CrossEntropyLoss().to(device)
-    loss_arcface = Arcface_loss(num_classes=len(train_loader.dataset.classes), feat_dim=args.features_dim, device=device, s=args.margin_s, m=args.margin_m).to(device)
+    loss_arcface = Arcface_loss(num_classes=train_loader.dataset.num_classes, feat_dim=args.features_dim, device=device, s=args.margin_s, m=args.margin_m).to(device)
     
     if args.loss_path != None:
         if use_cuda:

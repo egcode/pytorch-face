@@ -17,9 +17,10 @@ from pdb import set_trace as bp
 
 class FacesDataset(data.Dataset):
 
-    def __init__(self,image_list, label_list):
+    def __init__(self,image_list, label_list, num_classes):
         self.image_list = image_list
         self.label_list = label_list
+        self.num_classes = num_classes
 
         normalize = T.Normalize(mean=[0.5], std=[0.5])
 
@@ -49,8 +50,8 @@ def get_data(args, device):
     train_image_list, train_label_list, _ = get_image_paths_and_labels(train_set)
     val_image_list, val_label_list, _ = get_image_paths_and_labels(val_set)
 
-    train_faces_dataset = FacesDataset(train_image_list, train_label_list)
-    test_faces_dataset = FacesDataset(val_image_list, val_label_list)
+    train_faces_dataset = FacesDataset(train_image_list, train_label_list, len(train_set))
+    test_faces_dataset = FacesDataset(val_image_list, val_label_list, len(val_set))
 
     trainloader = data.DataLoader(train_faces_dataset, batch_size=args.batch_size,
                                                 shuffle=True, num_workers=args.num_workers)
