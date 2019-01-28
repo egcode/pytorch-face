@@ -12,7 +12,7 @@ import sys
 
 from dataset.dataset_helpers import *
 from pdb import set_trace as bp
-from skimage import io, transform
+# from skimage import io, transform
 import imageio
 
 class FacesDataset(data.Dataset):
