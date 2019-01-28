@@ -6,3 +6,4 @@ scipy
 scikit-learn
 requests
 opencv-python
+h5py

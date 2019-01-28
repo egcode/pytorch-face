@@ -1,77 +1,104 @@
-from __future__ import print_function
+from __future__ import absolute_import
 from __future__ import division
-
-import torch
-import torchvision
-from torch.utils.data import DataLoader
-# import numpy as np
-from torchvision import datasets, models, transforms
+from __future__ import print_function
 import os
-import cv2
 from PIL import Image
+import torch
+from torch.utils import data
+import numpy as np
+from torchvision import transforms as T
+import torchvision
+import sys
 
+from dataset.dataset_helpers import *
 from pdb import set_trace as bp
+from skimage import io, transform
+import imageio
 
+class FacesDataset(data.Dataset):
 
-TRAIN = 'train'
-TEST = 'test'
+    def __init__(self,image_list, label_list):
+        self.image_list = image_list
+        self.label_list = label_list
 
-def get_data(data_dir, device, num_workers, batch_size, batch_size_test):
+        normalize = T.Normalize(mean=[0.5], std=[0.5])
 
-    # normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
-    #                              std=[0.229, 0.224, 0.225])
-    normalize = transforms.Normalize(mean=[0.5], std=[0.5])
-
-    data_transforms = {
-        TRAIN: transforms.Compose([
-            transforms.RandomResizedCrop(160, scale=(0.7, 1.0)),
-            transforms.RandomRotation(10),
-            transforms.RandomHorizontalFlip(),
-            transforms.ToTensor(),
+        self.transforms = T.Compose([
+            T.RandomResizedCrop(160, scale=(0.7, 1.0)),
+            T.RandomRotation(10),
+            T.RandomHorizontalFlip(),
+            T.ToTensor(),
             normalize
-        ]),
-        TEST: transforms.Compose([
-            transforms.RandomResizedCrop(160, scale=(0.7, 1.0)),
-            transforms.RandomRotation(10),
-            transforms.RandomHorizontalFlip(),
-            transforms.ToTensor(),
-            normalize
-        ]),
-    }
+        ])
 
-    image_datasets = {x: datasets.ImageFolder(os.path.join(data_dir, x),
-                                            data_transforms[x])
-                    for x in [TRAIN, TEST]}
+    def __getitem__(self, index):
+        img_path = self.image_list[index]
+        img = Image.open(img_path)
+        data = img.convert('RGB')
+        data = self.transforms(data)
+        label = self.label_list[index]
+        return data.float(), label
 
-    trainloader = torch.utils.data.DataLoader(image_datasets[TRAIN], batch_size=batch_size,
-                                                shuffle=True, num_workers=num_workers)
-    testloader = torch.utils.data.DataLoader(image_datasets[TEST], batch_size=batch_size_test,
-                                                shuffle=True, num_workers=num_workers)
+    def __len__(self):
+        return len(self.image_list)
 
-    # dataset_sizes = {x: len(image_datasets[x]) for x in ['train', 'test']}
+def get_data(args, device):
+    dataset = get_dataset(args.data_dir)
+    train_set, val_set = split_dataset(dataset, args.validation_set_split_ratio, args.min_nrof_val_images_per_class, 'SPLIT_IMAGES')
+    
+    train_image_list, train_label_list, _ = get_image_paths_and_labels(train_set)
+    val_image_list, val_label_list, _ = get_image_paths_and_labels(val_set)
 
-    # class_names = image_datasets[TRAIN].classes #List of the class names.
-    # class_to_idx = image_datasets[TRAIN].class_to_idx #Dict with items (class_name, class_index).
+    train_faces_dataset = FacesDataset(train_image_list, train_label_list)
+    test_faces_dataset = FacesDataset(val_image_list, val_label_list)
 
-    total_train_imgs = image_datasets[TRAIN].imgs #List of (image path, class_index) tuples
-    # total_test_imgs = image_datasets[TEST].imgs #List of (image path, class_index) tuples
-
-
-    # print("\nClass names: " + str(class_names))
-    # print("\nclass_to_idx: " + str(class_to_idx))
-
-    # current_image = 0
-
-    # for batch_idx, (data, target) in enumerate(trainloader):
-    #     data, target = data.to(device), target.to(device)
-
-    #     for ind, (image) in enumerate(data):
-    #         print('image: [{}/{} ({:.0f}%)]'.format(
-    #             current_image, len(total_train_imgs),
-    #             100. * current_image / len(total_train_imgs)))
-    #         current_image += 1
-
-    # print("\nTrain Images COUNT: " + str(len(total_train_imgs)))
-    # print("\n")
-
+    trainloader = data.DataLoader(train_faces_dataset, batch_size=args.batch_size,
+                                                shuffle=True, num_workers=args.num_workers)
+    testloader = data.DataLoader(test_faces_dataset, batch_size=args.batch_size_test,
+                                                shuffle=True, num_workers=args.num_workers)
+    
     return trainloader, testloader
+
+
+# if __name__ == '__main__':
+#     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
+#     data_dir='digits_dataset/train'
+#     num_workers = 2
+#     batch_size = 1
+#     batch_size_test = 1
+#     trainloader, testloader = get_data(data_dir, device, num_workers, batch_size, batch_size_test)
+
+#     ########### TRAIN IMAGES
+#     train_image_count = 0
+#     for i, (data, label) in enumerate(trainloader):
+#         data, label = data.to(device), label.to(device)
+#         for (ii, image) in enumerate(data):
+#             img = image.permute(1, 2, 0).detach().numpy() 
+#             ind_label = label[ii].detach().numpy()
+#             image_name = "label_" + "_" + "batch_" + str(i) + "_image_" + str(ii)
+#             image_path = 'out_images/train/' + image_name + '.jpg'
+#             print("imageName: " + str(image_name))
+
+#             # # imageio style saving
+#             imageio.imwrite(image_path, (img * 255.).astype(np.uint8))
+#             train_image_count += 1
+#     print("\nTRAIN Images COUNT: " + str(train_image_count))
+#     print("\n")
+
+#     ########### TEST IMAGES
+#     test_image_count = 0
+#     for i, (data, label) in enumerate(testloader):
+#         data, label = data.to(device), label.to(device)
+#         for (ii, image) in enumerate(data):
+#             img = image.permute(1, 2, 0).detach().numpy() 
+#             ind_label = label[ii].detach().numpy()
+#             image_name = "label_" + "_" + "batch_" + str(i) + "_image_" + str(ii)
+#             image_path = 'out_images/test/' + image_name + '.jpg'
+#             print("imageName: " + str(image_name))
+
+#             # # imageio style saving
+#             imageio.imwrite(image_path, (img * 255.).astype(np.uint8))
+#             test_image_count += 1
+#     print("\TEST Images COUNT: " + str(test_image_count))
+#     print("\n")
