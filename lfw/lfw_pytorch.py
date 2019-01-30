@@ -13,8 +13,7 @@ from sklearn import metrics
 from scipy.optimize import brentq
 from scipy import interpolate
 
-# from lfw.lfw_helper import *
-from lfw_helper import *
+from lfw.lfw_helper import *
 from models.resnet import *
 
 from pdb import set_trace as bp
@@ -96,8 +95,8 @@ if __name__ == '__main__':
     model.eval()
 
     ######## LFW dataset setup
-    # lfw_dir='../datasets/lfw_160'
-    lfw_dir='../lfw_160'
+    lfw_dir='../datasets/lfw_160'
+    # lfw_dir='../lfw_160'
     lfw_pairs = 'lfw//pairs.txt'
     batch_size = 100
     num_workers = 2
