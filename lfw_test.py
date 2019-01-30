@@ -26,15 +26,15 @@ if __name__ == '__main__':
     ####### Model setup
     # model = resnet18()
     # model.load_state_dict(torch.load("lfw/resnet18-model-arcface.pth"))
-    model = resnet_face50()
-    model.load_state_dict(torch.load("pth/resnet_face50_current.pth", map_location='cpu'))
+    model = resnet50()
+    model.load_state_dict(torch.load("pth/resnet50_current.pth", map_location='cpu'))
     model.to(device)
-    embedding_size = model.fc5.out_features
+    embedding_size = 512
     model.eval()
 
     ######## LFW dataset setup
-    # lfw_dir='../datasets/lfw_160'
-    lfw_dir='../lfw_160'
+    lfw_dir='../datasets/lfw_160'
+    # lfw_dir='../lfw_160'
     lfw_pairs = 'lfw//pairs.txt'
     batch_size = 100
     num_workers = 2
