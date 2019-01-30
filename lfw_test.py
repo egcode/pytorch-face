@@ -14,6 +14,8 @@ from scipy.optimize import brentq
 from scipy import interpolate
 
 from lfw.lfw_helper import *
+from lfw.lfw_pytorch import *
+
 from models.resnet import *
 
 from pdb import set_trace as bp
