@@ -27,7 +27,7 @@ if __name__ == '__main__':
     # model = resnet18()
     # model.load_state_dict(torch.load("lfw/resnet18-model-arcface.pth"))
     model = resnet50()
-    model.load_state_dict(torch.load("pth/resnet50_current.pth", map_location='cpu'))
+    model.load_state_dict(torch.load("pth/resnet18_current.pth", map_location='cpu'))
     model.to(device)
     embedding_size = 512
     model.eval()
