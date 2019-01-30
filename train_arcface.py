@@ -13,6 +13,7 @@ import math
 import argparse
 from sklearn import metrics
 from losses.Arcface_loss import Arcface_loss
+from losses.LMCL_loss import LMCL_loss
 from dataset.get_data import get_data
 from models.net import Net
 from models.resnet import *
@@ -25,7 +26,7 @@ from logger import Logger
 from pdb import set_trace as bp
 
 
-def train(args, model, device, train_loader, loss_softmax, loss_arcface, optimizer_nn, optimzer_arcface, log_file_path, model_dir, logger, epoch):
+def train(args, model, device, train_loader, loss_softmax, loss_criterion, optimizer_nn, optimzer_criterion, log_file_path, model_dir, logger, epoch):
     model.train()
     t = time.time()
     log_loss = 0
@@ -35,16 +36,21 @@ def train(args, model, device, train_loader, loss_softmax, loss_arcface, optimiz
         data, target = data.to(device), target.to(device)
 
         features = model(data)
-        logits = loss_arcface(features, target)
-        loss = loss_softmax(logits, target)
+
+        if args.criterion_type == 'arcface':
+            logits = loss_criterion(features, target)
+            loss = loss_softmax(logits, target)
+        elif args.criterion_type == 'lmcl':
+            logits, mlogits = loss_criterion(features, target)
+            loss = loss_softmax(mlogits, target)
 
         optimizer_nn.zero_grad()
-        optimzer_arcface.zero_grad()
+        optimzer_criterion.zero_grad()
 
         loss.backward()
 
         optimizer_nn.step()
-        optimzer_arcface.step()
+        optimzer_criterion.step()
 
         time_for_batch = int(time.time() - tt)
 
@@ -64,9 +70,9 @@ def train(args, model, device, train_loader, loss_softmax, loss_arcface, optimiz
     print_and_log(log_file_path, 'Total time for epoch: {}'.format(timedelta(seconds=time_for_epoch)))
 
     save_model(args, args.model_type, model_dir, model, log_file_path, epoch)
-    save_model(args, 'arcface', model_dir, loss_arcface, log_file_path, epoch)
+    save_model(args, args.criterion_type, model_dir, loss_criterion, log_file_path, epoch)
 
-def test(args, model, device, test_loader, loss_softmax, loss_arcface, log_file_path, logger, epoch):
+def test(args, model, device, test_loader, loss_softmax, loss_criterion, log_file_path, logger, epoch):
     if epoch % args.test_interval == 0 or epoch == args.epochs:
         model.eval()
         t = time.time()
@@ -77,10 +83,16 @@ def test(args, model, device, test_loader, loss_softmax, loss_arcface, log_file_
                 data, target = data.to(device), target.to(device)
 
                 feats = model(data)
-                logits = loss_arcface(feats, target)
+
+                if args.criterion_type == 'arcface':
+                    logits = loss_criterion(feats, target)
+                elif args.criterion_type == 'lmcl':
+                    logits, mlogits = loss_criterion(feats, target)
+
                 _, predicted = torch.max(logits.data, 1)
                 total += target.size(0)
                 correct += (predicted == target.data).sum()
+                
 
         accuracy = 100. * correct / len(test_loader.dataset)
         log = '\nTest set:, Accuracy: {}/{} ({:.0f}%)\n'.format(
@@ -191,29 +203,34 @@ def main(args):
     model = model.to(device)
 
     loss_softmax = nn.CrossEntropyLoss().to(device)
-    loss_arcface = Arcface_loss(num_classes=train_loader.dataset.num_classes, feat_dim=args.features_dim, device=device, s=args.margin_s, m=args.margin_m).to(device)
-    
+
+    ####### Criterion setup
+    print('Criterion type: %s' % args.criterion_type)
+    if args.criterion_type == 'arcface':
+        loss_criterion = Arcface_loss(num_classes=train_loader.dataset.num_classes, feat_dim=args.features_dim, device=device, s=args.margin_s, m=args.margin_m).to(device)
+    elif args.criterion_type == 'lmcl':
+        loss_criterion = LMCL_loss(num_classes=train_loader.dataset.num_classes, feat_dim=args.features_dim, device=device, s=args.margin_s, m=args.margin_m).to(device)
+
     if args.loss_path != None:
         if use_cuda:
-            loss_arcface.load_state_dict(torch.load(args.loss_path))
+            loss_criterion.load_state_dict(torch.load(args.loss_path))
         else:
-            loss_arcface.load_state_dict(torch.load(args.loss_path, map_location='cpu'))
+            loss_criterion.load_state_dict(torch.load(args.loss_path, map_location='cpu'))
 
     # optimzer nn
     optimizer_nn = optim.SGD(model.parameters(), lr=args.model_lr, momentum=0.9, weight_decay=0.0005)
     # optimizer_nn = torch.optim.Adam(model.parameters(), lr=0.001)
     sheduler_nn = lr_scheduler.StepLR(optimizer_nn, args.model_lr_step, gamma=args.model_lr_gamma)
 
-    # optimzer cosface or arcface
-    optimzer_arcface = optim.SGD(loss_arcface.parameters(), lr=args.arcface_lr)
-    sheduler_arcface = lr_scheduler.StepLR(optimzer_arcface, args.arcface_lr_step, gamma=args.arcface_lr_gamma)
+    optimzer_criterion = optim.SGD(loss_criterion.parameters(), lr=args.criterion_lr)
+    sheduler_criterion = lr_scheduler.StepLR(optimzer_criterion, args.criterion_lr_step, gamma=args.criterion_lr_gamma)
 
     for epoch in range(1, args.epochs + 1):
         sheduler_nn.step()
-        sheduler_arcface.step()
+        sheduler_criterion.step()
         
-        train(args, model, device, train_loader, loss_softmax, loss_arcface, optimizer_nn, optimzer_arcface, log_file_path, model_dir, logger, epoch)
-        test(args, model, device, test_loader, loss_softmax, loss_arcface, log_file_path, logger, epoch)
+        train(args, model, device, train_loader, loss_softmax, loss_criterion, optimizer_nn, optimzer_criterion, log_file_path, model_dir, logger, epoch)
+        test(args, model, device, test_loader, loss_softmax, loss_criterion, log_file_path, logger, epoch)
         validate_lfw(args, model, lfw_loader, lfw_dataset, device, log_file_path, logger, epoch)
 
 
@@ -233,19 +250,20 @@ def parse_arguments(argv):
     # Model
     parser.add_argument('--model_path', type=str, help='Model weights if needed.', default=None)
     parser.add_argument('--model_type', type=str, help='Model type to use for training.', default='resnet_face50')
-    parser.add_argument('--features_dim', type=int, help='Number of features for arcface loss.', default=512)
+    parser.add_argument('--features_dim', type=int, help='Number of features for loss.', default=512)
     # Model Optimizer
     parser.add_argument('--model_lr', type=float, help='Learing rate of model optimizer.', default=0.1)
     parser.add_argument('--model_lr_step', type=int, help='Learing rate of model optimizer.', default=20000)
     parser.add_argument('--model_lr_gamma', type=float, help='Learing rate of model optimizer.', default=0.1)
     # Loss 
+    parser.add_argument('--criterion_type', type=str, help='type of loss lmcl or arface.', default='arcface')
     parser.add_argument('--loss_path', type=str, help='Loss weights if needed.', default=None)
     parser.add_argument('--margin_s', type=float, help='scale for feature.', default=64.0)
     parser.add_argument('--margin_m', type=float, help='margin for loss.', default=0.5)    
     # Loss Optimizer
-    parser.add_argument('--arcface_lr', type=float, help='Learing rate of model optimizer.', default=0.01)
-    parser.add_argument('--arcface_lr_step', type=int, help='Learing rate of model optimizer.', default=20000)
-    parser.add_argument('--arcface_lr_gamma', type=float, help='Learing rate of model optimizer.', default=0.1)
+    parser.add_argument('--criterion_lr', type=float, help='Learing rate of model optimizer.', default=0.01)
+    parser.add_argument('--criterion_lr_step', type=int, help='Learing rate of model optimizer.', default=20000)
+    parser.add_argument('--criterion_lr_gamma', type=float, help='Learing rate of model optimizer.', default=0.1)
     # Intervals
     parser.add_argument('--model_save_interval', type=int, help='Save model with every interval epochs.', default=10)
     parser.add_argument('--test_interval', type=int, help='Perform test with every interval epochs.', default=10)
