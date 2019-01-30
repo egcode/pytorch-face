@@ -99,7 +99,7 @@ def validate_lfw(args, model, lfw_loader, lfw_dataset, device, log_file_path, lo
         model.eval()
         t = time.time()
 
-        embedding_size = model.fc5.out_features
+        embedding_size = args.features_dim
 
         tpr, fpr, accuracy, val, val_std, far = lfw_validate_model(model, lfw_loader, lfw_dataset, embedding_size, device,
                                                                     args.lfw_nrof_folds, args.lfw_distance_metric, args.lfw_subtract_mean)
