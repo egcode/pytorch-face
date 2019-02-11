@@ -14,6 +14,7 @@ import argparse
 from sklearn import metrics
 from losses.Arcface_loss import Arcface_loss
 from losses.LMCL_loss import LMCL_loss
+from losses.Center_loss import Center_loss
 from dataset.get_data import get_data
 from models.net import Net
 from models.resnet import *
@@ -43,6 +44,14 @@ def train(args, model, device, train_loader, loss_softmax, loss_criterion, optim
         elif args.criterion_type == 'lmcl':
             logits, mlogits = loss_criterion(features, target)
             loss = loss_softmax(mlogits, target)
+        elif args.criterion_type == 'centerloss':
+            weight_cent = 1.
+            target_one_hot = torch.zeros(len(target), train_loader.dataset.num_classes).to(device)
+            target_one_hot = target_one_hot.scatter_(1, target.unsqueeze(1), 1.)        
+            los_softm = loss_softmax(target_one_hot, target)
+            loss_cent = loss_criterion(features, target)
+            loss_cent *= weight_cent
+            loss = los_softm + loss_cent
 
         optimizer_nn.zero_grad()
         optimzer_criterion.zero_grad()
@@ -50,6 +59,12 @@ def train(args, model, device, train_loader, loss_softmax, loss_criterion, optim
         loss.backward()
 
         optimizer_nn.step()
+
+        if args.criterion_type == 'centerloss':
+            # by doing so, weight_cent would not impact on the learning of centers
+            for param in loss_criterion.parameters():
+                param.grad.data *= (1. / weight_cent)
+
         optimzer_criterion.step()
 
         time_for_batch = int(time.time() - tt)
@@ -88,6 +103,8 @@ def test(args, model, device, test_loader, loss_softmax, loss_criterion, log_fil
                     logits = loss_criterion(feats, target)
                 elif args.criterion_type == 'lmcl':
                     logits, mlogits = loss_criterion(feats, target)
+                elif args.criterion_type == 'centerloss':
+                    logits = feats
 
                 _, predicted = torch.max(logits.data, 1)
                 total += target.size(0)
@@ -210,6 +227,8 @@ def main(args):
         loss_criterion = Arcface_loss(num_classes=train_loader.dataset.num_classes, feat_dim=args.features_dim, device=device, s=args.margin_s, m=args.margin_m).to(device)
     elif args.criterion_type == 'lmcl':
         loss_criterion = LMCL_loss(num_classes=train_loader.dataset.num_classes, feat_dim=args.features_dim, device=device, s=args.margin_s, m=args.margin_m).to(device)
+    elif args.criterion_type == 'centerloss':
+        loss_criterion = Center_loss(num_classes=train_loader.dataset.num_classes, feat_dim=args.features_dim, use_gpu=use_cuda)
 
     if args.loss_path != None:
         if use_cuda:
@@ -256,7 +275,7 @@ def parse_arguments(argv):
     parser.add_argument('--model_lr_step', type=int, help='Learing rate of model optimizer.', default=20000)
     parser.add_argument('--model_lr_gamma', type=float, help='Learing rate of model optimizer.', default=0.1)
     # Loss 
-    parser.add_argument('--criterion_type', type=str, help='type of loss lmcl or arface.', default='arcface')
+    parser.add_argument('--criterion_type', type=str, help='type of loss lmcl or arface.', default='centerloss')
     parser.add_argument('--loss_path', type=str, help='Loss weights if needed.', default=None)
     parser.add_argument('--margin_s', type=float, help='scale for feature.', default=64.0)
     parser.add_argument('--margin_m', type=float, help='margin for loss.', default=0.5)    
