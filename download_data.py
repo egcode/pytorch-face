@@ -11,7 +11,7 @@ import math
 
 data_dict = {
     'lfw_160':'1KxMtqYMhYy2jU6q9DZqoc0_cFL6Md0gE', 
-    'CASIA_Webface_160':'1V8IXwN0wvjylECjK1_iJkrpErGOVi6GG', 
+    'CASIA_Webface_160':'175YhXe26wMMxSRuKGAbbVCkY5MLDk5m7', 
     'go' : '1EFdYOLvQY63-bBPoKJz79XUl-QiZll4c'
     }
 
@@ -66,6 +66,11 @@ def save_response_content(r, destination):
 
 
 if __name__ == '__main__':
-    # download_and_extract_file('go', 'data/')
-    download_and_extract_file('lfw_160', 'data/')
-    download_and_extract_file('CASIA_Webface_160', 'data/')
+    
+    out_dir = 'data/'
+    if not os.path.isdir(out_dir):  # Create the out directory if it doesn't exist
+        os.makedirs(out_dir)
+
+    # download_and_extract_file('go', out_dir)
+    download_and_extract_file('lfw_160', out_dir)
+    download_and_extract_file('CASIA_Webface_160', out_dir)
