@@ -157,7 +157,7 @@ class SEBlock(nn.Module):
 
 
 class ResNetFace(nn.Module):
-    def __init__(self, block, layers, use_se=True):
+    def __init__(self, block, layers, num_of_classes, use_se=True):
         self.inplanes = 64
         self.use_se = use_se
         super(ResNetFace, self).__init__()
@@ -174,6 +174,10 @@ class ResNetFace(nn.Module):
         # self.fc5 = nn.Linear(512 * 8 * 8, 512)
         self.fc5 = nn.Linear(51200, 512)
         self.bn5 = nn.BatchNorm1d(512)
+
+        ## Classifier stuff
+        self.prelu_weight = nn.Parameter(torch.Tensor(1).fill_(0.25))
+        self.fc_out = nn.Linear(512, num_of_classes)
 
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
@@ -215,9 +219,12 @@ class ResNetFace(nn.Module):
         x = self.dropout(x)
         x = x.view(x.size(0), -1)
         x = self.fc5(x)
-        x = self.bn5(x)
+        features = self.bn5(x)
 
-        return x
+        x = F.prelu(features, self.prelu_weight)
+        x = self.fc_out(x)
+
+        return x, features
 
 
 class ResNet(nn.Module):
@@ -346,10 +353,14 @@ def resnet152(pretrained=False, **kwargs):
     return model
 
 
-def resnet_face18(use_se=True, **kwargs):
-    model = ResNetFace(IRBlock, [2, 2, 2, 2], use_se=use_se, **kwargs)
+def resnet_face18(num_of_classes, use_se=True, **kwargs):
+    if num_of_classes == 0:
+        raise Exception('num_of_classes Should not be 0')
+    model = ResNetFace(IRBlock, [2, 2, 2, 2], num_of_classes, use_se=use_se, **kwargs)
     return model
 
-def resnet_face50(use_se=True, **kwargs):
-    model = ResNetFace(IRBlock, [3, 4, 6, 3], use_se=use_se, **kwargs)
+def resnet_face50(num_of_classes, use_se=True, **kwargs):
+    if num_of_classes == 0:
+        raise Exception('num_of_classes Should not be 0')
+    model = ResNetFace(IRBlock, [3, 4, 6, 3], num_of_classes, use_se=use_se, **kwargs)
     return model    

@@ -36,7 +36,7 @@ def train(args, model, device, train_loader, loss_softmax, loss_criterion, optim
 
         data, target = data.to(device), target.to(device)
 
-        features = model(data)
+        outputs, features = model(data)
 
         if args.criterion_type == 'arcface':
             logits = loss_criterion(features, target)
@@ -45,13 +45,24 @@ def train(args, model, device, train_loader, loss_softmax, loss_criterion, optim
             logits, mlogits = loss_criterion(features, target)
             loss = loss_softmax(mlogits, target)
         elif args.criterion_type == 'centerloss':
+            ### V1
+            # weight_cent = 1.
+            # target_one_hot = torch.zeros(len(target), train_loader.dataset.num_classes).to(device)
+            # target_one_hot = target_one_hot.scatter_(1, target.unsqueeze(1), 1.)        
+            # los_softm = loss_softmax(target_one_hot, target)
+            # loss_cent = loss_criterion(features, target)
+            # loss_cent *= weight_cent
+            # loss = los_softm + loss_cent
+
+            ### V2
             weight_cent = 1.
-            target_one_hot = torch.zeros(len(target), train_loader.dataset.num_classes).to(device)
-            target_one_hot = target_one_hot.scatter_(1, target.unsqueeze(1), 1.)        
-            los_softm = loss_softmax(target_one_hot, target)
+            # target_one_hot = torch.zeros(len(target), train_loader.dataset.num_classes).to(device)
+            # target_one_hot = target_one_hot.scatter_(1, target.unsqueeze(1), 1.)        
+            los_softm = loss_softmax(outputs, target)
             loss_cent = loss_criterion(features, target)
             loss_cent *= weight_cent
             loss = los_softm + loss_cent
+
 
         optimizer_nn.zero_grad()
         optimzer_criterion.zero_grad()
@@ -88,6 +99,24 @@ def train(args, model, device, train_loader, loss_softmax, loss_criterion, optim
     save_model(args, args.criterion_type, model_dir, loss_criterion, log_file_path, epoch)
 
 def test(args, model, device, test_loader, loss_softmax, loss_criterion, log_file_path, logger, epoch):
+
+    model.eval()
+    test_loss = 0
+    correct = 0
+    with torch.no_grad():
+        for data, labels in test_loader:
+            data, labels = data.to(device), labels.to(device)
+            outputs,features = model(data)
+            weight_cent = 1. # weight for center loss
+            loss_softmax = softmax_cross_entropy_loss(outputs, labels)
+            loss_cent = model_center_loss(features, labels)
+            loss_cent *= weight_cent
+            test_loss = loss_softmax + loss_cent
+
+            pred = outputs.max(1, keepdim=True)[1] # get the index of the max log-probability
+            correct += pred.eq(labels.view_as(pred)).sum().item()
+
+    test_loss /= len(test_loader.dataset)
     if epoch % args.test_interval == 0 or epoch == args.epochs:
         model.eval()
         t = time.time()
@@ -97,14 +126,14 @@ def test(args, model, device, test_loader, loss_softmax, loss_criterion, log_fil
             for data, target in test_loader:
                 data, target = data.to(device), target.to(device)
 
-                feats = model(data)
+                outputs,feats = model(data)
 
                 if args.criterion_type == 'arcface':
                     logits = loss_criterion(feats, target)
                 elif args.criterion_type == 'lmcl':
                     logits, mlogits = loss_criterion(feats, target)
                 elif args.criterion_type == 'centerloss':
-                    logits = feats
+                    logits = outputs
 
                 _, predicted = torch.max(logits.data, 1)
                 total += target.size(0)
@@ -206,9 +235,9 @@ def main(args):
     elif args.model_type == 'resnet50':
         model = resnet50()
     elif args.model_type == 'resnet_face50':
-        model = resnet_face50()
+        model = resnet_face50(num_of_classes = train_loader.dataset.num_classes)
     elif args.model_type == 'resnet_face18':
-        model = resnet_face18()
+        model = resnet_face18(num_of_classes = train_loader.dataset.num_classes)
 
     if args.model_path != None:
         if use_cuda:

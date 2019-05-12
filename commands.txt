@@ -219,7 +219,7 @@ python3 train.py \
 --batch_size 64 \
 --batch_size_test 64 \
 --lfw_batch_size 64 \
---model_type resnet18 \
+--model_type resnet_face18 \
 --lfw_dir ./data/lfw_160 \
 --data_dir ./data/CASIA-WebFace_160 \
 --criterion_type centerloss
