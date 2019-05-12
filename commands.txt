@@ -233,7 +233,7 @@ python3 train.py \
 
 tensorboard --logdir=old:out/20190512-035803/tensorboard,new:out/20190131-034432/tensorboard
 
-tensorboard --logdir=out/20190512-035803/tensorboard
+tensorboard --logdir=out/2019-05-12___21-15-04/tensorboard
 
 
 RuntimeError: CUDA out of memory. Tried to allocate 100.00 MiB (GPU 0; 11.17 GiB total capacity; 10.67 GiB already allocated; 69.06 MiB free; 92.90 MiB cached)
