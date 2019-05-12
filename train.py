@@ -158,7 +158,7 @@ def validate_lfw(args, model, lfw_loader, lfw_dataset, device, log_file_path, lo
 def main(args):
 
     # Dirs
-    subdir = datetime.strftime(datetime.now(), '%Y%m%d-%H%M%S')
+    subdir = datetime.strftime(datetime.now(), '%Y-%m-%d___%H-%M-%S')
     out_dir = os.path.join(os.path.expanduser(args.out_dir), subdir)
     if not os.path.isdir(out_dir):  # Create the out directory if it doesn't exist
         os.makedirs(out_dir)
