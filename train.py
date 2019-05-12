@@ -237,8 +237,8 @@ def main(args):
             loss_criterion.load_state_dict(torch.load(args.loss_path, map_location='cpu'))
 
     # optimzer nn
-    optimizer_nn = optim.SGD(model.parameters(), lr=args.model_lr, momentum=0.9, weight_decay=0.0005)
-    # optimizer_nn = torch.optim.Adam(model.parameters(), lr=0.001)
+    # optimizer_nn = optim.SGD(model.parameters(), lr=args.model_lr, momentum=0.9, weight_decay=0.0005)
+    optimizer_nn = torch.optim.Adam(model.parameters(), lr=args.model_lr, betas=(args.beta1, 0.999))
     sheduler_nn = lr_scheduler.StepLR(optimizer_nn, args.model_lr_step, gamma=args.model_lr_gamma)
 
     optimzer_criterion = optim.SGD(loss_criterion.parameters(), lr=args.criterion_lr)
@@ -271,8 +271,11 @@ def parse_arguments(argv):
     parser.add_argument('--model_type', type=str, help='Model type to use for training.', default='resnet_face50')
     parser.add_argument('--features_dim', type=int, help='Number of features for loss.', default=512)
     # Model Optimizer
-    parser.add_argument('--model_lr', type=float, help='Learing rate of model optimizer.', default=0.1)
-    parser.add_argument('--model_lr_step', type=int, help='Learing rate of model optimizer.', default=20000)
+    # parser.add_argument('--model_lr', type=float, help='Learing rate of model optimizer.', default=0.1)
+    parser.add_argument('--model_lr', type=float, default=0.01, help='learning rate, default=0.001')
+    parser.add_argument('--beta1', type=float, default=0.5, help='beta1 for adam. default=0.5')
+
+    parser.add_argument('--model_lr_step', type=int, help='Learing rate of model optimizer.', default=100)
     parser.add_argument('--model_lr_gamma', type=float, help='Learing rate of model optimizer.', default=0.1)
     # Loss 
     parser.add_argument('--criterion_type', type=str, help='type of loss lmcl or arface.', default='centerloss')

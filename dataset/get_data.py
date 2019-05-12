@@ -56,7 +56,7 @@ def get_data(args, device):
     trainloader = data.DataLoader(train_faces_dataset, batch_size=args.batch_size,
                                                 shuffle=True, num_workers=args.num_workers)
     testloader = data.DataLoader(test_faces_dataset, batch_size=args.batch_size_test,
-                                                shuffle=True, num_workers=args.num_workers)
+                                                shuffle=False, num_workers=args.num_workers)
     
     return trainloader, testloader
 
