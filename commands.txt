@@ -1,0 +1,297 @@
+
+
+
+------------------------------------------------------
+#SSH
+gcloud compute --project "eg-gpu-project" ssh --zone "us-west1-b" "v100-gpu"
+
+
+
+#gcp instances link
+https://console.cloud.google.com/compute/instances?authuser=1&project=sandbox-hle
+
+
+#copy to GCP
+gcloud compute scp --recurse /Users/eugene/Documents/HACHATHON/facenet instance-eugene:/home/eugene/facenet
+
+# copy to GCP DATASET
+gcloud compute scp --recurse /Users/yujin/Documents/Developer/Computer-Vision/datasets/CASIA-WebFace_160 instance-cpu:/mnt/disks/datasets/CASIA-WebFace_160
+
+################PTH copy to GCP Instance
+gcloud compute scp --recurse /Users/yujin/Documents/Developer/Computer-Vision/pytorch-face/pth/resnet50_current.pth instance-p100:/home/yujin/pytorch-face/pth/resnet50_current.pth
+
+gcloud compute scp --recurse /Users/yujin/Documents/Developer/Computer-Vision/pytorch-face/pth/resnet18_current.pth instance-p100:/home/yujin/pytorch-face/pth/resnet18_current.pth
+
+
+
+################CASIA LFW copy to GCP Instance
+gcloud compute scp --recurse /Users/yujin/Documents/Developer/Computer-Vision/datasets/CASIA-WebFace_160.zip instance-p100:/home/yujin/CASIA-WebFace_160.zip
+
+gcloud compute scp --recurse /Users/yujin/Documents/Developer/Computer-Vision/datasets/lfw_160.zip instance-k80:/home/yujin/lfw_160.zip
+###############
+
+
+###############
+# copy to macbook CURRENT MODEL 
+gcloud compute scp --recurse instance-p100:/home/yujin/pytorch-face/pth/resnet_face50_current.pth /Users/yujin/Documents/Developer/Computer-Vision/pytorch-face/pth/resnet_face50_current.pth
+###############
+###############
+# copy to macbook CURRENT ARCFACE MODEL 
+gcloud compute scp --recurse instance-p100:/home/yujin/pytorch-face/pth/arcface_current.pth /Users/yujin/Documents/Developer/Computer-Vision/pytorch-face/pth/arcface_current.pth
+###############
+
+###############
+# copy to macbook LOG 
+gcloud compute scp --recurse instance-p100:/home/yujin/pytorch-face/out/20190126-044344/training_log.txt /Users/yujin/Desktop/logs/training_log2.txt
+###############
+
+
+# copy to macbook 
+gcloud compute scp --recurse instance-eugene:/home/eugene/facenet/model_checkpoints /Users/eugene/Documents/HACHATHON/new_model_checkpoints
+
+
+
+# set project
+gcloud config set project research-hle
+
+
+------------------------------------------------------
+
+Saving variables
+Variables saved in 0.13 seconds
+Accuracy: 0.756+-0.022
+Validation rate: 0.04300+-0.01609 @ FAR=0.00167
+Running forward p
+
+------------------------------------------------------
+------------------------------------------------------
+------------------------------------------------------
+------------------------------------------------------
+------------------------------------------------------
+------DISKS------
+gcloud compute --project "burnished-form-228919" ssh --zone "us-east1-b" "instance-1"
+
+# List disks
+sudo lsblk
+
+
+
+# Format disk
+sudo mkfs.ext4 -m 0 -F -E lazy_itable_init=0,lazy_journal_init=0,discard /dev/[DEVICE_ID]
+sudo mkfs.ext4 -m 0 -F -E lazy_itable_init=0,lazy_journal_init=0,discard /dev/sdb
+
+# create folder where mount disk
+sudo mkdir -p /mnt/disks/[MNT_DIR]
+sudo mkdir -p /mnt/disks/datasets
+
+# Use the mount tool to mount the disk to the instance with the discard option enabled:
+sudo mount -o discard,defaults /dev/[DEVICE_ID] /mnt/disks/[MNT_DIR]
+sudo mount -o discard,defaults /dev/sdb /mnt/disks/datasets
+
+# Configure read and write permissions on the device. 
+# For this example, grant write access to the device for all users.
+sudo chmod a+w /mnt/disks/[MNT_DIR]
+sudo chmod a+w /mnt/disks/datasets
+
+
+# Optionally, you can add the persistent disk to the /etc/fstab file 
+# so that the device automatically mounts again when the instance restarts
+sudo cp /etc/fstab /etc/fstab.backup
+
+#Use the blkid command to find the UUID for the persistent disk.
+sudo blkid /dev/[DEVICE_ID]
+sudo blkid /dev/sdb.  #RESPONSE /dev/sdb: UUID="d5b6d18a-b7d1-416f-8539-a3045f5a39d5" TYPE="ext4"
+
+#Open the /etc/fstab file in a text editor and create an entry that includes the UUID.
+echo UUID=`sudo blkid -s UUID -o value /dev/sdb` /mnt/disks/disk-1 ext4 discard,defaults,nofail 0 2 | sudo tee -a /etc/fstab
+
+# Use the cat command to verify that your /etc/fstab entries are correct:
+cat /etc/fstab
+
+
+------------------------------------------------------
+------------------------------------------------------
+------------------------------------------------------
+------------------------------------------------------
+-------Install CUDA Ubuntu 16.04------------------------------
+
+# To verify that your GPU is CUDA-capable
+lspci | grep -i nvidia
+
+# verify gcc
+gcc --version
+# if no gcc
+sudo apt update && sudo apt dist-upgrade
+sudo apt install build-essential
+
+
+
+
+# The kernel headers
+uname -r  ### somethin like: 3.16.6-2-default
+sudo apt-get install linux-headers-$(uname -r)
+
+
+# CUDA
+# download CUDA
+wget https://developer.nvidia.com/compute/cuda/10.0/Prod/local_installers/cuda-repo-ubuntu1604-10-0-local-10.0.130-410.48_1.0-1_amd64
+mv cuda-repo-ubuntu1604-10-0-local-10.0.130-410.48_1.0-1_amd64 cuda-repo-ubuntu1604-10-0-local-10.0.130-410.48_1.0-1_amd64.deb
+
+sudo dpkg -i cuda-repo-ubuntu1604-10-0-local-10.0.130-410.48_1.0-1_amd64.deb
+sudo apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64/7fa2af80.pub
+sudo apt-get update
+sudo apt-get install cuda
+
+
+-------Get data about GPU:-------------------------------------------
+
+# get GPU hardware
+lspci | grep -i nvidia
+
+# cuda version
+nvcc --version
+
+# gpu memory
+nvidia-smi
+
+# CUDA driver version is installed and active in the kernel
+cat /proc/driver/nvidia/version
+
+nvidia-smi
+
+-------Install TORCH:-------------------------------------------
+
+
+# Install PIP
+sudo apt install python-pip	#python 2
+sudo apt install python3-pip	#python 3
+
+# Install PYTORCH
+pip3 install torch torchvision
+
+import torch; print("Pytorch version:  " + str(torch.__version__)); print("Use CUDA: " + str(torch.cuda.is_available()))
+print("cudnn enabled: " + str(torch.backends.cudnn.enabled))
+
+
+
+# Install GIT
+sudo apt update
+sudo apt install git
+git --version
+
+# pytorch-losses
+git clone https://github.com/egcode/pytorch-losses.git
+
+
+
+python3 test_arcface_mnist.py
+
+
+####
+
+-------TRAIN:-------------------------------------------
+git clone https://github.com/egcode/pytorch-face.git
+pip3 install -r ./requirements.txt
+
+
+
+python3 train.py \
+--model_path ./pth/resnet18_current.pth \
+--loss_path ./pth/lmcl_current.pth \
+--model_save_interval 1 \
+--test_interval 1 \
+--lfw_interval 1 \
+--batch_size 64 \
+--batch_size_test 64 \
+--lfw_batch_size 64 \
+--model_type resnet18 \
+--lfw_dir ../lfw_160 \
+--data_dir ../CASIA-WebFace_160 \
+--criterion_type centerloss
+
+
+
+
+python3 train.py \
+--model_save_interval 1 \
+--test_interval 1 \
+--lfw_interval 1 \
+--batch_size 64 \
+--batch_size_test 64 \
+--lfw_batch_size 64 \
+--model_type resnet18 \
+--lfw_dir ./data/lfw_160 \
+--data_dir ./data/CASIA-WebFace_160 \
+--criterion_type centerloss
+
+
+
+
+
+
+
+
+tensorboard --logdir=old:out/20190512-035803/tensorboard,new:out/20190131-034432/tensorboard
+
+tensorboard --logdir=out/20190512-035803/tensorboard
+
+
+RuntimeError: CUDA out of memory. Tried to allocate 100.00 MiB (GPU 0; 11.17 GiB total capacity; 10.67 GiB already allocated; 69.06 MiB free; 92.90 MiB cached)
+
+
+------TMUX:-------------------------------------------------
+tmux ls
+
+# start new with session name
+tmux new -s name
+
+#attach to named
+tmux a -t myname
+
+
+# kill session
+tmux kill-session -t myname
+
+
+
+To enter a tmux session:  
+```tmux```
+
+to exit a tmux session:  
+```Ctrl-b  d```
+
+to enter back into the tmux session:  
+```tmux attach-session -t 0```
+
+# RESTORE tmux
+killall -10 tmux
+
+-------STATS:-------------------------------------------
+stats for mnist arcface
+
+##### Colab 		- Total time: 0:17:29
+##### Nvidia Tesla K80  - Total time: 0:18:07
+##### Nvidia Tesla V100 - Total time: 0:03:42
+##### Nvidia Tesla P100 - Total time: 0:05:19
+
+
+
+------USER:-------------------------------------------------
+#change password
+sudo passwd
+
+
+#change password with another user
+sudo -u <user> sudo passwd
+
+#To login as another user:
+su
+su - <user>
+
+
+-------------------------------------------------------------
+
+
+
+
+
