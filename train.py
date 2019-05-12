@@ -103,20 +103,6 @@ def test(args, model, device, test_loader, loss_softmax, loss_criterion, log_fil
     model.eval()
     test_loss = 0
     correct = 0
-    with torch.no_grad():
-        for data, labels in test_loader:
-            data, labels = data.to(device), labels.to(device)
-            outputs,features = model(data)
-            weight_cent = 1. # weight for center loss
-            loss_softmax = softmax_cross_entropy_loss(outputs, labels)
-            loss_cent = model_center_loss(features, labels)
-            loss_cent *= weight_cent
-            test_loss = loss_softmax + loss_cent
-
-            pred = outputs.max(1, keepdim=True)[1] # get the index of the max log-probability
-            correct += pred.eq(labels.view_as(pred)).sum().item()
-
-    test_loss /= len(test_loader.dataset)
     if epoch % args.test_interval == 0 or epoch == args.epochs:
         model.eval()
         t = time.time()

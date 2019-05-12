@@ -61,7 +61,7 @@ def lfw_validate_model(model, lfw_loader, lfw_dataset, embedding_size, device, l
 
             data, label = data.to(device), label.to(device)
 
-            emb = model(data).detach().cpu().numpy()
+            _, emb = model(data).detach().cpu().numpy()
             lab = label.detach().cpu().numpy()
 
             lab_array[lab] = lab
