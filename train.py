@@ -263,8 +263,8 @@ def main(args):
         sheduler_nn.step()
         sheduler_criterion.step()
         
-        train(args, model, device, train_loader, loss_softmax, loss_criterion, optimizer_nn, optimzer_criterion, log_file_path, model_dir, logger, epoch)
-        test(args, model, device, test_loader, loss_softmax, loss_criterion, log_file_path, logger, epoch)
+        # train(args, model, device, train_loader, loss_softmax, loss_criterion, optimizer_nn, optimzer_criterion, log_file_path, model_dir, logger, epoch)
+        # test(args, model, device, test_loader, loss_softmax, loss_criterion, log_file_path, logger, epoch)
         validate_lfw(args, model, lfw_loader, lfw_dataset, device, log_file_path, logger, epoch)
 
 
