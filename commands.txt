@@ -226,12 +226,26 @@ python3 train.py \
 
 
 
+python3 train.py \
+--model_path ./pth/resnet_face.pth \
+--loss_path ./pth/centerloss.pth \
+--model_save_interval 1 \
+--test_interval 1 \
+--lfw_interval 1 \
+--batch_size 64 \
+--batch_size_test 64 \
+--lfw_batch_size 64 \
+--model_type resnet_face18 \
+--lfw_dir ./data/lfw_160 \
+--data_dir ./data/CASIA-WebFace_160 \
+--criterion_type centerloss
 
 
 
 
 
-tensorboard --logdir=old:out/20190512-035803/tensorboard,new:out/20190131-034432/tensorboard
+tensorboard --logdir=old:out/2019-05-12___22-18-42/tensorboard,new:out/2019-05-13___02-56-25/tensorboard
+tensorboard --logdir=old1:out/2019-05-12___22-18-42/tensorboard,old2:out/2019-05-13___02-56-25/tensorboard,new:out/2019-05-13___15-26-25/tensorboard
 
 tensorboard --logdir=out/20190512-035803/tensorboard
 
