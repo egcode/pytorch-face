@@ -105,7 +105,6 @@ def test(args, model, device, test_loader, loss_softmax, loss_criterion, log_fil
     if epoch % args.test_interval == 0 or epoch == args.epochs:
         model.eval()
         t = time.time()
-        correct = 0
         with torch.no_grad():
             for data, target in test_loader:
                 data, target = data.to(device), target.to(device)
