@@ -101,13 +101,11 @@ def train(args, model, device, train_loader, loss_softmax, loss_criterion, optim
 def test(args, model, device, test_loader, loss_softmax, loss_criterion, log_file_path, logger, epoch):
 
     model.eval()
-    test_loss = 0
     correct = 0
     if epoch % args.test_interval == 0 or epoch == args.epochs:
         model.eval()
         t = time.time()
         correct = 0
-        total = 0
         with torch.no_grad():
             for data, target in test_loader:
                 data, target = data.to(device), target.to(device)
@@ -122,7 +120,6 @@ def test(args, model, device, test_loader, loss_softmax, loss_criterion, log_fil
                     logits = outputs
 
                 _, predicted = torch.max(logits.data, 1)
-                total += target.size(0)
                 correct += (predicted == target.data).sum()
                 
 
