@@ -249,7 +249,7 @@ python3 train.py \
 --lfw_dir ./data/lfw_160 \
 --data_dir ./data/CASIA-WebFace_160 \
 --criterion_type centerloss \
---model_lr 0.1
+--model_lr 0.01
 --model_lr_step 50
 
 
@@ -260,7 +260,7 @@ tensorboard --logdir=old:out/2019-05-15___18-29-00/tensorboard,new:out/2019-05-1
 tensorboard --logdir=old1:out/2019-05-12___22-18-42/tensorboard,old2:out/2019-05-13___02-56-25/tensorboard,new:out/2019-05-13___15-26-25/tensorboard
 tensorboard --logdir=old1:out/2019-05-12___22-18-42/tensorboard,old2:out/2019-05-13___02-56-25/tensorboard,old3:out/2019-05-13___15-26-25/tensorboard,new:out/2019-05-14___14-17-40/tensorboard
 
-tensorboard --logdir=out/2019-05-15___18-29-00/tensorboard
+tensorboard --logdir=out/2019-05-16___18-29-31/tensorboard
 
 
 RuntimeError: CUDA out of memory. Tried to allocate 100.00 MiB (GPU 0; 11.17 GiB total capacity; 10.67 GiB already allocated; 69.06 MiB free; 92.90 MiB cached)
