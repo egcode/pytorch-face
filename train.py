@@ -283,7 +283,7 @@ def parse_arguments(argv):
     parser.add_argument('--features_dim', type=int, help='Number of features for loss.', default=512)
     # Model Optimizer
     # parser.add_argument('--model_lr', type=float, help='Learing rate of model optimizer.', default=0.1)
-    parser.add_argument('--model_lr', type=float, default=0.01, help='learning rate, default=0.01')
+    parser.add_argument('--model_lr', type=float, default=0.1, help='learning rate, default=0.1')
     parser.add_argument('--beta1', type=float, default=0.5, help='beta1 for adam. default=0.5')
 
     parser.add_argument('--model_lr_step', type=int, help='Learing rate of model optimizer.', default=100)

@@ -248,7 +248,8 @@ python3 train.py \
 --model_type resnet_face18 \
 --lfw_dir ./data/lfw_160 \
 --data_dir ./data/CASIA-WebFace_160 \
---criterion_type centerloss
+--criterion_type centerloss \
+--model_lr_step 10
 
 
 
