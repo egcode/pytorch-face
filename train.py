@@ -279,8 +279,8 @@ def parse_arguments(argv):
     parser.add_argument('--margin_m', type=float, help='margin for loss.', default=0.5)    
     # Loss Optimizer
     parser.add_argument('--criterion_lr', type=float, help='Learing rate of model optimizer.', default=0.1)
-    parser.add_argument('--criterion_lr_step', type=int, help='Learing rate of model optimizer.', default=50)
-    parser.add_argument('--criterion_lr_gamma', type=float, help='Learing rate of model optimizer.', default=0.1)
+    parser.add_argument('--criterion_lr_step', type=int, help='Learning rate of model optimizer.', default=50)
+    parser.add_argument('--criterion_lr_gamma', type=float, help='Learning rate multiplied to this value every lr step.', default=0.1)
     # Intervals
     parser.add_argument('--model_save_interval', type=int, help='Save model with every interval epochs.', default=10)
     parser.add_argument('--test_interval', type=int, help='Perform test with every interval epochs.', default=10)
