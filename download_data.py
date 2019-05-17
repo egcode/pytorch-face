@@ -12,7 +12,9 @@ import math
 data_dict = {
     'lfw_160':'1KxMtqYMhYy2jU6q9DZqoc0_cFL6Md0gE', 
     'CASIA_Webface_160':'175YhXe26wMMxSRuKGAbbVCkY5MLDk5m7', 
-    'go' : '1EFdYOLvQY63-bBPoKJz79XUl-QiZll4c'
+    'go' : '1EFdYOLvQY63-bBPoKJz79XUl-QiZll4c',
+    'golovan_160' : '1AUVdEfRy1lelj9xYhkTudUP47SsfGFVU',
+    'CASIA_and_Golovan_160' : '1Z1nzXX9KxUUjGauc5hHcj9dwgybsecNj'
     }
 
 def download_and_extract_file(model_name, data_dir):
@@ -73,4 +75,5 @@ if __name__ == '__main__':
 
     # download_and_extract_file('go', out_dir)
     download_and_extract_file('lfw_160', out_dir)
-    download_and_extract_file('CASIA_Webface_160', out_dir)
+    # download_and_extract_file('CASIA_Webface_160', out_dir)
+    download_and_extract_file('CASIA_and_Golovan_160', out_dir)
