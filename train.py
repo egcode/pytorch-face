@@ -234,7 +234,8 @@ def main(args):
     optimizer_nn = torch.optim.Adam(model.parameters(), lr=args.model_lr, betas=(args.beta1, 0.999))
     sheduler_nn = lr_scheduler.StepLR(optimizer_nn, args.model_lr_step, gamma=args.model_lr_gamma)
 
-    optimzer_criterion = optim.SGD(loss_criterion.parameters(), lr=args.criterion_lr)
+    # optimzer_criterion = optim.SGD(loss_criterion.parameters(), lr=args.criterion_lr)
+    optimzer_criterion = torch.optim.Adam(loss_criterion.parameters(), lr=args.criterion_lr, betas=(args.beta1, 0.999))
     sheduler_criterion = lr_scheduler.StepLR(optimzer_criterion, args.criterion_lr_step, gamma=args.criterion_lr_gamma)
 
     for epoch in range(1, args.epochs + 1):
