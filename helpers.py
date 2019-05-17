@@ -9,15 +9,15 @@ from datetime import datetime
 
 ###################################################################
 
-def save_model(args, type, model_dir, model, log_file_path, epoch):
-    if epoch % args.model_save_interval == 0 or epoch == args.epochs:
+def save_model(ARGS, type, model_dir, model, log_file_path, epoch):
+    if epoch % ARGS.model_save_interval == 0 or epoch == ARGS.epochs:
         save_name = os.path.join(model_dir, type + '_' + str(epoch) + '.pth')
         print_and_log(log_file_path, "Saving Model name: " + str(save_name))
         torch.save(model.state_dict(), save_name)        
 
-def write_arguments_to_file(args, filename):
+def write_arguments_to_file(ARGS, filename):
     with open(filename, 'w') as f:
-        for key, value in iteritems(vars(args)):
+        for key, value in iteritems(vars(ARGS)):
             f.write('%s: %s\n' % (key, str(value)))
 
 def store_revision_info(src_path, output_dir, arg_string):

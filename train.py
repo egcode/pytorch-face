@@ -27,7 +27,7 @@ from logger import Logger
 from pdb import set_trace as bp
 
 
-def train(args, model, device, train_loader, loss_softmax, loss_criterion, optimizer_nn, optimzer_criterion, log_file_path, model_dir, logger, epoch):
+def train(ARGS, model, device, train_loader, loss_softmax, loss_criterion, optimizer_nn, optimzer_criterion, log_file_path, model_dir, logger, epoch):
     model.train()
     t = time.time()
     log_loss = 0
@@ -38,13 +38,13 @@ def train(args, model, device, train_loader, loss_softmax, loss_criterion, optim
 
         features = model(data)
 
-        if args.criterion_type == 'arcface':
+        if ARGS.criterion_type == 'arcface':
             logits = loss_criterion(features, target)
             loss = loss_softmax(logits, target)
-        elif args.criterion_type == 'lmcl':
+        elif ARGS.criterion_type == 'lmcl':
             logits, mlogits = loss_criterion(features, target)
             loss = loss_softmax(mlogits, target)
-        elif args.criterion_type == 'centerloss':
+        elif ARGS.criterion_type == 'centerloss':
             weight_cent = 1.
             loss_cent, outputs = loss_criterion(features, target)
             loss_cent *= weight_cent
@@ -59,7 +59,7 @@ def train(args, model, device, train_loader, loss_softmax, loss_criterion, optim
 
         optimizer_nn.step()
 
-        if args.criterion_type == 'centerloss':
+        if ARGS.criterion_type == 'centerloss':
             # by doing so, weight_cent would not impact on the learning of centers
             for param in loss_criterion.parameters():
                 param.grad.data *= (1. / weight_cent)
@@ -83,14 +83,14 @@ def train(args, model, device, train_loader, loss_softmax, loss_criterion, optim
     time_for_epoch = int(time.time() - t)
     print_and_log(log_file_path, 'Total time for epoch: {}'.format(timedelta(seconds=time_for_epoch)))
 
-    save_model(args, args.model_type, model_dir, model, log_file_path, epoch)
-    save_model(args, args.criterion_type, model_dir, loss_criterion, log_file_path, epoch)
+    save_model(ARGS, ARGS.model_type, model_dir, model, log_file_path, epoch)
+    save_model(ARGS, ARGS.criterion_type, model_dir, loss_criterion, log_file_path, epoch)
 
-def test(args, model, device, test_loader, loss_softmax, loss_criterion, log_file_path, logger, epoch):
+def test(ARGS, model, device, test_loader, loss_softmax, loss_criterion, log_file_path, logger, epoch):
 
     model.eval()
     correct = 0
-    if epoch % args.test_interval == 0 or epoch == args.epochs:
+    if epoch % ARGS.test_interval == 0 or epoch == ARGS.epochs:
         model.eval()
         t = time.time()
         with torch.no_grad():
@@ -99,11 +99,11 @@ def test(args, model, device, test_loader, loss_softmax, loss_criterion, log_fil
 
                 feats = model(data)
 
-                if args.criterion_type == 'arcface':
+                if ARGS.criterion_type == 'arcface':
                     logits = loss_criterion(feats, target)
-                elif args.criterion_type == 'lmcl':
+                elif ARGS.criterion_type == 'lmcl':
                     logits, mlogits = loss_criterion(feats, target)
-                elif args.criterion_type == 'centerloss':
+                elif ARGS.criterion_type == 'centerloss':
                     _, outputs = loss_criterion(feats, target)
 
                 _, predicted = torch.max(outputs.data, 1)
@@ -122,15 +122,15 @@ def test(args, model, device, test_loader, loss_softmax, loss_criterion, log_fil
         print_and_log(log_file_path, 'Total time for test: {}'.format(timedelta(seconds=time_for_test)))
 
 
-def validate_lfw(args, model, lfw_loader, lfw_dataset, device, log_file_path, logger, epoch):
-    if epoch % args.lfw_interval == 0 or epoch == args.epochs:
+def validate_lfw(ARGS, model, lfw_loader, lfw_dataset, device, log_file_path, logger, epoch):
+    if epoch % ARGS.lfw_interval == 0 or epoch == ARGS.epochs:
         model.eval()
         t = time.time()
 
-        embedding_size = args.features_dim
+        embedding_size = ARGS.features_dim
 
         tpr, fpr, accuracy, val, val_std, far = lfw_validate_model(model, lfw_loader, lfw_dataset, embedding_size, device,
-                                                                    args.lfw_nrof_folds, args.lfw_distance_metric, args.lfw_subtract_mean)
+                                                                    ARGS.lfw_nrof_folds, ARGS.lfw_distance_metric, ARGS.lfw_subtract_mean)
 
         # print('\nEpoch: '+str(epoch))
         # print('Accuracy: %2.5f+-%2.5f' % (np.mean(accuracy), np.std(accuracy)))
@@ -154,11 +154,11 @@ def validate_lfw(args, model, lfw_loader, lfw_dataset, device, log_file_path, lo
         logger.scalar_summary("Area_under_curve", auc, epoch)
 
 
-def main(args):
+def main(ARGS):
 
     # Dirs
     subdir = datetime.strftime(datetime.now(), '%Y-%m-%d___%H-%M-%S')
-    out_dir = os.path.join(os.path.expanduser(args.out_dir), subdir)
+    out_dir = os.path.join(os.path.expanduser(ARGS.out_dir), subdir)
     if not os.path.isdir(out_dir):  # Create the out directory if it doesn't exist
         os.makedirs(out_dir)
     model_dir = os.path.join(os.path.expanduser(out_dir), 'model')
@@ -171,7 +171,7 @@ def main(args):
     # stat_file_name = os.path.join(out_dir, 'stat.h5')
 
     # Write arguments to a text file
-    write_arguments_to_file(args, os.path.join(out_dir, 'arguments.txt'))
+    write_arguments_to_file(ARGS, os.path.join(out_dir, 'arguments.txt'))
         
     # Store some git revision info in a text file in the log directory
     src_path,_ = os.path.split(os.path.realpath(__file__))
@@ -188,63 +188,62 @@ def main(args):
     device = torch.device("cuda" if use_cuda else "cpu")
 
     ####### Data setup
-    print('Data directory: %s' % args.data_dir)
-    train_loader, test_loader = get_data(args, device)
+    print('Data directory: %s' % ARGS.data_dir)
+    train_loader, test_loader = get_data(ARGS, device)
 
     ######## LFW Data setup
-    print('LFW directory: %s' % args.lfw_dir)
-    lfw_dataset = LFW(lfw_dir=args.lfw_dir, lfw_pairs=args.lfw_pairs, input_size=args.input_size)
-    lfw_loader = torch.utils.data.DataLoader(lfw_dataset, batch_size=args.lfw_batch_size, shuffle=False, num_workers=args.num_workers)
+    print('LFW directory: %s' % ARGS.lfw_dir)
+    lfw_dataset = LFW(lfw_dir=ARGS.lfw_dir, lfw_pairs=ARGS.lfw_pairs, input_size=ARGS.input_size)
+    lfw_loader = torch.utils.data.DataLoader(lfw_dataset, batch_size=ARGS.lfw_batch_size, shuffle=False, num_workers=ARGS.num_workers)
     
     ####### Model setup
-    print('Model type: %s' % args.model_type)
-    if args.model_type == 'IR_SE_50':
-        model = IR_SE_50(args.input_size)
+    print('Model type: %s' % ARGS.model_type)
+    if ARGS.model_type == 'IR_SE_50':
+        model = IR_SE_50(ARGS.input_size)
 
 
 
-    if args.model_path != None:
+    if ARGS.model_path != None:
         if use_cuda:
-            model.load_state_dict(torch.load(args.model_path))
+            model.load_state_dict(torch.load(ARGS.model_path))
         else:
-            model.load_state_dict(torch.load(args.model_path, map_location='cpu'))
+            model.load_state_dict(torch.load(ARGS.model_path, map_location='cpu'))
 
-    # model = Net(features_dim=args.features_dim)
     model = model.to(device)
 
     loss_softmax = nn.CrossEntropyLoss().to(device)
 
     ####### Criterion setup
-    print('Criterion type: %s' % args.criterion_type)
-    if args.criterion_type == 'arcface':
-        loss_criterion = Arcface_loss(num_classes=train_loader.dataset.num_classes, feat_dim=args.features_dim, device=device, s=args.margin_s, m=args.margin_m).to(device)
-    elif args.criterion_type == 'lmcl':
-        loss_criterion = LMCL_loss(num_classes=train_loader.dataset.num_classes, feat_dim=args.features_dim, device=device, s=args.margin_s, m=args.margin_m).to(device)
-    elif args.criterion_type == 'centerloss':
-        loss_criterion = Center_loss(device=device, num_classes=train_loader.dataset.num_classes, feat_dim=args.features_dim, use_gpu=use_cuda)
+    print('Criterion type: %s' % ARGS.criterion_type)
+    if ARGS.criterion_type == 'arcface':
+        loss_criterion = Arcface_loss(num_classes=train_loader.dataset.num_classes, feat_dim=ARGS.features_dim, device=device, s=ARGS.margin_s, m=ARGS.margin_m).to(device)
+    elif ARGS.criterion_type == 'lmcl':
+        loss_criterion = LMCL_loss(num_classes=train_loader.dataset.num_classes, feat_dim=ARGS.features_dim, device=device, s=ARGS.margin_s, m=ARGS.margin_m).to(device)
+    elif ARGS.criterion_type == 'centerloss':
+        loss_criterion = Center_loss(device=device, num_classes=train_loader.dataset.num_classes, feat_dim=ARGS.features_dim, use_gpu=use_cuda)
 
-    if args.loss_path != None:
+    if ARGS.loss_path != None:
         if use_cuda:
-            loss_criterion.load_state_dict(torch.load(args.loss_path))
+            loss_criterion.load_state_dict(torch.load(ARGS.loss_path))
         else:
-            loss_criterion.load_state_dict(torch.load(args.loss_path, map_location='cpu'))
+            loss_criterion.load_state_dict(torch.load(ARGS.loss_path, map_location='cpu'))
 
     # optimzer nn
-    # optimizer_nn = optim.SGD(model.parameters(), lr=args.model_lr, momentum=0.9, weight_decay=0.0005)
-    optimizer_nn = torch.optim.Adam(model.parameters(), lr=args.model_lr, betas=(args.beta1, 0.999))
-    sheduler_nn = lr_scheduler.StepLR(optimizer_nn, args.model_lr_step, gamma=args.model_lr_gamma)
+    # optimizer_nn = optim.SGD(model.parameters(), lr=ARGS.model_lr, momentum=0.9, weight_decay=0.0005)
+    optimizer_nn = torch.optim.Adam(model.parameters(), lr=ARGS.model_lr, betas=(ARGS.beta1, 0.999))
+    sheduler_nn = lr_scheduler.StepLR(optimizer_nn, ARGS.model_lr_step, gamma=ARGS.model_lr_gamma)
 
-    # optimzer_criterion = optim.SGD(loss_criterion.parameters(), lr=args.criterion_lr)
-    optimzer_criterion = torch.optim.Adam(loss_criterion.parameters(), lr=args.criterion_lr, betas=(args.beta1, 0.999))
-    sheduler_criterion = lr_scheduler.StepLR(optimzer_criterion, args.criterion_lr_step, gamma=args.criterion_lr_gamma)
+    # optimzer_criterion = optim.SGD(loss_criterion.parameters(), lr=ARGS.criterion_lr)
+    optimzer_criterion = torch.optim.Adam(loss_criterion.parameters(), lr=ARGS.criterion_lr, betas=(ARGS.beta1, 0.999))
+    sheduler_criterion = lr_scheduler.StepLR(optimzer_criterion, ARGS.criterion_lr_step, gamma=ARGS.criterion_lr_gamma)
 
-    for epoch in range(1, args.epochs + 1):
+    for epoch in range(1, ARGS.epochs + 1):
         sheduler_nn.step()
         sheduler_criterion.step()
         
-        train(args, model, device, train_loader, loss_softmax, loss_criterion, optimizer_nn, optimzer_criterion, log_file_path, model_dir, logger, epoch)
-        test(args, model, device, test_loader, loss_softmax, loss_criterion, log_file_path, logger, epoch)
-        validate_lfw(args, model, lfw_loader, lfw_dataset, device, log_file_path, logger, epoch)
+        train(ARGS, model, device, train_loader, loss_softmax, loss_criterion, optimizer_nn, optimzer_criterion, log_file_path, model_dir, logger, epoch)
+        test(ARGS, model, device, test_loader, loss_softmax, loss_criterion, log_file_path, logger, epoch)
+        validate_lfw(ARGS, model, lfw_loader, lfw_dataset, device, log_file_path, logger, epoch)
 
 
 def parse_arguments(argv):

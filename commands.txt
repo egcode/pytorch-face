@@ -253,7 +253,7 @@ python3 train.py \
 --model_lr_step 50
 
 
-## IRSE TEST
+## IRSE_50 TEST
 python3 train.py \
 --model_save_interval 1 \
 --test_interval 1 \
@@ -261,9 +261,6 @@ python3 train.py \
 --batch_size 64 \
 --batch_size_test 64 \
 --lfw_batch_size 64 \
---lfw_dir ./data/lfw_160 \
---data_dir ./data/CASIA-WebFace_160 \
---criterion_type centerloss
 
 
 

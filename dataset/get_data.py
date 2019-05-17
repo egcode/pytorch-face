@@ -43,20 +43,20 @@ class FacesDataset(data.Dataset):
     def __len__(self):
         return len(self.image_list)
 
-def get_data(args, device):
-    dataset = get_dataset(args.data_dir)
-    train_set, val_set = split_dataset(dataset, args.validation_set_split_ratio, args.min_nrof_val_images_per_class, 'SPLIT_IMAGES')
+def get_data(ARGS, device):
+    dataset = get_dataset(ARGS.data_dir)
+    train_set, val_set = split_dataset(dataset, ARGS.validation_set_split_ratio, ARGS.min_nrof_val_images_per_class, 'SPLIT_IMAGES')
     
     train_image_list, train_label_list, _ = get_image_paths_and_labels(train_set)
     val_image_list, val_label_list, _ = get_image_paths_and_labels(val_set)
 
-    train_faces_dataset = FacesDataset(train_image_list, train_label_list, len(train_set), args.input_size)
-    test_faces_dataset = FacesDataset(val_image_list, val_label_list, len(val_set), args.input_size)
+    train_faces_dataset = FacesDataset(train_image_list, train_label_list, len(train_set), ARGS.input_size)
+    test_faces_dataset = FacesDataset(val_image_list, val_label_list, len(val_set), ARGS.input_size)
 
-    trainloader = data.DataLoader(train_faces_dataset, batch_size=args.batch_size,
-                                                shuffle=True, num_workers=args.num_workers)
-    testloader = data.DataLoader(test_faces_dataset, batch_size=args.batch_size_test,
-                                                shuffle=False, num_workers=args.num_workers)
+    trainloader = data.DataLoader(train_faces_dataset, batch_size=ARGS.batch_size,
+                                                shuffle=True, num_workers=ARGS.num_workers)
+    testloader = data.DataLoader(test_faces_dataset, batch_size=ARGS.batch_size_test,
+                                                shuffle=False, num_workers=ARGS.num_workers)
     
     return trainloader, testloader
 
