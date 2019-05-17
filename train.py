@@ -265,12 +265,10 @@ def parse_arguments(argv):
     parser.add_argument('--model_type', type=str, help='Model type to use for training.', default='IR_SE_50')# support: 'ResNet_50', 'ResNet_101', 'ResNet_152', 'IR_50', 'IR_101', 'IR_152', 'IR_SE_50', 'IR_SE_101', 'IR_SE_152'
     parser.add_argument('--features_dim', type=int, help='Number of features for loss.', default=512)
     # Model Optimizer
-    # parser.add_argument('--model_lr', type=float, help='Learing rate of model optimizer.', default=0.1)
-    parser.add_argument('--model_lr', type=float, default=0.1, help='learning rate, default=0.1')
-    parser.add_argument('--beta1', type=float, default=0.5, help='beta1 for adam. default=0.5')
-
-    parser.add_argument('--model_lr_step', type=int, help='Learing rate of model optimizer.', default=100)
+    parser.add_argument('--model_lr', type=float, help='learning rate, default=0.1', default=0.1)
+    parser.add_argument('--model_lr_step', type=int, help='Learing rate of model optimizer.', default=50)
     parser.add_argument('--model_lr_gamma', type=float, help='Learing rate of model optimizer.', default=0.1)
+    parser.add_argument('--beta1', type=float, default=0.5, help='beta1 for adam. default=0.5')
     # Loss 
     parser.add_argument('--criterion_type', type=str, help='type of loss lmcl or arface.', default='centerloss')
     parser.add_argument('--loss_path', type=str, help='Loss weights if needed.', default=None)
@@ -278,13 +276,12 @@ def parse_arguments(argv):
     parser.add_argument('--margin_m', type=float, help='margin for loss.', default=0.5)    
     # Loss Optimizer
     parser.add_argument('--criterion_lr', type=float, help='Learing rate of model optimizer.', default=0.1)
-    parser.add_argument('--criterion_lr_step', type=int, help='Learning rate of model optimizer.', default=50)
-    parser.add_argument('--criterion_lr_gamma', type=float, help='Learning rate multiplied to this value every lr step.', default=0.1)
+    parser.add_argument('--criterion_lr_step', type=int, help='Learing rate of model optimizer.', default=50)
+    parser.add_argument('--criterion_lr_gamma', type=float, help='Learing rate of model optimizer.', default=0.1)
     # Intervals
     parser.add_argument('--model_save_interval', type=int, help='Save model with every interval epochs.', default=10)
     parser.add_argument('--test_interval', type=int, help='Perform test with every interval epochs.', default=10)
-    parser.add_argument('--lfw_interval', type=int, help='Perform LFW test with every interval epochs.', default=10)
-    # LFW
+    parser.add_argument('--lfw_interval', type=int, help='Perform LFW test with every interval epochs.', default=10)    # LFW
     parser.add_argument('--lfw_pairs', type=str, help='The file containing the pairs to use for validation.', default='lfw//pairs.txt')
     parser.add_argument('--lfw_dir', type=str, help='Path to the data directory containing aligned face patches.', default='./data/lfw_160')
     parser.add_argument('--lfw_batch_size', type=int, help='Number of images to process in a batch in the LFW test set.', default=100)
