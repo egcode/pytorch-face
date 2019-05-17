@@ -260,7 +260,7 @@ python3 train.py \
 --lfw_interval 1 \
 --batch_size 64 \
 --batch_size_test 64 \
---lfw_batch_size 64 \
+--lfw_batch_size 64
 
 
 

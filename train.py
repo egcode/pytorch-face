@@ -198,6 +198,8 @@ def main(ARGS):
     
     ####### Model setup
     print('Model type: %s' % ARGS.model_type)
+    if ARGS.model_type == 'IR_50':
+        model = IR_50(ARGS.input_size)
     if ARGS.model_type == 'IR_SE_50':
         model = IR_SE_50(ARGS.input_size)
 
@@ -262,7 +264,7 @@ def parse_arguments(argv):
     parser.add_argument('--min_nrof_val_images_per_class', type=float, help='Classes with fewer images will be removed from the validation set', default=0)
     # Model
     parser.add_argument('--model_path', type=str, help='Model weights if needed.', default=None)
-    parser.add_argument('--model_type', type=str, help='Model type to use for training.', default='IR_SE_50')# support: 'ResNet_50', 'ResNet_101', 'ResNet_152', 'IR_50', 'IR_101', 'IR_152', 'IR_SE_50', 'IR_SE_101', 'IR_SE_152'
+    parser.add_argument('--model_type', type=str, help='Model type to use for training.', default='IR_50')# support: 'ResNet_50', 'ResNet_101', 'ResNet_152', 'IR_50', 'IR_101', 'IR_152', 'IR_SE_50', 'IR_SE_101', 'IR_SE_152'
     parser.add_argument('--features_dim', type=int, help='Number of features for loss.', default=512)
     # Model Optimizer
     parser.add_argument('--model_lr', type=float, help='learning rate, default=0.1', default=0.1)

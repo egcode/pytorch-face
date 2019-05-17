@@ -17,6 +17,7 @@ from lfw.lfw_helper import *
 from lfw.lfw_pytorch import *
 
 from models.resnet import *
+from models.irse import *
 
 from pdb import set_trace as bp
 
@@ -24,14 +25,8 @@ if __name__ == '__main__':
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     ####### Model setup
-    # model = resnet18()
-    # model.load_state_dict(torch.load("lfw/resnet18-model-arcface.pth"))
-    model = resnet18()
-
-    casia_num_of_classes = 10575
-    model = resnet_face18(num_of_classes=casia_num_of_classes)
-
-    model.load_state_dict(torch.load("pth/resnet_face18.pth", map_location='cpu'))
+    model = IR_50([112, 112])
+    model.load_state_dict(torch.load("../evoLVe_data/pth/backbone_ir50_ms1m_epoch120.pth", map_location='cpu'))
     model.to(device)
     embedding_size = 512
     model.eval()
@@ -46,7 +41,7 @@ if __name__ == '__main__':
 
     ### LFW validate
     lfw_nrof_folds = 10 
-    distance_metric = 0
+    distance_metric = 1 #### if CenterLoss = 0, If Arcface = 1
     subtract_mean = False
     tpr, fpr, accuracy, val, val_std, far = lfw_validate_model(model, lfw_loader, lfw_dataset, embedding_size, device,
                                                                 lfw_nrof_folds, distance_metric, subtract_mean)
