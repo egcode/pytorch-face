@@ -122,7 +122,7 @@ def test(ARGS, model, device, test_loader, loss_softmax, loss_criterion, log_fil
         print_and_log(log_file_path, 'Total time for test: {}'.format(timedelta(seconds=time_for_test)))
 
 
-def validate_lfw(ARGS, model, lfw_loader, lfw_dataset, device, log_file_path, logger, epoch):
+def validate_lfw(ARGS, model, lfw_loader, lfw_dataset, device, log_file_path, logger, lfw_distance_metric, epoch):
     if epoch % ARGS.lfw_interval == 0 or epoch == ARGS.epochs:
         model.eval()
         t = time.time()
@@ -130,7 +130,7 @@ def validate_lfw(ARGS, model, lfw_loader, lfw_dataset, device, log_file_path, lo
         embedding_size = ARGS.features_dim
 
         tpr, fpr, accuracy, val, val_std, far = lfw_validate_model(model, lfw_loader, lfw_dataset, embedding_size, device,
-                                                                    ARGS.lfw_nrof_folds, ARGS.lfw_distance_metric, ARGS.lfw_subtract_mean)
+                                                                    ARGS.lfw_nrof_folds, lfw_distance_metric, ARGS.lfw_subtract_mean)
 
         # print('\nEpoch: '+str(epoch))
         # print('Accuracy: %2.5f+-%2.5f' % (np.mean(accuracy), np.std(accuracy)))
@@ -218,10 +218,13 @@ def main(ARGS):
     ####### Criterion setup
     print('Criterion type: %s' % ARGS.criterion_type)
     if ARGS.criterion_type == 'arcface':
+        lfw_distance_metric = 1
         loss_criterion = Arcface_loss(num_classes=train_loader.dataset.num_classes, feat_dim=ARGS.features_dim, device=device, s=ARGS.margin_s, m=ARGS.margin_m).to(device)
     elif ARGS.criterion_type == 'lmcl':
+        lfw_distance_metric = 1
         loss_criterion = LMCL_loss(num_classes=train_loader.dataset.num_classes, feat_dim=ARGS.features_dim, device=device, s=ARGS.margin_s, m=ARGS.margin_m).to(device)
     elif ARGS.criterion_type == 'centerloss':
+        lfw_distance_metric = 0
         loss_criterion = Center_loss(device=device, num_classes=train_loader.dataset.num_classes, feat_dim=ARGS.features_dim, use_gpu=use_cuda)
 
     if ARGS.loss_path != None:
@@ -245,7 +248,7 @@ def main(ARGS):
         
         train(ARGS, model, device, train_loader, loss_softmax, loss_criterion, optimizer_nn, optimzer_criterion, log_file_path, model_dir, logger, epoch)
         test(ARGS, model, device, test_loader, loss_softmax, loss_criterion, log_file_path, logger, epoch)
-        validate_lfw(ARGS, model, lfw_loader, lfw_dataset, device, log_file_path, logger, epoch)
+        validate_lfw(ARGS, model, lfw_loader, lfw_dataset, device, log_file_path, logger, lfw_distance_metric, epoch)
 
 
 def parse_arguments(argv):
@@ -289,7 +292,7 @@ def parse_arguments(argv):
     parser.add_argument('--lfw_dir', type=str, help='Path to the data directory containing aligned face patches.', default='./data/lfw_160')
     parser.add_argument('--lfw_batch_size', type=int, help='Number of images to process in a batch in the LFW test set.', default=100)
     parser.add_argument('--lfw_nrof_folds', type=int, help='Number of folds to use for cross validation. Mainly used for testing.', default=10)
-    parser.add_argument('--lfw_distance_metric', type=int, help='Type of distance metric to use. 0: Euclidian, 1:Cosine similarity distance.', default=0)
+    # parser.add_argument('--lfw_distance_metric', type=int, help='Type of distance metric to use. 0: Euclidian, 1:Cosine similarity distance.', default=0)
     parser.add_argument('--lfw_subtract_mean', help='Subtract feature mean before calculating distance.', action='store_true', default=False)
     return parser.parse_args(argv)
   
