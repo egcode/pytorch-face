@@ -253,7 +253,7 @@ python3 train.py \
 --model_lr_step 50
 
 
-## IRSE_50 TEST
+## IR_50 TEST
 python3 train.py \
 --model_save_interval 1 \
 --test_interval 1 \
@@ -268,7 +268,7 @@ tensorboard --logdir=old:out/2019-05-15___18-29-00/tensorboard,new:out/2019-05-1
 tensorboard --logdir=old1:out/2019-05-12___22-18-42/tensorboard,old2:out/2019-05-13___02-56-25/tensorboard,new:out/2019-05-13___15-26-25/tensorboard
 tensorboard --logdir=old1:out/2019-05-12___22-18-42/tensorboard,old2:out/2019-05-13___02-56-25/tensorboard,old3:out/2019-05-13___15-26-25/tensorboard,new:out/2019-05-14___14-17-40/tensorboard
 
-tensorboard --logdir=out/2019-05-16___18-29-31/tensorboard
+tensorboard --logdir=out/2019-05-17___17-02-13/tensorboard
 
 
 RuntimeError: CUDA out of memory. Tried to allocate 100.00 MiB (GPU 0; 11.17 GiB total capacity; 10.67 GiB already allocated; 69.06 MiB free; 92.90 MiB cached)
