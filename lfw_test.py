@@ -41,7 +41,7 @@ if __name__ == '__main__':
     lfw_pairs = 'lfw//pairs.txt'
     batch_size = 100
     num_workers = 2
-    lfw_dataset = LFW(lfw_dir=lfw_dir, lfw_pairs=lfw_pairs)
+    lfw_dataset = LFW(lfw_dir=lfw_dir, lfw_pairs=lfw_pairs, input_size=[112, 112])
     lfw_loader = torch.utils.data.DataLoader(lfw_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
 
     ### LFW validate

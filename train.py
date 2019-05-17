@@ -16,8 +16,8 @@ from losses.Arcface_loss import Arcface_loss
 from losses.LMCL_loss import LMCL_loss
 from losses.Center_loss import Center_loss
 from dataset.get_data import get_data
-from models.net import Net
 from models.resnet import *
+from models.irse import *
 from lfw.lfw_pytorch import *
 from lfw.lfw_helper import *
 from helpers import *
@@ -36,7 +36,7 @@ def train(args, model, device, train_loader, loss_softmax, loss_criterion, optim
 
         data, target = data.to(device), target.to(device)
 
-        outputs, features = model(data)
+        features = model(data)
 
         if args.criterion_type == 'arcface':
             logits = loss_criterion(features, target)
@@ -45,22 +45,10 @@ def train(args, model, device, train_loader, loss_softmax, loss_criterion, optim
             logits, mlogits = loss_criterion(features, target)
             loss = loss_softmax(mlogits, target)
         elif args.criterion_type == 'centerloss':
-            ### V1
-            # weight_cent = 1.
-            # target_one_hot = torch.zeros(len(target), train_loader.dataset.num_classes).to(device)
-            # target_one_hot = target_one_hot.scatter_(1, target.unsqueeze(1), 1.)        
-            # los_softm = loss_softmax(target_one_hot, target)
-            # loss_cent = loss_criterion(features, target)
-            # loss_cent *= weight_cent
-            # loss = los_softm + loss_cent
-
-            ### V2
             weight_cent = 1.
-            # target_one_hot = torch.zeros(len(target), train_loader.dataset.num_classes).to(device)
-            # target_one_hot = target_one_hot.scatter_(1, target.unsqueeze(1), 1.)        
-            los_softm = loss_softmax(outputs, target)
-            loss_cent = loss_criterion(features, target)
+            loss_cent, outputs = loss_criterion(features, target)
             loss_cent *= weight_cent
+            los_softm = loss_softmax(outputs, target)
             loss = los_softm + loss_cent
 
 
@@ -109,16 +97,16 @@ def test(args, model, device, test_loader, loss_softmax, loss_criterion, log_fil
             for data, target in test_loader:
                 data, target = data.to(device), target.to(device)
 
-                outputs,feats = model(data)
+                feats = model(data)
 
                 if args.criterion_type == 'arcface':
                     logits = loss_criterion(feats, target)
                 elif args.criterion_type == 'lmcl':
                     logits, mlogits = loss_criterion(feats, target)
                 elif args.criterion_type == 'centerloss':
-                    logits = outputs
+                    _, outputs = loss_criterion(feats, target)
 
-                _, predicted = torch.max(logits.data, 1)
+                _, predicted = torch.max(outputs.data, 1)
                 correct += (predicted == target.data).sum()
                 
 
@@ -205,21 +193,15 @@ def main(args):
 
     ######## LFW Data setup
     print('LFW directory: %s' % args.lfw_dir)
-    lfw_dataset = LFW(lfw_dir=args.lfw_dir, lfw_pairs=args.lfw_pairs)
+    lfw_dataset = LFW(lfw_dir=args.lfw_dir, lfw_pairs=args.lfw_pairs, input_size=args.input_size)
     lfw_loader = torch.utils.data.DataLoader(lfw_dataset, batch_size=args.lfw_batch_size, shuffle=False, num_workers=args.num_workers)
     
     ####### Model setup
     print('Model type: %s' % args.model_type)
-    if args.model_type == 'resnet18':
-        model = resnet18()
-    elif args.model_type == 'resnet34':
-        model = resnet34()
-    elif args.model_type == 'resnet50':
-        model = resnet50()
-    elif args.model_type == 'resnet_face50':
-        model = resnet_face50(num_of_classes = train_loader.dataset.num_classes)
-    elif args.model_type == 'resnet_face18':
-        model = resnet_face18(num_of_classes = train_loader.dataset.num_classes)
+    if args.model_type == 'IR_SE_50':
+        model = IR_SE_50(args.input_size)
+
+
 
     if args.model_path != None:
         if use_cuda:
@@ -239,7 +221,7 @@ def main(args):
     elif args.criterion_type == 'lmcl':
         loss_criterion = LMCL_loss(num_classes=train_loader.dataset.num_classes, feat_dim=args.features_dim, device=device, s=args.margin_s, m=args.margin_m).to(device)
     elif args.criterion_type == 'centerloss':
-        loss_criterion = Center_loss(num_classes=train_loader.dataset.num_classes, feat_dim=args.features_dim, use_gpu=use_cuda)
+        loss_criterion = Center_loss(device=device, num_classes=train_loader.dataset.num_classes, feat_dim=args.features_dim, use_gpu=use_cuda)
 
     if args.loss_path != None:
         if use_cuda:
@@ -269,8 +251,9 @@ def parse_arguments(argv):
     # Out    
     parser.add_argument('--out_dir', type=str,  help='Directory where to trained models and event logs.', default='./out')
     # Training
-    parser.add_argument('--epochs', type=int, help='Training epochs training.', default=32000)
+    parser.add_argument('--epochs', type=int, help='Training epochs training.', default=200)
     # Data
+    parser.add_argument('--input_size', type=str, help='support: [112, 112] and [224, 224]', default=[112, 112])
     parser.add_argument('--data_dir', type=str, help='Path to the data directory containing aligned face patches.', default='../datasets/CASIA-WebFace_160')
     parser.add_argument('--num_workers', type=int, help='Number of threads to use for data pipeline.', default=8)
     parser.add_argument('--batch_size', type=int, help='Number of batches while training model.', default=512)
@@ -279,7 +262,7 @@ def parse_arguments(argv):
     parser.add_argument('--min_nrof_val_images_per_class', type=float, help='Classes with fewer images will be removed from the validation set', default=0)
     # Model
     parser.add_argument('--model_path', type=str, help='Model weights if needed.', default=None)
-    parser.add_argument('--model_type', type=str, help='Model type to use for training.', default='resnet_face50')
+    parser.add_argument('--model_type', type=str, help='Model type to use for training.', default='IR_SE_50')# support: 'ResNet_50', 'ResNet_101', 'ResNet_152', 'IR_50', 'IR_101', 'IR_152', 'IR_SE_50', 'IR_SE_101', 'IR_SE_152'
     parser.add_argument('--features_dim', type=int, help='Number of features for loss.', default=512)
     # Model Optimizer
     # parser.add_argument('--model_lr', type=float, help='Learing rate of model optimizer.', default=0.1)
@@ -294,8 +277,8 @@ def parse_arguments(argv):
     parser.add_argument('--margin_s', type=float, help='scale for feature.', default=64.0)
     parser.add_argument('--margin_m', type=float, help='margin for loss.', default=0.5)    
     # Loss Optimizer
-    parser.add_argument('--criterion_lr', type=float, help='Learing rate of model optimizer.', default=0.01)
-    parser.add_argument('--criterion_lr_step', type=int, help='Learing rate of model optimizer.', default=20000)
+    parser.add_argument('--criterion_lr', type=float, help='Learing rate of model optimizer.', default=0.1)
+    parser.add_argument('--criterion_lr_step', type=int, help='Learing rate of model optimizer.', default=50)
     parser.add_argument('--criterion_lr_gamma', type=float, help='Learing rate of model optimizer.', default=0.1)
     # Intervals
     parser.add_argument('--model_save_interval', type=int, help='Save model with every interval epochs.', default=10)

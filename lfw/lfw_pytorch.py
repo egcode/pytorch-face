@@ -20,7 +20,7 @@ from pdb import set_trace as bp
 
 class LFW(data.Dataset):
     
-    def __init__(self, lfw_dir, lfw_pairs):
+    def __init__(self, lfw_dir, lfw_pairs, input_size):
 
         # Read the file containing the pairs used for testing
         pairs = read_pairs(os.path.expanduser(lfw_pairs))
@@ -33,6 +33,7 @@ class LFW(data.Dataset):
         normalize = T.Normalize(mean=[0.5], std=[0.5])
 
         self.transforms = T.Compose([
+            T.Resize(input_size),
             T.ToTensor(),
             normalize
         ])
@@ -102,7 +103,7 @@ if __name__ == '__main__':
     lfw_pairs = 'lfw//pairs.txt'
     batch_size = 100
     num_workers = 2
-    lfw_dataset = LFW(lfw_dir=lfw_dir, lfw_pairs=lfw_pairs)
+    lfw_dataset = LFW(lfw_dir=lfw_dir, lfw_pairs=lfw_pairs, input_size=[112, 112])
     lfw_loader = torch.utils.data.DataLoader(lfw_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
 
     ### LFW validate
