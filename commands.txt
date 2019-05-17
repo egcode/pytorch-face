@@ -301,6 +301,10 @@ to enter back into the tmux session:
 # RESTORE tmux
 killall -10 tmux
 
+-------REQUIREMENTS:-------------------------------------------
+
+pip3 install -r /path/to/requirements.txt
+
 -------STATS:-------------------------------------------
 stats for mnist arcface
 
