@@ -149,9 +149,9 @@ def validate_lfw(ARGS, model, lfw_loader, lfw_dataset, device, log_file_path, lo
         print_and_log(log_file_path, 'Total time for LFW evaluation: {}'.format(timedelta(seconds=time_for_lfw)))
 
         logger.scalar_summary("lfw_accuracy", np.mean(accuracy), epoch)
-        logger.scalar_summary("Validation_rate", val, epoch)
-        logger.scalar_summary("FAR", far, epoch)
-        logger.scalar_summary("Area_under_curve", auc, epoch)
+        # logger.scalar_summary("Validation_rate", val, epoch)
+        # logger.scalar_summary("FAR", far, epoch)
+        # logger.scalar_summary("Area_under_curve", auc, epoch)
 
 
 def main(ARGS):
