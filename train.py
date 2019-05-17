@@ -259,7 +259,7 @@ def parse_arguments(argv):
     parser.add_argument('--epochs', type=int, help='Training epochs training.', default=200)
     # Data
     parser.add_argument('--input_size', type=str, help='support: [112, 112] and [224, 224]', default=[112, 112])
-    parser.add_argument('--data_dir', type=str, help='Path to the data directory containing aligned face patches.', default='./data/CASIA-WebFace_160')
+    parser.add_argument('--data_dir', type=str, help='Path to the data directory containing aligned face patches.', default='./data/CASIA_and_Golovan_160')
     parser.add_argument('--num_workers', type=int, help='Number of threads to use for data pipeline.', default=8)
     parser.add_argument('--batch_size', type=int, help='Number of batches while training model.', default=512)
     parser.add_argument('--batch_size_test', type=int, help='Number of batches while testing model.', default=512)
