@@ -375,7 +375,10 @@ stats for mnist arcface
 
 
 
--------HELPERS:-------------------------------------------
+-------DATASET FOLDER HELPERS:-------------------------------------------
+
+# Recursively count all the files in a directory
+find . -type f | wc -l
 
 # cound folders in directory
 find . -mindepth 1 -maxdepth 1 -type d | wc -l
