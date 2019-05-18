@@ -379,3 +379,6 @@ stats for mnist arcface
 
 # cound folders in directory
 find . -mindepth 1 -maxdepth 1 -type d | wc -l
+
+# Size of folders in directory
+du -sh */
