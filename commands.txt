@@ -41,8 +41,8 @@ gcloud compute scp --recurse /Users/eugene/Documents/Developer/Computer-Vision-P
 # copy to macbook CURRENT MODEL 
 gcloud compute scp --recurse instance-p100:/home/yujin/pytorch-face/pth/resnet_face50_current.pth /Users/yujin/Documents/Developer/Computer-Vision/pytorch-face/pth/resnet_face50_current.pth
 
-gcloud compute scp --recurse instance-v100:/home/yujin/pytorch-face/pth/resnet_face.pth /Users/eugene/Documents/Developer/Computer-Vision-Python/pytorch-face/pth/resnet_face18.pth
-gcloud compute scp --recurse instance-v100:/home/yujin/pytorch-face/pth/centerloss.pth /Users/eugene/Documents/Developer/Computer-Vision-Python/pytorch-face/pth/resnet_face18_centerloss.pth
+gcloud compute scp --recurse p100-8workers:/home/yujin/pytorch-face/pth/IR_50_MODEL_centerloss.pth /Users/eugene/Documents/Developer/Computer-Vision-Python/pytorch-face/pth/IR_50_MODEL_centerloss.pth
+gcloud compute scp --recurse p100-8workers:/home/yujin/pytorch-face/pth/LOSS_centerloss.pth /Users/eugene/Documents/Developer/Computer-Vision-Python/pytorch-face/pth/LOSS_centerloss.pth
 
 ###############
 ###############
@@ -255,6 +255,8 @@ python3 train.py \
 
 ## IR_50 TEST
 python3 train.py \
+--model_path ./pth/IR_50_MODEL_centerloss.pth \
+--loss_path ./pth/LOSS_centerloss.pth \
 --model_save_interval 1 \
 --test_interval 1 \
 --lfw_interval 1 \
@@ -263,8 +265,22 @@ python3 train.py \
 --lfw_batch_size 64
 
 
+python3 train.py \
+--model_path ./pth/IR_50_MODEL_centerloss.pth \
+--loss_path ./pth/LOSS_centerloss.pth \
+--model_save_interval 1 \
+--test_interval 1 \
+--lfw_interval 1 \
+--batch_size 64 \
+--batch_size_test 64 \
+--lfw_batch_size 64 \
+--model_lr 0.001 \
+--model_lr_step 3 \
+--criterion_lr 0.001 \
+--criterion_lr_step 3
 
-tensorboard --logdir=old:out/2019-05-15___18-29-00/tensorboard,new:out/2019-05-16___18-15-07/tensorboard
+
+tensorboard --logdir=old:out/2019-05-17___18-05-08/tensorboard,new:out/2019-05-18___18-30-56/tensorboard
 tensorboard --logdir=old1:out/2019-05-12___22-18-42/tensorboard,old2:out/2019-05-13___02-56-25/tensorboard,new:out/2019-05-13___15-26-25/tensorboard
 tensorboard --logdir=old1:out/2019-05-12___22-18-42/tensorboard,old2:out/2019-05-13___02-56-25/tensorboard,old3:out/2019-05-13___15-26-25/tensorboard,new:out/2019-05-14___14-17-40/tensorboard
 
@@ -356,3 +372,10 @@ stats for mnist arcface
 ##### Nvidia Tesla K80  - Total time: 0:18:07
 ##### Nvidia Tesla P100 - Total time: 0:05:19
 ##### Nvidia Tesla V100 - Total time: 0:03:42
+
+
+
+-------HELPERS:-------------------------------------------
+
+# cound folders in directory
+find . -mindepth 1 -maxdepth 1 -type d | wc -l
