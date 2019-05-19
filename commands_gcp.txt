@@ -253,7 +253,7 @@ python3 train.py \
 --model_lr_step 50
 
 
-## IR_50 TEST
+## IR_50 TEST  #RESULT::::: IR_50_MODEL_centerloss_casia_epoch34.pth  
 python3 train.py \
 --model_path ./pth/IR_50_MODEL_centerloss.pth \
 --loss_path ./pth/LOSS_centerloss.pth \
@@ -263,21 +263,6 @@ python3 train.py \
 --batch_size 64 \
 --batch_size_test 64 \
 --lfw_batch_size 64
-
-
-python3 train.py \
---model_path ./pth/IR_50_MODEL_centerloss.pth \
---loss_path ./pth/LOSS_centerloss.pth \
---model_save_interval 1 \
---test_interval 1 \
---lfw_interval 1 \
---batch_size 64 \
---batch_size_test 64 \
---lfw_batch_size 64 \
---model_lr 0.001 \
---model_lr_step 3 \
---criterion_lr 0.001 \
---criterion_lr_step 3
 
 
 tensorboard --logdir=old:out/2019-05-17___18-05-08/tensorboard,new:out/2019-05-18___18-30-56/tensorboard
