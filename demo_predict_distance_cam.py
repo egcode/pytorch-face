@@ -11,6 +11,14 @@ python3 demo_predict_distance_cam.py \
 --label_string_center ./output_arrays/label_strings_center_1.npy \
 --labels_center ./output_arrays/labels_center_1.npy
 
+
+python3 demo_predict_distance_cam.py \
+--model ./pth/IR_50_MODEL_centerloss_casia_epoch34.pth \
+--embeddings_premade ./output_arrays/embeddings_center_2.npy \
+--label_string_center ./output_arrays/label_strings_center_2.npy \
+--labels_center ./output_arrays/labels_center_2.npy \
+--distance_metric 1
+
 '''
 import tensorflow as tf
 import numpy as np
@@ -43,6 +51,7 @@ from pdb import set_trace as bp
 
 
 max_threshold = 1.0
+
 unknown_class = "unknown"  # unknown folder
 
 class Face:
@@ -183,7 +192,10 @@ def main(ARGS):
         for i in range(len(faces)):
             for j in range(nrof_premade):
                 face = faces[i]
-                dist = np.sqrt(np.sum(np.square(np.subtract(face.embedding, embeddings_premade[j,:]))))
+                # dist = np.sqrt(np.sum(np.square(np.subtract(face.embedding, embeddings_premade[j,:]))))
+                
+                dist = distance(face.embedding, embeddings_premade[j,:].reshape((1, 512)), ARGS.distance_metric)
+                print("Distance: {}".format(dist))
 
                 label = label_string_center[j]
                 if label in face.all_results_dict: # if label value in dictionary
@@ -241,6 +253,22 @@ def add_overlays(frame, faces):
                             cv2.FONT_HERSHEY_SIMPLEX, 1, color,
                             thickness=2, lineType=2)
 
+def distance(embeddings1, embeddings2, distance_metric=0):
+    if distance_metric==0:
+        # Euclidian distance
+        diff = np.subtract(embeddings1, embeddings2)
+        dist = np.sum(np.square(diff),1)
+    elif distance_metric==1:
+        # Distance based on cosine similarity
+        dot = np.sum(np.multiply(embeddings1, embeddings2), axis=1)
+        norm = np.linalg.norm(embeddings1, axis=1) * np.linalg.norm(embeddings2, axis=1)
+        similarity = dot / norm
+        dist = np.arccos(similarity) / math.pi
+    else:
+        raise 'Undefined distance metric %d' % distance_metric 
+        
+    return dist
+
 
 def parse_arguments(argv):
     parser = argparse.ArgumentParser()
@@ -252,6 +280,7 @@ def parse_arguments(argv):
     parser.add_argument('--embeddings_premade', type=str, help='Premade embeddings array .npy format')
     parser.add_argument('--label_string_center', type=str, help='Premade label strings array .npy format')
     parser.add_argument('--labels_center', type=str, help='Premade labels integers array .npy format')
+    parser.add_argument('--distance_metric', type=int, help='Type of distance metric to use. 0: Euclidian, 1:Cosine similarity distance.', default=0)
     return parser.parse_args(argv)
 
 if __name__ == '__main__':

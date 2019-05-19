@@ -56,6 +56,15 @@ python3 demo_export_embeddings.py ./pth/IR_50_MODEL_centerloss_casia_epoch34.pth
 --embeddings_name ./output_arrays/embeddings_center_1.npy \
 --labels_name ./output_arrays/labels_center_1.npy \
 --labels_strings_name ./output_arrays/label_strings_center_1.npy
+
+
+python3 demo_export_embeddings.py ./pth/backbone_ir50_ms1m_epoch120.pth ./data/golovan_160/ \
+--is_aligned True \
+--image_size 112 \
+--embeddings_name ./output_arrays/embeddings_center_2.npy \
+--labels_name ./output_arrays/labels_center_2.npy \
+--labels_strings_name ./output_arrays/label_strings_center_2.npy
+
 """
 
 class FacesDataset(data.Dataset):
