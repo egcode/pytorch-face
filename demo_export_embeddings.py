@@ -86,6 +86,10 @@ class FacesDataset(data.Dataset):
 
 def main(ARGS):
     
+    out_dir = 'output_arrays/'
+    if not os.path.isdir(out_dir):  # Create the out directory if it doesn't exist
+        os.makedirs(out_dir)
+
     train_set = get_dataset(ARGS.data_dir)
     image_list, label_list, names_list = get_image_paths_and_labels(train_set)
     faces_dataset = FacesDataset(image_list, label_list, names_list, len(train_set), ARGS.image_size, ARGS.is_aligned)
