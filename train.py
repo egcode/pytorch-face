@@ -27,6 +27,28 @@ from logger import Logger
 from pdb import set_trace as bp
 
 
+'''
+EXAMPLES:
+## IR_50 TEST  #RESULT::::: IR_50_MODEL_centerloss_casia_epoch34.pth  
+python3 train.py \
+--model_path ./pth/IR_50_MODEL_centerloss.pth \
+--loss_path ./pth/LOSS_centerloss.pth \
+--batch_size 64 \
+--batch_size_test 64 \
+--lfw_batch_size 64 \
+--criterion_type centerloss \
+--model_lr 0.01 \
+--model_lr_step 10 \
+--model_lr_gamma 0.9 \
+--criterion_lr 0.01 \
+--criterion_lr_step 10 \
+--criterion_lr_gamma 0.9 
+
+
+
+'''
+
+
 def train(ARGS, model, device, train_loader, loss_softmax, loss_criterion, optimizer_nn, optimzer_criterion, log_file_path, model_dir, logger, epoch):
     model.train()
     t = time.time()
