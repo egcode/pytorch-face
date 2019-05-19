@@ -86,6 +86,8 @@ class FacesDataset(data.Dataset):
 
 def main(ARGS):
     
+    np.set_printoptions(threshold=sys.maxsize)
+
     out_dir = 'output_arrays/'
     if not os.path.isdir(out_dir):  # Create the out directory if it doesn't exist
         os.makedirs(out_dir)
@@ -120,11 +122,14 @@ def main(ARGS):
 
     
 ########################################
-    nrof_images = len(loader.dataset)
+    # nrof_images = len(loader.dataset)
+    nrof_images = len(image_list)
 
     emb_array = np.zeros((nrof_images, embedding_size))
-    lab_array = np.zeros((nrof_images,))
-    nam_array = np.chararray((nrof_images,))
+    # lab_array = np.zeros((nrof_images,))
+    lab_array = np.zeros((0,0))
+
+    # nam_array = np.chararray((nrof_images,))
     with torch.no_grad():
         for i, (data, label, name) in enumerate(loader):
 
@@ -134,15 +139,16 @@ def main(ARGS):
             emb = feats.cpu().numpy()
             lab = label.detach().cpu().numpy()
 
-            nam_array[lab] = name
-            lab_array[lab] = lab
+            # nam_array[lab] = name
+            # lab_array[lab] = lab
             emb_array[lab, :] = emb
 
+            lab_array = np.append(lab_array,lab)
+            
             if i % 10 == 9:
                 print('.', end='')
                 sys.stdout.flush()
         print('')
-
 
     # embeddings = emb_array
     # np.save('embeddings.npy', embeddings) 
@@ -154,11 +160,21 @@ def main(ARGS):
     #   export emedings and labels
     np.save(ARGS.embeddings_name, emb_array)
     np.save(ARGS.labels_name, lab_array)
-    np.save(ARGS.labels_strings_name, nam_array)
+
+
+    label_strings = np.array(label_strings)
+    np.save(ARGS.labels_strings_name, label_strings[label_list])
+
+    # bp()
+
 
     # embeddings = np.load('output_arrays/embeddings_center_1.npy')
     # labels = np.load('output_arrays/labels_center_1.npy')
     # strings = np.load('output_arrays/label_strings_center_1.npy')
+
+'''
+import numpy as np;em = np.load('output_arrays/embeddings_center_1.npy');la = np.load('output_arrays/labels_center_1.npy');st = np.load('output_arrays/label_strings_center_1.npy')
+'''
 
 ##########################################
     # Get input and output tensors
