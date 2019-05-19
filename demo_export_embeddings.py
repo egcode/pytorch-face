@@ -156,6 +156,9 @@ def main(ARGS):
     np.save(ARGS.labels_name, lab_array)
     np.save(ARGS.labels_strings_name, nam_array)
 
+    # embeddings = np.load('output_arrays/embeddings_center_1.npy')
+    # labels = np.load('output_arrays/labels_center_1.npy')
+    # strings = np.load('output_arrays/label_strings_center_1.npy')
 
 ##########################################
     # Get input and output tensors
