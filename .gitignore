@@ -14,7 +14,7 @@ data/
 # Pytorch models
 *.pth
 *.pt
-# *.npy
+*.npy
 # Distribution / packaging
 .Python
 env/
