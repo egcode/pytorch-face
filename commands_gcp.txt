@@ -235,7 +235,24 @@ python3 train.py \
 --criterion_lr_gamma 0.9 
 
 
-tensorboard --logdir=old:out/2019-05-17___18-05-08/tensorboard,new:out/2019-05-18___18-30-56/tensorboard
+python3 train.py \
+--model_path ./pth/IR_50_MODEL_centerloss.pth \
+--loss_path ./pth/LOSS_centerloss.pth \
+--batch_size 128 \
+--batch_size_test 128 \
+--lfw_batch_size 128 \
+--criterion_type centerloss \
+--model_lr 0.01 \
+--model_lr_step 2 \
+--model_lr_gamma 0.9 \
+--criterion_lr 0.01 \
+--criterion_lr_step 2 \
+--criterion_lr_gamma 0.9 
+
+
+
+
+tensorboard --logdir=old:out/2019-05-19___21-32-29/tensorboard,new:out/2019-05-20___05-49-21/tensorboard
 tensorboard --logdir=old1:out/2019-05-12___22-18-42/tensorboard,old2:out/2019-05-13___02-56-25/tensorboard,new:out/2019-05-13___15-26-25/tensorboard
 tensorboard --logdir=old1:out/2019-05-12___22-18-42/tensorboard,old2:out/2019-05-13___02-56-25/tensorboard,old3:out/2019-05-13___15-26-25/tensorboard,new:out/2019-05-14___14-17-40/tensorboard
 

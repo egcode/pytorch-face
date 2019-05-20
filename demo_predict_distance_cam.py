@@ -13,7 +13,7 @@ python3 demo_predict_distance_cam.py \
 
 
 python3 demo_predict_distance_cam.py \
---model ./pth/IR_50_MODEL_centerloss_casia_epoch34.pth \
+--model ./pth/backbone_ir50_ms1m_epoch120.pth \
 --embeddings_premade ./output_arrays/embeddings_center_2.npy \
 --label_string_center ./output_arrays/label_strings_center_2.npy \
 --labels_center ./output_arrays/labels_center_2.npy \
@@ -192,10 +192,10 @@ def main(ARGS):
         for i in range(len(faces)):
             for j in range(nrof_premade):
                 face = faces[i]
-                # dist = np.sqrt(np.sum(np.square(np.subtract(face.embedding, embeddings_premade[j,:]))))
+                dist = np.sqrt(np.sum(np.square(np.subtract(face.embedding, embeddings_premade[j,:]))))
                 
-                dist = distance(face.embedding, embeddings_premade[j,:].reshape((1, 512)), ARGS.distance_metric)
-                print("Distance: {}".format(dist))
+                # dist = distance(face.embedding, embeddings_premade[j,:].reshape((1, 512)), ARGS.distance_metric)
+                # print("Distance: {}".format(dist))
 
                 label = label_string_center[j]
                 if label in face.all_results_dict: # if label value in dictionary

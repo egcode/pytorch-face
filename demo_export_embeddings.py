@@ -50,7 +50,7 @@ I've found working with the embeddings useful for classifications models.
 
 Charles Jekel 2017
 
-python3 demo_export_embeddings.py ./pth/IR_50_MODEL_centerloss_casia_epoch34.pth ./data/golovan_160/ \
+python3 demo_export_embeddings.py ./pth/IR_50_MODEL_centerloss_casia_epoch16.pth ./data/golovan_160/ \
 --is_aligned True \
 --image_size 112 \
 --embeddings_name ./output_arrays/embeddings_center_1.npy \
