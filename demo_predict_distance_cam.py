@@ -6,7 +6,7 @@ from __future__ import print_function
 '''
 
 python3 demo_predict_distance_cam.py \
---model ./pth/IR_50_MODEL_centerloss_casia_epoch34.pth \
+--model ./pth/IR_50_MODEL_centerloss_casia_epoch16.pth \
 --embeddings_premade ./output_arrays/embeddings_center_1.npy \
 --label_string_center ./output_arrays/label_strings_center_1.npy \
 --labels_center ./output_arrays/labels_center_1.npy
@@ -168,19 +168,23 @@ def main(ARGS):
             # embeddings = tf.get_default_graph().get_tensor_by_name("embeddings:0")
             # phase_train_placeholder = tf.get_default_graph().get_tensor_by_name("phase_train:0")
 
-            normalize = T.Normalize(mean=[0.5], std=[0.5])
-            transforms = T.Compose([
-                T.Resize([ARGS.image_size,ARGS.image_size]),
-                T.ToTensor(),
-                normalize
-            ])
-            pil_image = Image.fromarray(face.image.astype('uint8'), 'RGB')
-            pil_image = transforms(pil_image)
-            pil_image = pil_image.reshape(1, 3, ARGS.image_size, ARGS.image_size)
+            # normalize = T.Normalize(mean=[0.5], std=[0.5])
+            # transforms = T.Compose([
+            #     T.Resize([ARGS.image_size,ARGS.image_size]),
+            #     T.ToTensor(),
+            #     normalize
+            # ])
+            # pil_image = Image.fromarray(face.image.astype('uint8'), 'RGB')
+            # pil_image = transforms(pil_image)
+            # pil_image = pil_image.reshape(1, 3, ARGS.image_size, ARGS.image_size)
 
             with torch.no_grad():
-                feats = model(torch.tensor(pil_image))
-                face.embedding = feats.cpu().numpy()
+                # feats = model(torch.tensor(pil_image))
+                # face.embedding = feats.cpu().numpy()
+
+                feats_1 = extract_feature(face.image, model, device)
+                face.embedding = feats_1.cpu().numpy()
+
 
 
             # feed_image = np.expand_dims(face.image, axis=0)
@@ -268,6 +272,56 @@ def distance(embeddings1, embeddings2, distance_metric=0):
         raise 'Undefined distance metric %d' % distance_metric 
         
     return dist
+
+def l2_norm(input, axis = 1):
+    norm = torch.norm(input, 2, axis, True)
+    output = torch.div(input, norm)
+
+    return output
+
+def extract_feature(img_root, backbone, device, tta = True):
+    # img = cv2.imread(img_root)
+
+
+    resized = cv2.resize(img_root, (128, 128))
+
+    # center crop image
+    a=int((128-112)/2) # x start
+    b=int((128-112)/2+112) # x end
+    c=int((128-112)/2) # y start
+    d=int((128-112)/2+112) # y end
+    ccropped = resized[a:b, c:d] # center crop the image
+    ccropped = ccropped[...,::-1] # BGR to RGB
+
+    # flip image horizontally
+    flipped = cv2.flip(ccropped, 1)
+
+    # load numpy to tensor
+    ccropped = ccropped.swapaxes(1, 2).swapaxes(0, 1)
+    ccropped = np.reshape(ccropped, [1, 3, 112, 112])
+    ccropped = np.array(ccropped, dtype = np.float32)
+    ccropped = (ccropped - 127.5) / 128.0
+    ccropped = torch.from_numpy(ccropped)
+
+    flipped = flipped.swapaxes(1, 2).swapaxes(0, 1)
+    flipped = np.reshape(flipped, [1, 3, 112, 112])
+    flipped = np.array(flipped, dtype = np.float32)
+    flipped = (flipped - 127.5) / 128.0
+    flipped = torch.from_numpy(flipped)
+
+    # extract features
+    backbone.eval() # set to evaluation mode
+    with torch.no_grad():
+        if tta:
+            emb_batch = backbone(ccropped.to(device)).cpu() + backbone(flipped.to(device)).cpu()
+            features = l2_norm(emb_batch)
+        else:
+            features = l2_norm(backbone(ccropped.to(device)).cpu())
+            
+#     np.save("features.npy", features) 
+#     features = np.load("features.npy")
+
+    return features
 
 
 def parse_arguments(argv):

@@ -27,6 +27,13 @@ from PIL import Image
 from models.resnet import *
 from models.irse import *
 
+import torch
+import cv2
+import numpy as np
+import os
+
+import matplotlib.pyplot as plt
+
 """
 Exports the embeddings and labels of a directory of images as numpy arrays.
 
@@ -83,12 +90,43 @@ class FacesDataset(data.Dataset):
 
     def __getitem__(self, index):
         img_path = self.image_list[index]
-        img = Image.open(img_path)
-        data = img.convert('RGB')
-        data = self.transforms(data)
+        # img = Image.open(img_path)
+        # data = img.convert('RGB')
+        # data = self.transforms(data)
         label = self.label_list[index]
         name = self.names_list[index]
-        return data.float(), label, name
+
+
+
+        # load image
+        img = cv2.imread(img_path)
+        # resize image to [128, 128]
+        image = cv2.resize(img, (128, 128))
+        # center crop image
+        a=int((128-112)/2) # x start
+        b=int((128-112)/2+112) # x end
+        c=int((128-112)/2) # y start
+        d=int((128-112)/2+112) # y end
+        ccropped = image[a:b, c:d] # center crop the image
+        ccropped = ccropped[...,::-1] # BGR to RGB
+
+        # flip image horizontally
+        flipped = cv2.flip(ccropped, 1)
+
+        # load numpy to tensor
+        ccropped = ccropped.swapaxes(1, 2).swapaxes(0, 1)
+        ccropped = np.reshape(ccropped, [1, 3, 112, 112])
+        ccropped = np.array(ccropped, dtype = np.float32)
+        ccropped = (ccropped - 127.5) / 128.0
+        ccropped = torch.from_numpy(ccropped)
+
+        flipped = flipped.swapaxes(1, 2).swapaxes(0, 1)
+        flipped = np.reshape(flipped, [1, 3, 112, 112])
+        flipped = np.array(flipped, dtype = np.float32)
+        flipped = (flipped - 127.5) / 128.0
+        flipped = torch.from_numpy(flipped)        
+        # return data.float(), label, name
+        return ccropped, flipped, label, name
 
     def __len__(self):
         return len(self.image_list)
@@ -140,16 +178,24 @@ def main(ARGS):
 
     # nam_array = np.chararray((nrof_images,))
     with torch.no_grad():
-        for i, (data, label, name) in enumerate(loader):
+        for i, (ccropped, flipped, label, name) in enumerate(loader):
 
-            data, label = data.to(device), label.to(device)
+            ccropped, flipped, label = ccropped.to(device), flipped.to(device), label.to(device)
 
-            feats = model(data)
+            print("ccropped.shape {}".format(ccropped.shape))
+            
+
+            ccropped = torch.squeeze(ccropped)
+            flipped = torch.squeeze(flipped)
+            # feats = model(data)
+            emb_batch = model(ccropped).cpu() + model(flipped).cpu()
+            feats = l2_norm(emb_batch)
+
             emb = feats.cpu().numpy()
+
             lab = label.detach().cpu().numpy()
 
-            # nam_array[lab] = name
-            # lab_array[lab] = lab
+
             emb_array[lab, :] = emb
 
             lab_array = np.append(lab_array,lab)
@@ -315,6 +361,13 @@ def load_data(image_paths, do_random_crop, do_random_flip, image_size, do_prewhi
         img = flip(img, do_random_flip)
         images[i,:,:,:] = img
     return images
+
+
+def l2_norm(input, axis = 1):
+    norm = torch.norm(input, 2, axis, True)
+    output = torch.div(input, norm)
+
+    return output
 
 def parse_arguments(argv):
     parser = argparse.ArgumentParser()
