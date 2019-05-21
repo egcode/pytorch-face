@@ -8,14 +8,15 @@ from __future__ import print_function
 python3 demo_compare_images.py \
 --model ./pth/backbone_ir50_ms1m_epoch120.pth \
 --image_one_path ./data/golovan_160/Liuba/IMG_0179.png \
---image_two_path ./data/golovan_160/Julia/0001.png
+--image_two_path ./data/golovan_160/Julia/0001.png \
+--distance_metric 1
 
 ##### NOT SAME        distance = [0.49472308]
 python3 demo_compare_images.py \
 --model ./pth/backbone_ir50_ms1m_epoch120.pth \
 --image_one_path ./data/golovan_160/Alex/haweF.png \
---image_two_path ./data/golovan_160/Julia/0001.png
-
+--image_two_path ./data/golovan_160/Julia/0001.png \
+--distance_metric 1
 
 
 
@@ -23,13 +24,48 @@ python3 demo_compare_images.py \
 python3 demo_compare_images.py \
 --model ./pth/backbone_ir50_ms1m_epoch120.pth \
 --image_one_path ./data/golovan_160/Julia/0003.png \
---image_two_path ./data/golovan_160/Julia/0001.png
+--image_two_path ./data/golovan_160/Julia/0001.png \
+--distance_metric 1
 
 ##### SAME             distance = [0.50955397]
 python3 demo_compare_images.py \
 --model ./pth/backbone_ir50_ms1m_epoch120.pth \
 --image_one_path ./data/golovan_160/Julia/0003.png \
---image_two_path ./data/golovan_160/Julia/0004.png
+--image_two_path ./data/golovan_160/Julia/0004.png \
+--distance_metric 1
+
+
+#################################################################################
+##### NOT SAME        distance = [0.2699489]
+python3 demo_compare_images.py \
+--model ./pth/IR_50_MODEL_centerloss_casia_epoch16.pth \
+--image_one_path ./data/golovan_160/Liuba/IMG_0179.png \
+--image_two_path ./data/golovan_160/Julia/0001.png \
+--distance_metric 0
+
+##### NOT SAME        distance = [0.21732879]
+python3 demo_compare_images.py \
+--model ./pth/IR_50_MODEL_centerloss_casia_epoch16.pth \
+--image_one_path ./data/golovan_160/Alex/haweF.png \
+--image_two_path ./data/golovan_160/Julia/0001.png \
+--distance_metric 0
+
+
+
+##### SAME             distance = [0.12518325]
+python3 demo_compare_images.py \
+--model ./pth/IR_50_MODEL_centerloss_casia_epoch16.pth \
+--image_one_path ./data/golovan_160/Julia/0003.png \
+--image_two_path ./data/golovan_160/Julia/0001.png \
+--distance_metric 0
+
+##### SAME             distance = [0.21716458]
+python3 demo_compare_images.py \
+--model ./pth/IR_50_MODEL_centerloss_casia_epoch16.pth \
+--image_one_path ./data/golovan_160/Julia/0003.png \
+--image_two_path ./data/golovan_160/Julia/0004.png \
+--distance_metric 0
+
 
 '''
 import tensorflow as tf
@@ -100,7 +136,7 @@ def main(ARGS):
 
         feats_2 = model(torch.tensor(image_data2))
         feats_2 = feats_2.cpu().numpy()
-    dist = distance(feats_1, feats_2, 1) ## Distance based on cosine similarity
+    dist = distance(feats_1, feats_2, ARGS.distance_metric)
 
     print("======DISTANCE===========")
     print(dist)
@@ -130,6 +166,7 @@ def parse_arguments(argv):
     parser.add_argument('--image_one_path', type=str, help='ONE')
     parser.add_argument('--image_two_path', type=str, help='TWO')
     parser.add_argument('--image_size', type=int, help='Image size (height, width) in pixels.', default=112)
+    parser.add_argument('--distance_metric', type=int, help='Type of distance metric to use. 0: Euclidian, 1:Cosine similarity distance.', default=0)
     return parser.parse_args(argv)
 
 if __name__ == '__main__':
