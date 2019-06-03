@@ -21,6 +21,17 @@ from models.irse import *
 
 from pdb import set_trace as bp
 
+
+"""
+----------------------------------------
+TEST: ---  backbone_ir50_ms1m_epoch120.pth
+Accuracy: 0.99183+-0.00560
+Validation rate: 0.97667+-0.01585 @ FAR=0.00100
+Area Under Curve (AUC): 0.998
+----------------------------------------
+
+"""
+
 if __name__ == '__main__':
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
