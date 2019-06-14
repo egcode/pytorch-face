@@ -150,7 +150,7 @@ def l2_norm(input, axis = 1):
     return output
 
 
-def extract_feature(img_root, backbone, device, tta = True):
+def extract_feature(img_root, model, device, tta = True):
     # pre-requisites
     assert(os.path.exists(img_root))
     print('Testing Data Root:', img_root)
@@ -186,13 +186,13 @@ def extract_feature(img_root, backbone, device, tta = True):
     flipped = torch.from_numpy(flipped)
 
     # extract features
-    backbone.eval() # set to evaluation mode
+    model.eval() # set to evaluation mode
     with torch.no_grad():
         if tta:
-            emb_batch = backbone(ccropped.to(device)).cpu() + backbone(flipped.to(device)).cpu()
+            emb_batch = model(ccropped.to(device)).cpu() + model(flipped.to(device)).cpu()
             features = l2_norm(emb_batch)
         else:
-            features = l2_norm(backbone(ccropped.to(device)).cpu())
+            features = l2_norm(model(ccropped.to(device)).cpu())
             
 #     np.save("features.npy", features) 
 #     features = np.load("features.npy")
