@@ -143,7 +143,7 @@ def l2_norm(input, axis = 1):
 
     return output
 
-def extract_features(image_data_rgb, model, device, name, tta = True):
+def extract_features(image_data_rgb, model, device, tta = True):
 
     image_BGR = cv2.cvtColor(image_data_rgb, cv2.COLOR_RGB2BGR)
 
@@ -214,10 +214,10 @@ def main(ARGS):
     #########################################
 
     with torch.no_grad():
-        feats_1 = extract_features(image_data_rgb_1, model, device, 'aaa_one.png', tta = True)
+        feats_1 = extract_features(image_data_rgb_1, model, device, tta = True)
         feats_1 = feats_1.cpu().numpy()
 
-        feats_2 = extract_features(image_data_rgb_2, model, device,'aaa_two.png', tta = True)
+        feats_2 = extract_features(image_data_rgb_2, model, device, tta = True)
         feats_2 = feats_2.cpu().numpy()
 
     dist = distance(feats_1, feats_2, ARGS.distance_metric)
