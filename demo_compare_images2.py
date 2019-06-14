@@ -51,6 +51,7 @@ python3 demo_compare_images2.py \
 
 #################################################################################
 ##### NOT SAME       without extract_feature distance = [0.2699489]
+#                     with extract_feature distance = [1.1721498]
 python3 demo_compare_images2.py \
 --model ./pth/IR_50_MODEL_centerloss_casia_epoch16.pth \
 --image_one_path ./data/golovan_160/Liuba/IMG_0179.png \
@@ -58,6 +59,7 @@ python3 demo_compare_images2.py \
 --distance_metric 0
 
 ##### NOT SAME       without extract_feature distance = [0.21732879]
+#                     with extract_feature distance = [1.2014594]
 python3 demo_compare_images2.py \
 --model ./pth/IR_50_MODEL_centerloss_casia_epoch16.pth \
 --image_one_path ./data/golovan_160/Alex/haweF.png \
@@ -67,6 +69,7 @@ python3 demo_compare_images2.py \
 
 
 ##### SAME            without extract_feature distance = [0.12518325]
+#                     with extract_feature distance = [0.58154273]
 python3 demo_compare_images2.py \
 --model ./pth/IR_50_MODEL_centerloss_casia_epoch16.pth \
 --image_one_path ./data/golovan_160/Julia/0003.png \
@@ -74,6 +77,7 @@ python3 demo_compare_images2.py \
 --distance_metric 0
 
 ##### SAME            without extract_feature distance = [0.21716458]
+#                     with extract_feature distance = [0.8795128]
 python3 demo_compare_images2.py \
 --model ./pth/IR_50_MODEL_centerloss_casia_epoch16.pth \
 --image_one_path ./data/golovan_160/Julia/0003.png \
