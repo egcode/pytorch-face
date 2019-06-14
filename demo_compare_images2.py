@@ -66,6 +66,14 @@ python3 demo_compare_images2.py \
 --image_two_path ./data/golovan_160/Julia/0001.png \
 --distance_metric 0
 
+##### NOT SAME       without extract_feature distance = [0.27035767]
+#                     with extract_feature distance = [1.0704521]
+python3 demo_compare_images2.py \
+--model ./pth/IR_50_MODEL_centerloss_casia_epoch16.pth \
+--image_one_path ./data/golovan_160/Alex/haweF.png \
+--image_two_path ./data/golovan_160/Eugene/IMG_E7066.png \
+--distance_metric 0
+
 
 
 ##### SAME            without extract_feature distance = [0.12518325]
@@ -82,6 +90,15 @@ python3 demo_compare_images2.py \
 --model ./pth/IR_50_MODEL_centerloss_casia_epoch16.pth \
 --image_one_path ./data/golovan_160/Julia/0003.png \
 --image_two_path ./data/golovan_160/Julia/0004.png \
+--distance_metric 0
+
+
+##### SAME            without extract_feature distance = [0.16182399]
+#                     with extract_feature distance = [0.5000807]
+python3 demo_compare_images2.py \
+--model ./pth/IR_50_MODEL_centerloss_casia_epoch16.pth \
+--image_one_path ./data/golovan_160/Eugene/IMG_9489.png \
+--image_two_path ./data/golovan_160/Eugene/IMG_E7066.png \
 --distance_metric 0
 
 
