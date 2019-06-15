@@ -65,7 +65,7 @@ def l2_norm(input, axis = 1):
     output = torch.div(input, norm)
     return output
 
-def crop_and_flip(image_data_rgb):
+def crop_and_flip(image_data_rgb, for_dataloader=False):
     image_BGR = cv2.cvtColor(image_data_rgb, cv2.COLOR_RGB2BGR)
     # resize image to [128, 128]
     resized = cv2.resize(image_BGR, (128, 128)) # (160, 160, 3) -> (128, 128, 3)
@@ -85,13 +85,15 @@ def crop_and_flip(image_data_rgb):
 
     # load numpy to tensor
     ccropped = ccropped.swapaxes(1, 2).swapaxes(0, 1)
-    ccropped = np.reshape(ccropped, [1, 3, 112, 112])
+    if not for_dataloader:
+        ccropped = np.reshape(ccropped, [1, 3, 112, 112])
     ccropped = np.array(ccropped, dtype = np.float32)
     ccropped = (ccropped - 127.5) / 128.0
     ccropped = torch.from_numpy(ccropped)
 
     flipped = flipped.swapaxes(1, 2).swapaxes(0, 1)
-    flipped = np.reshape(flipped, [1, 3, 112, 112])
+    if not for_dataloader:
+        flipped = np.reshape(flipped, [1, 3, 112, 112])
     flipped = np.array(flipped, dtype = np.float32)
     flipped = (flipped - 127.5) / 128.0
     flipped = torch.from_numpy(flipped)    

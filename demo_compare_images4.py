@@ -154,14 +154,14 @@ def main(ARGS):
     img1 = Image.open(img_path1)
     image_data1 = img1.convert('RGB')
     image_data_rgb_1 = np.asarray(image_data1) # (160, 160, 3)
-    ccropped_1, flipped_1 = crop_and_flip(image_data_rgb_1)
+    ccropped_1, flipped_1 = crop_and_flip(image_data_rgb_1, for_dataloader=False)
 
     ###### IMAGE 2222
     img_path2 = ARGS.image_two_path
     img2 = Image.open(img_path2)
     image_data2 = img2.convert('RGB')
     image_data_rgb_2 = np.asarray(image_data2) # (160, 160, 3)
-    ccropped_2, flipped_2 = crop_and_flip(image_data_rgb_2)
+    ccropped_2, flipped_2 = crop_and_flip(image_data_rgb_2, for_dataloader=False)
 
     ####### Model setup
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")

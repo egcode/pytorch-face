@@ -27,6 +27,8 @@ from PIL import Image
 from models.resnet import *
 from models.irse import *
 
+from helpers import *
+
 """
 Exports the embeddings and labels of a directory of images as numpy arrays.
 
@@ -85,10 +87,20 @@ class FacesDataset(data.Dataset):
         img_path = self.image_list[index]
         img = Image.open(img_path)
         data = img.convert('RGB')
+
+        image_data_rgb = np.asarray(data) # (160, 160, 3)
+        ccropped, flipped = crop_and_flip(image_data_rgb, for_dataloader=True)
+        # bp()
+        # print("\n\n")
+        # print("### image_data_rgb shape: " + str(image_data_rgb.shape))
+        # print("### CCROPPED shape: " + str(ccropped.shape))
+        # print("### FLIPPED shape: " + str(flipped.shape))
+        # print("\n\n")
+
         data = self.transforms(data)
         label = self.label_list[index]
         name = self.names_list[index]
-        return data.float(), label, name
+        return data.float(), label, name, ccropped, flipped
 
     def __len__(self):
         return len(self.image_list)
@@ -140,11 +152,14 @@ def main(ARGS):
 
     # nam_array = np.chararray((nrof_images,))
     with torch.no_grad():
-        for i, (data, label, name) in enumerate(loader):
+        for i, (data, label, name, ccropped, flipped) in enumerate(loader):
 
             data, label = data.to(device), label.to(device)
+            ccropped, flipped = ccropped.to(device), flipped.to(device)
 
-            feats = model(data)
+            # feats = model(data)
+            feats = extract_norm_features(ccropped, flipped, model, device, tta = True)
+            
             emb = feats.cpu().numpy()
             lab = label.detach().cpu().numpy()
 
