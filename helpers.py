@@ -63,16 +63,13 @@ def print_and_log(log_file_path, string_to_write):
 def l2_norm(input, axis = 1):
     norm = torch.norm(input, 2, axis, True)
     output = torch.div(input, norm)
-
     return output
 
-def extract_features(image_data_rgb, model, device, tta = True):
-
+def crop_and_flip(image_data_rgb):
     image_BGR = cv2.cvtColor(image_data_rgb, cv2.COLOR_RGB2BGR)
-
     # resize image to [128, 128]
     resized = cv2.resize(image_BGR, (128, 128)) # (160, 160, 3) -> (128, 128, 3)
-    
+
     # cv2.imwrite(name,resized)
     
     # center crop image
@@ -97,18 +94,15 @@ def extract_features(image_data_rgb, model, device, tta = True):
     flipped = np.reshape(flipped, [1, 3, 112, 112])
     flipped = np.array(flipped, dtype = np.float32)
     flipped = (flipped - 127.5) / 128.0
-    flipped = torch.from_numpy(flipped)
+    flipped = torch.from_numpy(flipped)    
+    return ccropped, flipped
 
-    # extract features
-    model.eval() # set to evaluation mode
+def extract_norm_features(ccropped, flipped, model, device, tta = True):
+    model.eval()
     with torch.no_grad():
         if tta:
             emb_batch = model(ccropped.to(device)).cpu() + model(flipped.to(device)).cpu()
             features = l2_norm(emb_batch)
         else:
             features = l2_norm(model(ccropped.to(device)).cpu())
-            
-#     np.save("features.npy", features) 
-#     features = np.load("features.npy")
-
     return features

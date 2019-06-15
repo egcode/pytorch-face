@@ -154,13 +154,15 @@ def main(ARGS):
     img1 = Image.open(img_path1)
     image_data1 = img1.convert('RGB')
     image_data_rgb_1 = np.asarray(image_data1) # (160, 160, 3)
+    ccropped_1, flipped_1 = crop_and_flip(image_data_rgb_1)
 
     ###### IMAGE 2222
     img_path2 = ARGS.image_two_path
     img2 = Image.open(img_path2)
     image_data2 = img2.convert('RGB')
     image_data_rgb_2 = np.asarray(image_data2) # (160, 160, 3)
-    
+    ccropped_2, flipped_2 = crop_and_flip(image_data_rgb_2)
+
     ####### Model setup
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     model = IR_50([112, 112])
@@ -170,10 +172,10 @@ def main(ARGS):
     #########################################
 
     with torch.no_grad():
-        feats_1 = extract_features(image_data_rgb_1, model, device, tta = True)
+        feats_1 = extract_norm_features(ccropped_1, flipped_1, model, device, tta = True)
         feats_1 = feats_1.cpu().numpy()
 
-        feats_2 = extract_features(image_data_rgb_2, model, device, tta = True)
+        feats_2 = extract_norm_features(ccropped_2, flipped_2, model, device, tta = True)
         feats_2 = feats_2.cpu().numpy()
 
     dist = distance(feats_1, feats_2, ARGS.distance_metric)
