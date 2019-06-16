@@ -52,6 +52,7 @@ I've found working with the embeddings useful for classifications models.
 
 Charles Jekel 2017
 
+## ALL FAMILY
 python3 demo_export_embeddings.py ./pth/IR_50_MODEL_centerloss_casia_epoch16.pth ./data/golovan_160/ \
 --is_aligned True \
 --image_size 112 \
@@ -59,13 +60,13 @@ python3 demo_export_embeddings.py ./pth/IR_50_MODEL_centerloss_casia_epoch16.pth
 --labels_name ./output_arrays/labels_center_1.npy \
 --labels_strings_name ./output_arrays/label_strings_center_1.npy
 
-
-python3 demo_export_embeddings.py ./pth/backbone_ir50_ms1m_epoch120.pth ./data/golovan_160/ \
+## SHORT
+python3 demo_export_embeddings.py ./pth/IR_50_MODEL_centerloss_casia_epoch16.pth ./data/golovan_demo/ \
 --is_aligned True \
 --image_size 112 \
---embeddings_name ./output_arrays/embeddings_center_2.npy \
---labels_name ./output_arrays/labels_center_2.npy \
---labels_strings_name ./output_arrays/label_strings_center_2.npy
+--embeddings_name ./output_arrays/embeddings_center_1.npy \
+--labels_name ./output_arrays/labels_center_1.npy \
+--labels_strings_name ./output_arrays/label_strings_center_1.npy
 
 """
 
