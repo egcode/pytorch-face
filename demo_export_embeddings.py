@@ -33,44 +33,63 @@ from helpers import *
 
 ## ALL FAMILY
 python3 demo_export_embeddings.py ./pth/IR_50_MODEL_centerloss_casia_epoch16.pth ./data/golovan_160/ \
---is_aligned True \
+--is_aligned 1 \
+--with_demo_images 1 \
 --image_size 112 \
 --image_batch 5 \
---embeddings_name ./output_arrays/embeddings_center_1.npy \
---labels_name ./output_arrays/labels_center_1.npy \
---labels_strings_name ./output_arrays/label_strings_center_1.npy
+--embeddings_name embeddings_center_1.npy \
+--labels_name labels_center_1.npy \
+--labels_strings_name label_strings_center_1.npy
 
 ## SHORT
 python3 demo_export_embeddings.py ./pth/IR_50_MODEL_centerloss_casia_epoch16.pth ./data/golovan_demo/ \
---is_aligned True \
+--is_aligned 1 \
+--with_demo_images 1 \
 --image_size 112 \
 --image_batch 5 \
---embeddings_name ./output_arrays/embeddings_center_1.npy \
---labels_name ./output_arrays/labels_center_1.npy \
---labels_strings_name ./output_arrays/label_strings_center_1.npy
+--embeddings_name embeddings_center_1.npy \
+--labels_name labels_center_1.npy \
+--labels_strings_name label_strings_center_1.npy
 
+
+## SHORT NOT ALIGNED
+python3 demo_export_embeddings.py ./pth/IR_50_MODEL_centerloss_casia_epoch16.pth ./data/golovan_demo_not_aligned/ \
+--is_aligned 0 \
+--with_demo_images 1 \
+--image_size 112 \
+--image_batch 5 \
+--embeddings_name embeddings_center_1.npy \
+--labels_name labels_center_1.npy \
+--labels_strings_name label_strings_center_1.npy
 """
 
 class FacesDataset(data.Dataset):
-    def __init__(self, image_list, label_list, names_list, num_classes, input_size, is_aligned):
+    def __init__(self, image_list, label_list, names_list, num_classes, is_aligned, image_size, margin, gpu_memory_fraction, demo_images_path=None):
         self.image_list = image_list
         self.label_list = label_list
         self.names_list = names_list
         self.num_classes = num_classes
+
         self.is_aligned = is_aligned
-        normalize = T.Normalize(mean=[0.5], std=[0.5])
-        self.transforms = T.Compose([
-            T.Resize(input_size),
-            T.ToTensor(),
-            normalize
-        ])
+        self.demo_images_path = demo_images_path
+
+        self.image_size = image_size
+        self.margin = margin
+        self.gpu_memory_fraction = gpu_memory_fraction
+
+        self.static = 0
 
     def __getitem__(self, index):
         img_path = self.image_list[index]
         img = Image.open(img_path)
         data = img.convert('RGB')
 
-        image_data_rgb = np.asarray(data) # (160, 160, 3)
+        if self.is_aligned==1:
+            image_data_rgb = np.asarray(data) # (160, 160, 3)
+        else:
+            image_data_rgb = load_and_align_data(img_path, self.image_size, self.margin, self.gpu_memory_fraction)
+
+
         ccropped, flipped = crop_and_flip(image_data_rgb, for_dataloader=True)
         # bp()
         # print("\n\n")
@@ -78,11 +97,22 @@ class FacesDataset(data.Dataset):
         # print("### CCROPPED shape: " + str(ccropped.shape))
         # print("### FLIPPED shape: " + str(flipped.shape))
         # print("\n\n")
+        
+        if self.demo_images_path is not None:
+            ################################################
+            ### SAVE Demo Images
+            prefix = str(self.static)+ '_' + str(self.names_list[index]) 
+            # data.save(self.demo_images_path + prefix + '.png') # Save PIL
+            image_BGR = cv2.cvtColor(image_data_rgb, cv2.COLOR_RGB2BGR)
+            cv2.imwrite(self.demo_images_path + prefix + '.png', image_BGR)
+            self.static += 1
+            ################################################
 
-        data = self.transforms(data)
+        
+        # data = self.transforms(data)
         label = self.label_list[index]
         name = self.names_list[index]
-        return data.float(), label, name, ccropped, flipped
+        return ccropped, flipped, label, name
 
     def __len__(self):
         return len(self.image_list)
@@ -91,13 +121,27 @@ def main(ARGS):
     
     np.set_printoptions(threshold=sys.maxsize)
 
-    out_dir = 'output_arrays/'
+    out_dir = ARGS.output_dir
     if not os.path.isdir(out_dir):  # Create the out directory if it doesn't exist
         os.makedirs(out_dir)
 
+    images_dir=None
+    if ARGS.with_demo_images==1:
+        images_dir = os.path.join(os.path.expanduser(out_dir), 'demo_images/')
+        if not os.path.isdir(images_dir):  # Create the out directory if it doesn't exist
+            os.makedirs(images_dir)
+
     train_set = get_dataset(ARGS.data_dir)
     image_list, label_list, names_list = get_image_paths_and_labels(train_set)
-    faces_dataset = FacesDataset(image_list, label_list, names_list, len(train_set), ARGS.image_size, ARGS.is_aligned)
+    faces_dataset = FacesDataset(image_list=image_list, 
+                                    label_list=label_list, 
+                                    names_list=names_list, 
+                                    num_classes=len(train_set), 
+                                    is_aligned=ARGS.is_aligned, 
+                                    image_size=ARGS.image_size, 
+                                    margin=ARGS.margin, 
+                                    gpu_memory_fraction=ARGS.gpu_memory_fraction,
+                                    demo_images_path=images_dir)
     loader = torch.utils.data.DataLoader(faces_dataset, batch_size=ARGS.image_batch,
                                                 shuffle=False, num_workers=ARGS.num_workers)
 
@@ -143,10 +187,9 @@ def main(ARGS):
     # nam_array = np.chararray((nrof_images,))
     batch_ind = 0
     with torch.no_grad():
-        for i, (data, label, name, ccropped, flipped) in enumerate(loader):
+        for i, (ccropped, flipped, label, name) in enumerate(loader):
 
-            data, label = data.to(device), label.to(device)
-            ccropped, flipped = ccropped.to(device), flipped.to(device)
+            ccropped, flipped, label = ccropped.to(device), flipped.to(device), label.to(device)
 
             # feats = model(data)
             feats = extract_norm_features(ccropped, flipped, model, device, tta = True)
@@ -183,184 +226,55 @@ def main(ARGS):
                 sys.stdout.flush()
         print('')
 
-    # embeddings = emb_array
-    # np.save('embeddings.npy', embeddings) 
-    # embeddings = np.load('lfw/embeddings.npy')
-
     run_time = time.time() - start_time
     print('Run time: ', run_time)
 
     #   export emedings and labels
-    np.save(ARGS.embeddings_name, emb_array)
-    np.save(ARGS.labels_name, lab_array)
+    np.save(out_dir + ARGS.embeddings_name, emb_array)
+    np.save(out_dir + ARGS.labels_name, lab_array)
 
 
     label_strings = np.array(label_strings)
-    np.save(ARGS.labels_strings_name, label_strings[label_list])
-
-    # bp()
+    np.save(out_dir + ARGS.labels_strings_name, label_strings[label_list])
 
 
-    # embeddings = np.load('output_arrays/embeddings_center_1.npy')
-    # labels = np.load('output_arrays/labels_center_1.npy')
-    # strings = np.load('output_arrays/label_strings_center_1.npy')
-
-'''
-import numpy as np;em = np.load('output_arrays/embeddings_center_1.npy');la = np.load('output_arrays/labels_center_1.npy');st = np.load('output_arrays/label_strings_center_1.npy')
-'''
-
-##########################################
-    # Get input and output tensors
-    # images_placeholder = tf.get_default_graph().get_tensor_by_name("input:0")
-    # embeddings = tf.get_default_graph().get_tensor_by_name("embeddings:0")
-    # phase_train_placeholder = tf.get_default_graph().get_tensor_by_name("phase_train:0")
-
-    # Run forward pass to calculate embeddings
-    # nrof_images = len(image_list)
-    # print('Number of images: ', nrof_images)
-    # batch_size = ARGS.image_batch
-    # if nrof_images % batch_size == 0:
-    #     nrof_batches = nrof_images // batch_size
-    # else:
-    #     nrof_batches = (nrof_images // batch_size) + 1
-    # print('Number of batches: ', nrof_batches)
-    # # embedding_size = embeddings.get_shape()[1]
-    # embedding_size = 512
-    # emb_array = np.zeros((nrof_images, embedding_size))
-    # start_time = time.time()
-
-    # for i in range(nrof_batches):
-    #     if i == nrof_batches -1:
-    #         n = nrof_images
-    #     else:
-    #         n = i*batch_size + batch_size
-    #     # Get images for the batch
-    #     if ARGS.is_aligned is True:
-    #         images = load_data(image_list[i*batch_size:n], False, False, ARGS.image_size)
-    #     else:
-    #         images = load_and_align_data(image_list[i*batch_size:n], ARGS.image_size, ARGS.margin, ARGS.gpu_memory_fraction)
-    #     feed_dict = { images_placeholder: images, phase_train_placeholder:False }
-    #     # Use the facenet model to calcualte embeddings
-    #     embed = sess.run(embeddings, feed_dict=feed_dict)
-    #     emb_array[i*batch_size:n, :] = embed
-    #     print('Completed batch', i+1, 'of', nrof_batches)
-
-    # run_time = time.time() - start_time
-    # print('Run time: ', run_time)
-
-    # #   export emedings and labels
-    # label_list  = np.array(label_list)
-
-    # np.save(ARGS.embeddings_name, emb_array)
-    # np.save(ARGS.labels_name, label_list)
-    # label_strings = np.array(label_strings)
-    # np.save(ARGS.labels_strings_name, label_strings[label_list])
-
-
-def load_and_align_data(image_paths, image_size, margin, gpu_memory_fraction):
+def load_and_align_data(image_path, image_size, margin, gpu_memory_fraction):
 
     minsize = 20 # minimum size of face
     threshold = [ 0.6, 0.7, 0.7 ]  # three steps's threshold
     factor = 0.709 # scale factor
 
-    print('Creating networks and loading parameters')
+    print('🎃  Creating networks and loading parameters')
     with tf.Graph().as_default():
         gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=gpu_memory_fraction)
         sess = tf.Session(config=tf.ConfigProto(gpu_options=gpu_options, log_device_placement=False))
         with sess.as_default():
             pnet, rnet, onet = align.detect_face.create_mtcnn(sess, None)
 
-    nrof_samples = len(image_paths)
-    img_list = [None] * nrof_samples
-    for i in xrange(nrof_samples):
-        print(image_paths[i])
-        img = misc.imread(os.path.expanduser(image_paths[i]))
-        img_size = np.asarray(img.shape)[0:2]
-        bounding_boxes, _ = align.detect_face.detect_face(img, minsize, pnet, rnet, onet, threshold, factor)
-        # bp()
-        # if (len(bounding_boxes) == 0):
-        #     print("++++++Zero")
-        #     # bp()
-        #     break;
-        det = np.squeeze(bounding_boxes[0,0:4])
-        bb = np.zeros(4, dtype=np.int32)
-        bb[0] = np.maximum(det[0]-margin/2, 0)
-        bb[1] = np.maximum(det[1]-margin/2, 0)
-        bb[2] = np.minimum(det[2]+margin/2, img_size[1])
-        bb[3] = np.minimum(det[3]+margin/2, img_size[0])
-        cropped = img[bb[1]:bb[3],bb[0]:bb[2],:]
-        aligned = misc.imresize(cropped, (image_size, image_size), interp='bilinear')
-        prewhitened = prewhiten(aligned)
-        img_list[i] = prewhitened
-    images = np.stack(img_list)
-    return images
+    print(image_path)
+    img = misc.imread(os.path.expanduser(image_path))
+    img_size = np.asarray(img.shape)[0:2]
+    bounding_boxes, _ = align.detect_face.detect_face(img, minsize, pnet, rnet, onet, threshold, factor)
+    det = np.squeeze(bounding_boxes[0,0:4])
+    bb = np.zeros(4, dtype=np.int32)
+    bb[0] = np.maximum(det[0]-margin/2, 0)
+    bb[1] = np.maximum(det[1]-margin/2, 0)
+    bb[2] = np.minimum(det[2]+margin/2, img_size[1])
+    bb[3] = np.minimum(det[3]+margin/2, img_size[0])
+    cropped = img[bb[1]:bb[3],bb[0]:bb[2],:]
+    aligned = misc.imresize(cropped, (image_size, image_size), interp='bilinear')
 
-
-def prewhiten(x):
-    mean = np.mean(x)
-    std = np.std(x)
-    std_adj = np.maximum(std, 1.0/np.sqrt(x.size))
-    y = np.multiply(np.subtract(x, mean), 1/std_adj)
-    return y  
-
-def to_rgb(img):
-    w, h = img.shape
-    ret = np.empty((w, h, 3), dtype=np.uint8)
-    ret[:, :, 0] = ret[:, :, 1] = ret[:, :, 2] = img
-    return ret
-
-def crop(image, random_crop, image_size):
-    if image.shape[1]>image_size:
-        sz1 = int(image.shape[1]//2)
-        sz2 = int(image_size//2)
-        if random_crop:
-            diff = sz1-sz2
-            (h, v) = (np.random.randint(-diff, diff+1), np.random.randint(-diff, diff+1))
-        else:
-            (h, v) = (0,0)
-        image = image[(sz1-sz2+v):(sz1+sz2+v),(sz1-sz2+h):(sz1+sz2+h),:]
-    return image
-  
-def flip(image, random_flip):
-    if random_flip and np.random.choice([True, False]):
-        image = np.fliplr(image)
-    return image
-
-def load_data(image_paths, do_random_crop, do_random_flip, image_size, do_prewhiten=True):
-    nrof_samples = len(image_paths)
-    images = np.zeros((nrof_samples, image_size, image_size, 3))
-    for i in range(nrof_samples):
-        img = misc.imread(image_paths[i])
-        if img.ndim == 2:
-            img = to_rgb(img)
-        if do_prewhiten:
-            img = prewhiten(img)
-        img = crop(img, do_random_crop, image_size)
-        img = flip(img, do_random_flip)
-        images[i,:,:,:] = img
-    return images
-
-# def distance(embeddings1, embeddings2, distance_metric=0):
-#     if distance_metric==0:
-#         # Euclidian distance
-#         diff = np.subtract(embeddings1, embeddings2)
-#         dist = np.sum(np.square(diff),1)
-#     elif distance_metric==1:
-#         # Distance based on cosine similarity
-#         dot = np.sum(np.multiply(embeddings1, embeddings2), axis=1)
-#         norm = np.linalg.norm(embeddings1, axis=1) * np.linalg.norm(embeddings2, axis=1)
-#         similarity = dot / norm
-#         dist = np.arccos(similarity) / math.pi
-#     else:
-#         raise 'Undefined distance metric %d' % distance_metric 
-        
-#     return dist
+    img = aligned
+    
+    return img
 
 def parse_arguments(argv):
     parser = argparse.ArgumentParser()
     parser.add_argument('model', type=str, help='pth model file')
     parser.add_argument('data_dir', type=str, help='Directory containing images. If images are not already aligned and cropped include --is_aligned False.')
-    parser.add_argument('--is_aligned', type=str, help='Is the data directory already aligned and cropped?', default=True)
+    parser.add_argument('--output_dir', type=str, help='Dir where to save all embeddings and demo images', default='output_arrays/')
+    parser.add_argument('--is_aligned', type=int, help='Is the data directory already aligned and cropped? 0:False 1:True', default=1)
+    parser.add_argument('--with_demo_images', type=int, help='Embedding Images 0:False 1:True', default=1)
     parser.add_argument('--image_size', type=int, help='Image size (height, width) in pixels.', default=112)
     parser.add_argument('--margin', type=int, help='Margin for the crop around the bounding box (height, width) in pixels.', default=44)
     parser.add_argument('--gpu_memory_fraction', type=float, help='Upper bound on the amount of GPU memory that will be used by the process.', default=1.0)
