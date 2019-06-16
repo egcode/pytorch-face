@@ -66,6 +66,9 @@ def l2_norm(input, axis = 1):
     return output
 
 def crop_and_flip(image_data_rgb, for_dataloader=False):
+    
+    # image_data_rgb - should be shape=(160, 160, 3)  color_array=(255, 255, 255)
+
     image_BGR = cv2.cvtColor(image_data_rgb, cv2.COLOR_RGB2BGR)
     # resize image to [128, 128]
     resized = cv2.resize(image_BGR, (128, 128)) # (160, 160, 3) -> (128, 128, 3)
