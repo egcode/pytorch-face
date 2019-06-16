@@ -30,26 +30,19 @@ import pickle
 from sklearn.svm import SVC
 from scipy import misc
 import align.detect_face
-# from six.moves import xrange
 import cv2
-
 from imutils.video import VideoStream
 import imutils
 import time
-
 import torch
 from torch.utils import data
 from torchvision import transforms as T
 import torchvision
 from PIL import Image
-
 from models.resnet import *
 from models.irse import *
-
 from helpers import *
-
 from pdb import set_trace as bp
-
 
 max_threshold = 1.0
 
@@ -120,20 +113,13 @@ class Detection:
             aligned = misc.imresize(cropped, (image_size, image_size), interp='bilinear')
             
             face_image = aligned[:,:,::-1] ## BRG -> RGB
-            # prewhitened = prewhiten(aligned)        
+
             face = Face()
             face.image = face_image
             face.bounding_box = bb
             faces.append(face)
 
         return faces
-
-def prewhiten(x):
-    mean = np.mean(x)
-    std = np.std(x)
-    std_adj = np.maximum(std, 1.0/np.sqrt(x.size))
-    y = np.multiply(np.subtract(x, mean), 1/std_adj)
-    return y  
 
 def main(ARGS):
   
