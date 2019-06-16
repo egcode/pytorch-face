@@ -155,6 +155,7 @@ def main(ARGS):
     image_data1 = img1.convert('RGB')
     image_data_rgb_1 = np.asarray(image_data1) # shape=(160, 160, 3)  color_array=(255, 255, 255)
     ccropped_1, flipped_1 = crop_and_flip(image_data_rgb_1, for_dataloader=False)
+    # image_data1.save('pilllllllll.png')
 
     ###### IMAGE 2222
     img_path2 = ARGS.image_two_path
