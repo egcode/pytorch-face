@@ -37,9 +37,9 @@ python3 demo_export_embeddings2.py ./pth/IR_50_MODEL_centerloss_casia_epoch16.pt
 --with_demo_images 1 \
 --image_size 112 \
 --image_batch 5 \
---embeddings_name ./output_arrays/embeddings_center_1.npy \
---labels_name ./output_arrays/labels_center_1.npy \
---labels_strings_name ./output_arrays/label_strings_center_1.npy
+--embeddings_name embeddings_center_1.npy \
+--labels_name labels_center_1.npy \
+--labels_strings_name label_strings_center_1.npy
 
 ## SHORT
 python3 demo_export_embeddings2.py ./pth/IR_50_MODEL_centerloss_casia_epoch16.pth ./data/golovan_demo/ \
@@ -47,9 +47,9 @@ python3 demo_export_embeddings2.py ./pth/IR_50_MODEL_centerloss_casia_epoch16.pt
 --with_demo_images 1 \
 --image_size 112 \
 --image_batch 5 \
---embeddings_name ./output_arrays/embeddings_center_1.npy \
---labels_name ./output_arrays/labels_center_1.npy \
---labels_strings_name ./output_arrays/label_strings_center_1.npy
+--embeddings_name embeddings_center_1.npy \
+--labels_name labels_center_1.npy \
+--labels_strings_name label_strings_center_1.npy
 
 
 ## SHORT NOT ALIGNED
@@ -58,9 +58,9 @@ python3 demo_export_embeddings2.py ./pth/IR_50_MODEL_centerloss_casia_epoch16.pt
 --with_demo_images 1 \
 --image_size 112 \
 --image_batch 5 \
---embeddings_name ./output_arrays/embeddings_center_1.npy \
---labels_name ./output_arrays/labels_center_1.npy \
---labels_strings_name ./output_arrays/label_strings_center_1.npy
+--embeddings_name embeddings_center_1.npy \
+--labels_name labels_center_1.npy \
+--labels_strings_name label_strings_center_1.npy
 """
 
 class FacesDataset(data.Dataset):
@@ -102,9 +102,9 @@ class FacesDataset(data.Dataset):
             ################################################
             ### SAVE Demo Images
             prefix = str(self.static)+ '_' + str(self.names_list[index]) 
-            # data.save(self.demo_images_path + '/' + prefix + '.png') # Save PIL
+            # data.save(self.demo_images_path + prefix + '.png') # Save PIL
             image_BGR = cv2.cvtColor(image_data_rgb, cv2.COLOR_RGB2BGR)
-            cv2.imwrite(self.demo_images_path + '/' + prefix + '.png', image_BGR)
+            cv2.imwrite(self.demo_images_path + prefix + '.png', image_BGR)
             self.static += 1
             ################################################
 
@@ -121,13 +121,13 @@ def main(ARGS):
     
     np.set_printoptions(threshold=sys.maxsize)
 
-    out_dir = 'output_arrays/'
+    out_dir = ARGS.output_dir
     if not os.path.isdir(out_dir):  # Create the out directory if it doesn't exist
         os.makedirs(out_dir)
 
     images_dir=None
     if ARGS.with_demo_images==1:
-        images_dir = os.path.join(os.path.expanduser(out_dir), 'demo_images')
+        images_dir = os.path.join(os.path.expanduser(out_dir), 'demo_images/')
         if not os.path.isdir(images_dir):  # Create the out directory if it doesn't exist
             os.makedirs(images_dir)
 
@@ -226,27 +226,16 @@ def main(ARGS):
                 sys.stdout.flush()
         print('')
 
-    # embeddings = emb_array
-    # np.save('embeddings.npy', embeddings) 
-    # embeddings = np.load('lfw/embeddings.npy')
-
     run_time = time.time() - start_time
     print('Run time: ', run_time)
 
     #   export emedings and labels
-    np.save(ARGS.embeddings_name, emb_array)
-    np.save(ARGS.labels_name, lab_array)
+    np.save(out_dir + ARGS.embeddings_name, emb_array)
+    np.save(out_dir + ARGS.labels_name, lab_array)
 
 
     label_strings = np.array(label_strings)
-    np.save(ARGS.labels_strings_name, label_strings[label_list])
-
-    # bp()
-
-
-    # embeddings = np.load('output_arrays/embeddings_center_1.npy')
-    # labels = np.load('output_arrays/labels_center_1.npy')
-    # strings = np.load('output_arrays/label_strings_center_1.npy')
+    np.save(out_dir + ARGS.labels_strings_name, label_strings[label_list])
 
 
 def load_and_align_data(image_path, image_size, margin, gpu_memory_fraction):
@@ -274,78 +263,16 @@ def load_and_align_data(image_path, image_size, margin, gpu_memory_fraction):
     bb[3] = np.minimum(det[3]+margin/2, img_size[0])
     cropped = img[bb[1]:bb[3],bb[0]:bb[2],:]
     aligned = misc.imresize(cropped, (image_size, image_size), interp='bilinear')
-    # prewhitened = prewhiten(aligned)
-    # img = prewhitened
 
     img = aligned
     
     return img
 
-
-# def prewhiten(x):
-#     mean = np.mean(x)
-#     std = np.std(x)
-#     std_adj = np.maximum(std, 1.0/np.sqrt(x.size))
-#     y = np.multiply(np.subtract(x, mean), 1/std_adj)
-#     return y  
-
-# def to_rgb(img):
-#     w, h = img.shape
-#     ret = np.empty((w, h, 3), dtype=np.uint8)
-#     ret[:, :, 0] = ret[:, :, 1] = ret[:, :, 2] = img
-#     return ret
-
-# def crop(image, random_crop, image_size):
-#     if image.shape[1]>image_size:
-#         sz1 = int(image.shape[1]//2)
-#         sz2 = int(image_size//2)
-#         if random_crop:
-#             diff = sz1-sz2
-#             (h, v) = (np.random.randint(-diff, diff+1), np.random.randint(-diff, diff+1))
-#         else:
-#             (h, v) = (0,0)
-#         image = image[(sz1-sz2+v):(sz1+sz2+v),(sz1-sz2+h):(sz1+sz2+h),:]
-#     return image
-  
-# def flip(image, random_flip):
-#     if random_flip and np.random.choice([True, False]):
-#         image = np.fliplr(image)
-#     return image
-
-# def load_data(image_paths, do_random_crop, do_random_flip, image_size, do_prewhiten=True):
-#     nrof_samples = len(image_paths)
-#     images = np.zeros((nrof_samples, image_size, image_size, 3))
-#     for i in range(nrof_samples):
-#         img = misc.imread(image_paths[i])
-#         if img.ndim == 2:
-#             img = to_rgb(img)
-#         if do_prewhiten:
-#             img = prewhiten(img)
-#         img = crop(img, do_random_crop, image_size)
-#         img = flip(img, do_random_flip)
-#         images[i,:,:,:] = img
-#     return images
-
-# def distance(embeddings1, embeddings2, distance_metric=0):
-#     if distance_metric==0:
-#         # Euclidian distance
-#         diff = np.subtract(embeddings1, embeddings2)
-#         dist = np.sum(np.square(diff),1)
-#     elif distance_metric==1:
-#         # Distance based on cosine similarity
-#         dot = np.sum(np.multiply(embeddings1, embeddings2), axis=1)
-#         norm = np.linalg.norm(embeddings1, axis=1) * np.linalg.norm(embeddings2, axis=1)
-#         similarity = dot / norm
-#         dist = np.arccos(similarity) / math.pi
-#     else:
-#         raise 'Undefined distance metric %d' % distance_metric 
-        
-#     return dist
-
 def parse_arguments(argv):
     parser = argparse.ArgumentParser()
     parser.add_argument('model', type=str, help='pth model file')
     parser.add_argument('data_dir', type=str, help='Directory containing images. If images are not already aligned and cropped include --is_aligned False.')
+    parser.add_argument('--output_dir', type=str, help='Dir where to save all embeddings and demo images', default='output_arrays/')
     parser.add_argument('--is_aligned', type=int, help='Is the data directory already aligned and cropped? 0:False 1:True', default=1)
     parser.add_argument('--with_demo_images', type=int, help='Embedding Images 0:False 1:True', default=1)
     parser.add_argument('--image_size', type=int, help='Image size (height, width) in pixels.', default=112)
