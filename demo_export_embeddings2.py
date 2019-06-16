@@ -33,7 +33,7 @@ from helpers import *
 
 ## ALL FAMILY
 python3 demo_export_embeddings2.py ./pth/IR_50_MODEL_centerloss_casia_epoch16.pth ./data/golovan_160/ \
---is_aligned True \
+--is_aligned 1 \
 --image_size 112 \
 --image_batch 5 \
 --embeddings_name ./output_arrays/embeddings_center_1.npy \
@@ -42,7 +42,7 @@ python3 demo_export_embeddings2.py ./pth/IR_50_MODEL_centerloss_casia_epoch16.pt
 
 ## SHORT
 python3 demo_export_embeddings2.py ./pth/IR_50_MODEL_centerloss_casia_epoch16.pth ./data/golovan_demo/ \
---is_aligned True \
+--is_aligned 1 \
 --image_size 112 \
 --image_batch 5 \
 --embeddings_name ./output_arrays/embeddings_center_1.npy \
@@ -52,7 +52,7 @@ python3 demo_export_embeddings2.py ./pth/IR_50_MODEL_centerloss_casia_epoch16.pt
 
 ## SHORT NOT ALIGNED
 python3 demo_export_embeddings2.py ./pth/IR_50_MODEL_centerloss_casia_epoch16.pth ./data/golovan_demo_not_aligned/ \
---is_aligned False \
+--is_aligned 0 \
 --image_size 112 \
 --image_batch 5 \
 --embeddings_name ./output_arrays/embeddings_center_1.npy \
@@ -87,9 +87,9 @@ class FacesDataset(data.Dataset):
         img = Image.open(img_path)
         data = img.convert('RGB')
 
-        print('\n✅✅✅ self.is_aligned: {}'.format(self.is_aligned))
+        print('\n✅✅✅ self.is_aligned: {}  TYPE: {}'.format(self.is_aligned, type(self.is_aligned)))
 
-        if self.is_aligned is 'True':
+        if self.is_aligned==1:
             print('####### Images already ALIGNED')
             image_data_rgb = np.asarray(data) # (160, 160, 3)
         else:
@@ -346,7 +346,7 @@ def parse_arguments(argv):
     parser = argparse.ArgumentParser()
     parser.add_argument('model', type=str, help='pth model file')
     parser.add_argument('data_dir', type=str, help='Directory containing images. If images are not already aligned and cropped include --is_aligned False.')
-    parser.add_argument('--is_aligned', type=str, help='Is the data directory already aligned and cropped?', default=True)
+    parser.add_argument('--is_aligned', type=int, help='Is the data directory already aligned and cropped? 0:False 1:True', default=1)
     parser.add_argument('--image_size', type=int, help='Image size (height, width) in pixels.', default=112)
     parser.add_argument('--margin', type=int, help='Margin for the crop around the bounding box (height, width) in pixels.', default=44)
     parser.add_argument('--gpu_memory_fraction', type=float, help='Upper bound on the amount of GPU memory that will be used by the process.', default=1.0)
