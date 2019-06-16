@@ -18,6 +18,24 @@ python3 demo_compare_embeddings_with_image.py \
 --distance_metric 0
 
 
+#####
+# EUGENE
+#with extract_feature distance = [0.45024702]
+#with extract_feature distance = [0.45124155]
+
+# ALEX
+#with extract_feature distance = [1.0274765]
+#with extract_feature distance = [0.97984713]
+
+# JULIA
+#with extract_feature distance = [1.1196184]
+#with extract_feature distance = [1.1744374]
+
+# LIUBA
+#with extract_feature distance = [0.9174443]
+#with extract_feature distance = [0.8600278]
+
+
 '''
 import tensorflow as tf
 import numpy as np

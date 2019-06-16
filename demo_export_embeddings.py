@@ -30,32 +30,12 @@ from models.irse import *
 from helpers import *
 
 """
-Exports the embeddings and labels of a directory of images as numpy arrays.
-
-Typicall usage expect the image directory to be of the openface/facenet form and
-the images to be aligned. Simply point to your model and your image directory:
-
-Output:
-embeddings.npy -- Embeddings as np array, Use --embeddings_name to change name
-labels.npy -- Integer labels as np array, Use --labels_name to change name
-label_strings.npy -- Strings from folders names, --labels_strings_name to change name
-
-
-Use --image_batch to dictacte how many images to load in memory at a time.
-
-If your images aren't already pre-aligned, use --is_aligned False
-
-I started with compare.py from David Sandberg, and modified it to export
-the embeddings. The image loading is done use the facenet library if the image
-is pre-aligned. If the image isn't pre-aligned, I use the compare.py function.
-I've found working with the embeddings useful for classifications models.
-
-Charles Jekel 2017
 
 ## ALL FAMILY
 python3 demo_export_embeddings.py ./pth/IR_50_MODEL_centerloss_casia_epoch16.pth ./data/golovan_160/ \
 --is_aligned True \
 --image_size 112 \
+--image_batch 5 \    
 --embeddings_name ./output_arrays/embeddings_center_1.npy \
 --labels_name ./output_arrays/labels_center_1.npy \
 --labels_strings_name ./output_arrays/label_strings_center_1.npy
@@ -64,6 +44,7 @@ python3 demo_export_embeddings.py ./pth/IR_50_MODEL_centerloss_casia_epoch16.pth
 python3 demo_export_embeddings.py ./pth/IR_50_MODEL_centerloss_casia_epoch16.pth ./data/golovan_demo/ \
 --is_aligned True \
 --image_size 112 \
+--image_batch 5 \
 --embeddings_name ./output_arrays/embeddings_center_1.npy \
 --labels_name ./output_arrays/labels_center_1.npy \
 --labels_strings_name ./output_arrays/label_strings_center_1.npy
@@ -142,6 +123,14 @@ def main(ARGS):
     # emb_array = np.zeros((nrof_images, embedding_size))
     start_time = time.time()
 
+    # ###### IMAGE
+    # img_path = './data/test_image.png'
+    # img = Image.open(img_path)
+    # image_data = img.convert('RGB')
+    # image_data_rgb = np.asarray(image_data) # shape=(160, 160, 3)  color_array=(255, 255, 255)
+    # ccropped_im, flipped_im = crop_and_flip(image_data_rgb, for_dataloader=False)
+    # feats_im = extract_norm_features(ccropped_im, flipped_im, model, device, tta = True)
+
     
 ########################################
     # nrof_images = len(loader.dataset)
@@ -152,6 +141,7 @@ def main(ARGS):
     lab_array = np.zeros((0,0))
 
     # nam_array = np.chararray((nrof_images,))
+    batch_ind = 0
     with torch.no_grad():
         for i, (data, label, name, ccropped, flipped) in enumerate(loader):
 
@@ -161,15 +151,33 @@ def main(ARGS):
             # feats = model(data)
             feats = extract_norm_features(ccropped, flipped, model, device, tta = True)
             
+            # for j in range(len(ccropped)):
+            #     # bp()
+            #     dist = distance(feats_im.cpu().numpy(), feats[j].view(1,-1).cpu().numpy())
+            #     # dist = distance(feats_im, feats[j])
+            #     print("11111 Distance Eugene with {}  is  {}:".format(name[j], dist))
+
             emb = feats.cpu().numpy()
             lab = label.detach().cpu().numpy()
 
             # nam_array[lab] = name
             # lab_array[lab] = lab
-            emb_array[lab, :] = emb
 
+            for j in range(len(ccropped)):
+                emb_array[j+batch_ind, :] = emb[j, :]
+            
             lab_array = np.append(lab_array,lab)
             
+            # print("\n")
+            # for j in range(len(ccropped)):
+            #     dist = distance(feats_im.cpu().numpy(), np.expand_dims(emb_array[j+batch_ind], axis=0))
+            #     # dist = distance(feats_im, feats[j])
+            #     print("22222 Distance Eugene with {}  is  {}:".format(name[j], dist))
+            # print("\n")
+
+
+            batch_ind += len(ccropped)
+
             if i % 10 == 9:
                 print('.', end='')
                 sys.stdout.flush()
@@ -332,6 +340,22 @@ def load_data(image_paths, do_random_crop, do_random_flip, image_size, do_prewhi
         images[i,:,:,:] = img
     return images
 
+# def distance(embeddings1, embeddings2, distance_metric=0):
+#     if distance_metric==0:
+#         # Euclidian distance
+#         diff = np.subtract(embeddings1, embeddings2)
+#         dist = np.sum(np.square(diff),1)
+#     elif distance_metric==1:
+#         # Distance based on cosine similarity
+#         dot = np.sum(np.multiply(embeddings1, embeddings2), axis=1)
+#         norm = np.linalg.norm(embeddings1, axis=1) * np.linalg.norm(embeddings2, axis=1)
+#         similarity = dot / norm
+#         dist = np.arccos(similarity) / math.pi
+#     else:
+#         raise 'Undefined distance metric %d' % distance_metric 
+        
+#     return dist
+
 def parse_arguments(argv):
     parser = argparse.ArgumentParser()
     parser.add_argument('model', type=str, help='pth model file')
@@ -340,7 +364,7 @@ def parse_arguments(argv):
     parser.add_argument('--image_size', type=int, help='Image size (height, width) in pixels.', default=112)
     parser.add_argument('--margin', type=int, help='Margin for the crop around the bounding box (height, width) in pixels.', default=44)
     parser.add_argument('--gpu_memory_fraction', type=float, help='Upper bound on the amount of GPU memory that will be used by the process.', default=1.0)
-    parser.add_argument('--image_batch', type=int, help='Number of images stored in memory at a time. Default 500.', default=500)
+    parser.add_argument('--image_batch', type=int, help='Number of images stored in memory at a time. Default 64.', default=64)
     parser.add_argument('--num_workers', type=int, help='Number of threads to use for data pipeline.', default=8)
     #   numpy file Names
     parser.add_argument('--embeddings_name', type=str, help='Enter string of which the embeddings numpy array is saved as.', default='embeddings.npy')
