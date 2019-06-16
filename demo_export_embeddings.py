@@ -35,7 +35,7 @@ from helpers import *
 python3 demo_export_embeddings.py ./pth/IR_50_MODEL_centerloss_casia_epoch16.pth ./data/golovan_160/ \
 --is_aligned True \
 --image_size 112 \
---image_batch 5 \    
+--image_batch 5 \
 --embeddings_name ./output_arrays/embeddings_center_1.npy \
 --labels_name ./output_arrays/labels_center_1.npy \
 --labels_strings_name ./output_arrays/label_strings_center_1.npy
