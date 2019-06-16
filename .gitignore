@@ -6,7 +6,7 @@ __pycache__/
 
 # out dir
 out/
-
+output_arrays/
 data/
 # C extensions
 *.so
