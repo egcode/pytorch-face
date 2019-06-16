@@ -34,6 +34,7 @@ from helpers import *
 ## ALL FAMILY
 python3 demo_export_embeddings2.py ./pth/IR_50_MODEL_centerloss_casia_epoch16.pth ./data/golovan_160/ \
 --is_aligned 1 \
+--with_demo_images 1 \
 --image_size 112 \
 --image_batch 5 \
 --embeddings_name ./output_arrays/embeddings_center_1.npy \
@@ -43,6 +44,7 @@ python3 demo_export_embeddings2.py ./pth/IR_50_MODEL_centerloss_casia_epoch16.pt
 ## SHORT
 python3 demo_export_embeddings2.py ./pth/IR_50_MODEL_centerloss_casia_epoch16.pth ./data/golovan_demo/ \
 --is_aligned 1 \
+--with_demo_images 1 \
 --image_size 112 \
 --image_batch 5 \
 --embeddings_name ./output_arrays/embeddings_center_1.npy \
@@ -53,6 +55,7 @@ python3 demo_export_embeddings2.py ./pth/IR_50_MODEL_centerloss_casia_epoch16.pt
 ## SHORT NOT ALIGNED
 python3 demo_export_embeddings2.py ./pth/IR_50_MODEL_centerloss_casia_epoch16.pth ./data/golovan_demo_not_aligned/ \
 --is_aligned 0 \
+--with_demo_images 1 \
 --image_size 112 \
 --image_batch 5 \
 --embeddings_name ./output_arrays/embeddings_center_1.npy \
@@ -61,13 +64,14 @@ python3 demo_export_embeddings2.py ./pth/IR_50_MODEL_centerloss_casia_epoch16.pt
 """
 
 class FacesDataset(data.Dataset):
-    def __init__(self, image_list, label_list, names_list, num_classes, is_aligned, image_size, margin, gpu_memory_fraction):
+    def __init__(self, image_list, label_list, names_list, num_classes, is_aligned, image_size, margin, gpu_memory_fraction, demo_images_path=None):
         self.image_list = image_list
         self.label_list = label_list
         self.names_list = names_list
         self.num_classes = num_classes
 
         self.is_aligned = is_aligned
+        self.demo_images_path = demo_images_path
 
         self.image_size = image_size
         self.margin = margin
@@ -75,25 +79,14 @@ class FacesDataset(data.Dataset):
 
         self.static = 0
 
-        # normalize = T.Normalize(mean=[0.5], std=[0.5])
-        # self.transforms = T.Compose([
-        #     T.Resize(image_size),
-        #     T.ToTensor(),
-        #     normalize
-        # ])
-
     def __getitem__(self, index):
         img_path = self.image_list[index]
         img = Image.open(img_path)
         data = img.convert('RGB')
 
-        print('\n✅✅✅ self.is_aligned: {}  TYPE: {}'.format(self.is_aligned, type(self.is_aligned)))
-
         if self.is_aligned==1:
-            print('####### Images already ALIGNED')
             image_data_rgb = np.asarray(data) # (160, 160, 3)
         else:
-            print('####### Images are NOT ALIGNED')
             image_data_rgb = load_and_align_data(img_path, self.image_size, self.margin, self.gpu_memory_fraction)
 
 
@@ -105,15 +98,15 @@ class FacesDataset(data.Dataset):
         # print("### FLIPPED shape: " + str(flipped.shape))
         # print("\n\n")
         
-        ################################################
-        ### SAVE
-        prefix = 'notaligned_' + str(self.static) + str(self.names_list[index]) 
-        # data.save(prefix + 'aaaaaa.png') # Save PIL
-        image_BGR = cv2.cvtColor(image_data_rgb, cv2.COLOR_RGB2BGR)
-        cv2.imwrite(prefix + '.png', image_BGR)
-        self.static += 1
-        ################################################
-
+        if self.demo_images_path is not None:
+            ################################################
+            ### SAVE Demo Images
+            prefix = str(self.static)+ '_' + str(self.names_list[index]) 
+            # data.save(self.demo_images_path + '/' + prefix + '.png') # Save PIL
+            image_BGR = cv2.cvtColor(image_data_rgb, cv2.COLOR_RGB2BGR)
+            cv2.imwrite(self.demo_images_path + '/' + prefix + '.png', image_BGR)
+            self.static += 1
+            ################################################
 
         
         # data = self.transforms(data)
@@ -132,6 +125,12 @@ def main(ARGS):
     if not os.path.isdir(out_dir):  # Create the out directory if it doesn't exist
         os.makedirs(out_dir)
 
+    images_dir=None
+    if ARGS.with_demo_images==1:
+        images_dir = os.path.join(os.path.expanduser(out_dir), 'demo_images')
+        if not os.path.isdir(images_dir):  # Create the out directory if it doesn't exist
+            os.makedirs(images_dir)
+
     train_set = get_dataset(ARGS.data_dir)
     image_list, label_list, names_list = get_image_paths_and_labels(train_set)
     faces_dataset = FacesDataset(image_list=image_list, 
@@ -141,7 +140,8 @@ def main(ARGS):
                                     is_aligned=ARGS.is_aligned, 
                                     image_size=ARGS.image_size, 
                                     margin=ARGS.margin, 
-                                    gpu_memory_fraction=ARGS.gpu_memory_fraction)
+                                    gpu_memory_fraction=ARGS.gpu_memory_fraction,
+                                    demo_images_path=images_dir)
     loader = torch.utils.data.DataLoader(faces_dataset, batch_size=ARGS.image_batch,
                                                 shuffle=False, num_workers=ARGS.num_workers)
 
@@ -347,6 +347,7 @@ def parse_arguments(argv):
     parser.add_argument('model', type=str, help='pth model file')
     parser.add_argument('data_dir', type=str, help='Directory containing images. If images are not already aligned and cropped include --is_aligned False.')
     parser.add_argument('--is_aligned', type=int, help='Is the data directory already aligned and cropped? 0:False 1:True', default=1)
+    parser.add_argument('--with_demo_images', type=int, help='Embedding Images 0:False 1:True', default=1)
     parser.add_argument('--image_size', type=int, help='Image size (height, width) in pixels.', default=112)
     parser.add_argument('--margin', type=int, help='Margin for the crop around the bounding box (height, width) in pixels.', default=44)
     parser.add_argument('--gpu_memory_fraction', type=float, help='Upper bound on the amount of GPU memory that will be used by the process.', default=1.0)
