@@ -49,28 +49,54 @@ python3 demo_export_embeddings2.py ./pth/IR_50_MODEL_centerloss_casia_epoch16.pt
 --labels_name ./output_arrays/labels_center_1.npy \
 --labels_strings_name ./output_arrays/label_strings_center_1.npy
 
+
+## SHORT NOT ALIGNED
+python3 demo_export_embeddings2.py ./pth/IR_50_MODEL_centerloss_casia_epoch16.pth ./data/golovan_demo_not_aligned/ \
+--is_aligned False \
+--image_size 112 \
+--image_batch 5 \
+--embeddings_name ./output_arrays/embeddings_center_1.npy \
+--labels_name ./output_arrays/labels_center_1.npy \
+--labels_strings_name ./output_arrays/label_strings_center_1.npy
 """
 
 class FacesDataset(data.Dataset):
-    def __init__(self, image_list, label_list, names_list, num_classes, input_size, is_aligned):
+    def __init__(self, image_list, label_list, names_list, num_classes, is_aligned, image_size, margin, gpu_memory_fraction):
         self.image_list = image_list
         self.label_list = label_list
         self.names_list = names_list
         self.num_classes = num_classes
+
         self.is_aligned = is_aligned
-        normalize = T.Normalize(mean=[0.5], std=[0.5])
-        self.transforms = T.Compose([
-            T.Resize(input_size),
-            T.ToTensor(),
-            normalize
-        ])
+
+        self.image_size = image_size
+        self.margin = margin
+        self.gpu_memory_fraction = gpu_memory_fraction
+
+        self.static = 0
+
+        # normalize = T.Normalize(mean=[0.5], std=[0.5])
+        # self.transforms = T.Compose([
+        #     T.Resize(image_size),
+        #     T.ToTensor(),
+        #     normalize
+        # ])
 
     def __getitem__(self, index):
         img_path = self.image_list[index]
         img = Image.open(img_path)
         data = img.convert('RGB')
 
-        image_data_rgb = np.asarray(data) # (160, 160, 3)
+        print('\n✅✅✅ self.is_aligned: {}'.format(self.is_aligned))
+
+        if self.is_aligned is 'True':
+            print('####### Images already ALIGNED')
+            image_data_rgb = np.asarray(data) # (160, 160, 3)
+        else:
+            print('####### Images are NOT ALIGNED')
+            image_data_rgb = load_and_align_data(img_path, self.image_size, self.margin, self.gpu_memory_fraction)
+
+
         ccropped, flipped = crop_and_flip(image_data_rgb, for_dataloader=True)
         # bp()
         # print("\n\n")
@@ -78,11 +104,22 @@ class FacesDataset(data.Dataset):
         # print("### CCROPPED shape: " + str(ccropped.shape))
         # print("### FLIPPED shape: " + str(flipped.shape))
         # print("\n\n")
+        
+        ################################################
+        ### SAVE
+        prefix = 'notaligned_' + str(self.static) + str(self.names_list[index]) 
+        # data.save(prefix + 'aaaaaa.png') # Save PIL
+        image_BGR = cv2.cvtColor(image_data_rgb, cv2.COLOR_RGB2BGR)
+        cv2.imwrite(prefix + '.png', image_BGR)
+        self.static += 1
+        ################################################
 
-        data = self.transforms(data)
+
+        
+        # data = self.transforms(data)
         label = self.label_list[index]
         name = self.names_list[index]
-        return data.float(), label, name, ccropped, flipped
+        return ccropped, flipped, label, name
 
     def __len__(self):
         return len(self.image_list)
@@ -97,7 +134,14 @@ def main(ARGS):
 
     train_set = get_dataset(ARGS.data_dir)
     image_list, label_list, names_list = get_image_paths_and_labels(train_set)
-    faces_dataset = FacesDataset(image_list, label_list, names_list, len(train_set), ARGS.image_size, ARGS.is_aligned)
+    faces_dataset = FacesDataset(image_list=image_list, 
+                                    label_list=label_list, 
+                                    names_list=names_list, 
+                                    num_classes=len(train_set), 
+                                    is_aligned=ARGS.is_aligned, 
+                                    image_size=ARGS.image_size, 
+                                    margin=ARGS.margin, 
+                                    gpu_memory_fraction=ARGS.gpu_memory_fraction)
     loader = torch.utils.data.DataLoader(faces_dataset, batch_size=ARGS.image_batch,
                                                 shuffle=False, num_workers=ARGS.num_workers)
 
@@ -143,10 +187,9 @@ def main(ARGS):
     # nam_array = np.chararray((nrof_images,))
     batch_ind = 0
     with torch.no_grad():
-        for i, (data, label, name, ccropped, flipped) in enumerate(loader):
+        for i, (ccropped, flipped, label, name) in enumerate(loader):
 
-            data, label = data.to(device), label.to(device)
-            ccropped, flipped = ccropped.to(device), flipped.to(device)
+            ccropped, flipped, label = ccropped.to(device), flipped.to(device), label.to(device)
 
             # feats = model(data)
             feats = extract_norm_features(ccropped, flipped, model, device, tta = True)
@@ -206,88 +249,82 @@ def main(ARGS):
     # strings = np.load('output_arrays/label_strings_center_1.npy')
 
 
-def load_and_align_data(image_paths, image_size, margin, gpu_memory_fraction):
+def load_and_align_data(image_path, image_size, margin, gpu_memory_fraction):
 
     minsize = 20 # minimum size of face
     threshold = [ 0.6, 0.7, 0.7 ]  # three steps's threshold
     factor = 0.709 # scale factor
 
-    print('Creating networks and loading parameters')
+    print('🎃  Creating networks and loading parameters')
     with tf.Graph().as_default():
         gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=gpu_memory_fraction)
         sess = tf.Session(config=tf.ConfigProto(gpu_options=gpu_options, log_device_placement=False))
         with sess.as_default():
             pnet, rnet, onet = align.detect_face.create_mtcnn(sess, None)
 
-    nrof_samples = len(image_paths)
-    img_list = [None] * nrof_samples
-    for i in xrange(nrof_samples):
-        print(image_paths[i])
-        img = misc.imread(os.path.expanduser(image_paths[i]))
-        img_size = np.asarray(img.shape)[0:2]
-        bounding_boxes, _ = align.detect_face.detect_face(img, minsize, pnet, rnet, onet, threshold, factor)
-        # bp()
-        # if (len(bounding_boxes) == 0):
-        #     print("++++++Zero")
-        #     # bp()
-        #     break;
-        det = np.squeeze(bounding_boxes[0,0:4])
-        bb = np.zeros(4, dtype=np.int32)
-        bb[0] = np.maximum(det[0]-margin/2, 0)
-        bb[1] = np.maximum(det[1]-margin/2, 0)
-        bb[2] = np.minimum(det[2]+margin/2, img_size[1])
-        bb[3] = np.minimum(det[3]+margin/2, img_size[0])
-        cropped = img[bb[1]:bb[3],bb[0]:bb[2],:]
-        aligned = misc.imresize(cropped, (image_size, image_size), interp='bilinear')
-        prewhitened = prewhiten(aligned)
-        img_list[i] = prewhitened
-    images = np.stack(img_list)
-    return images
+    print(image_path)
+    img = misc.imread(os.path.expanduser(image_path))
+    img_size = np.asarray(img.shape)[0:2]
+    bounding_boxes, _ = align.detect_face.detect_face(img, minsize, pnet, rnet, onet, threshold, factor)
+    det = np.squeeze(bounding_boxes[0,0:4])
+    bb = np.zeros(4, dtype=np.int32)
+    bb[0] = np.maximum(det[0]-margin/2, 0)
+    bb[1] = np.maximum(det[1]-margin/2, 0)
+    bb[2] = np.minimum(det[2]+margin/2, img_size[1])
+    bb[3] = np.minimum(det[3]+margin/2, img_size[0])
+    cropped = img[bb[1]:bb[3],bb[0]:bb[2],:]
+    aligned = misc.imresize(cropped, (image_size, image_size), interp='bilinear')
+    # prewhitened = prewhiten(aligned)
+    # img = prewhitened
+
+    img = aligned
+    
+    return img
 
 
-def prewhiten(x):
-    mean = np.mean(x)
-    std = np.std(x)
-    std_adj = np.maximum(std, 1.0/np.sqrt(x.size))
-    y = np.multiply(np.subtract(x, mean), 1/std_adj)
-    return y  
+# def prewhiten(x):
+#     mean = np.mean(x)
+#     std = np.std(x)
+#     std_adj = np.maximum(std, 1.0/np.sqrt(x.size))
+#     y = np.multiply(np.subtract(x, mean), 1/std_adj)
+#     return y  
 
-def to_rgb(img):
-    w, h = img.shape
-    ret = np.empty((w, h, 3), dtype=np.uint8)
-    ret[:, :, 0] = ret[:, :, 1] = ret[:, :, 2] = img
-    return ret
+# def to_rgb(img):
+#     w, h = img.shape
+#     ret = np.empty((w, h, 3), dtype=np.uint8)
+#     ret[:, :, 0] = ret[:, :, 1] = ret[:, :, 2] = img
+#     return ret
 
-def crop(image, random_crop, image_size):
-    if image.shape[1]>image_size:
-        sz1 = int(image.shape[1]//2)
-        sz2 = int(image_size//2)
-        if random_crop:
-            diff = sz1-sz2
-            (h, v) = (np.random.randint(-diff, diff+1), np.random.randint(-diff, diff+1))
-        else:
-            (h, v) = (0,0)
-        image = image[(sz1-sz2+v):(sz1+sz2+v),(sz1-sz2+h):(sz1+sz2+h),:]
-    return image
+# def crop(image, random_crop, image_size):
+#     if image.shape[1]>image_size:
+#         sz1 = int(image.shape[1]//2)
+#         sz2 = int(image_size//2)
+#         if random_crop:
+#             diff = sz1-sz2
+#             (h, v) = (np.random.randint(-diff, diff+1), np.random.randint(-diff, diff+1))
+#         else:
+#             (h, v) = (0,0)
+#         image = image[(sz1-sz2+v):(sz1+sz2+v),(sz1-sz2+h):(sz1+sz2+h),:]
+#     return image
   
-def flip(image, random_flip):
-    if random_flip and np.random.choice([True, False]):
-        image = np.fliplr(image)
-    return image
+# def flip(image, random_flip):
+#     if random_flip and np.random.choice([True, False]):
+#         image = np.fliplr(image)
+#     return image
 
-def load_data(image_paths, do_random_crop, do_random_flip, image_size, do_prewhiten=True):
-    nrof_samples = len(image_paths)
-    images = np.zeros((nrof_samples, image_size, image_size, 3))
-    for i in range(nrof_samples):
-        img = misc.imread(image_paths[i])
-        if img.ndim == 2:
-            img = to_rgb(img)
-        if do_prewhiten:
-            img = prewhiten(img)
-        img = crop(img, do_random_crop, image_size)
-        img = flip(img, do_random_flip)
-        images[i,:,:,:] = img
-    return images
+# def load_data(image_paths, do_random_crop, do_random_flip, image_size, do_prewhiten=True):
+#     nrof_samples = len(image_paths)
+#     images = np.zeros((nrof_samples, image_size, image_size, 3))
+#     for i in range(nrof_samples):
+#         img = misc.imread(image_paths[i])
+#         if img.ndim == 2:
+#             img = to_rgb(img)
+#         if do_prewhiten:
+#             img = prewhiten(img)
+#         img = crop(img, do_random_crop, image_size)
+#         img = flip(img, do_random_flip)
+#         images[i,:,:,:] = img
+#     return images
 
 # def distance(embeddings1, embeddings2, distance_metric=0):
 #     if distance_metric==0:
