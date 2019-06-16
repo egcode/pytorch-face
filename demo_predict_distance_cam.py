@@ -6,7 +6,7 @@ from __future__ import print_function
 '''
 
 python3 demo_predict_distance_cam.py \
---model ./pth/IR_50_MODEL_centerloss_casia_epoch34.pth \
+--model ./pth/IR_50_MODEL_centerloss_casia_epoch16.pth \
 --embeddings_premade ./output_arrays/embeddings_center_1.npy \
 --label_string_center ./output_arrays/label_strings_center_1.npy \
 --labels_center ./output_arrays/labels_center_1.npy
@@ -46,6 +46,7 @@ from PIL import Image
 from models.resnet import *
 from models.irse import *
 
+from helpers import *
 
 from pdb import set_trace as bp
 
@@ -117,9 +118,11 @@ class Detection:
 
             # cropped = img[bb[1]:bb[3],bb[0]:bb[2],:]
             aligned = misc.imresize(cropped, (image_size, image_size), interp='bilinear')
-            prewhitened = prewhiten(aligned)        
+            
+            face_image = aligned[:,:,::-1] ## BRG -> RGB
+            # prewhitened = prewhiten(aligned)        
             face = Face()
-            face.image = prewhitened
+            face.image = face_image
             face.bounding_box = bb
             faces.append(face)
 
@@ -168,18 +171,14 @@ def main(ARGS):
             # embeddings = tf.get_default_graph().get_tensor_by_name("embeddings:0")
             # phase_train_placeholder = tf.get_default_graph().get_tensor_by_name("phase_train:0")
 
-            normalize = T.Normalize(mean=[0.5], std=[0.5])
-            transforms = T.Compose([
-                T.Resize([ARGS.image_size,ARGS.image_size]),
-                T.ToTensor(),
-                normalize
-            ])
-            pil_image = Image.fromarray(face.image.astype('uint8'), 'RGB')
-            pil_image = transforms(pil_image)
-            pil_image = pil_image.reshape(1, 3, ARGS.image_size, ARGS.image_size)
+            pil_image = Image.fromarray(face.image, mode='RGB')
+            # pil_image.save('pilllllllll.png')
+            image_data_rgb = np.asarray(pil_image) # shape=(160, 160, 3)  color_array=(255, 255, 255)
+            ccropped, flipped = crop_and_flip(image_data_rgb, for_dataloader=False)
 
             with torch.no_grad():
-                feats = model(torch.tensor(pil_image))
+                # feats = model(torch.tensor(pil_image))
+                feats = extract_norm_features(ccropped, flipped, model, device, tta = True)
                 face.embedding = feats.cpu().numpy()
 
 
