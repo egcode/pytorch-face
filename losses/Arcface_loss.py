@@ -7,7 +7,9 @@ import math
 # from pdb import set_trace as bp
 
 class Arcface_loss(nn.Module):
-    def __init__(self, num_classes, feat_dim, device, s=7.0, m=0.2):
+    # def __init__(self, num_classes, feat_dim, device, s=7.0, m=0.2):
+    def __init__(self, num_classes, feat_dim, device, s=64.0, m=0.5):
+    
         super(Arcface_loss, self).__init__()
         self.feat_dim = feat_dim
         self.num_classes = num_classes
