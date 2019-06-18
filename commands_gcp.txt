@@ -204,7 +204,9 @@ git clone https://github.com/egcode/pytorch-face.git
 pip3 install -r ./requirements.txt
 
 
-EXAMPLES:
+===================================================
+EXAMPLES CENTER LOSS:
+
 ## IR_50 TEST  #RESULT::::: IR_50_MODEL_centerloss_casia_epoch34.pth  
 python3 train.py \
 --model_path ./pth/IR_50_MODEL_centerloss.pth \
@@ -249,7 +251,22 @@ python3 train.py \
 --criterion_lr_step 2 \
 --criterion_lr_gamma 0.9 
 
+===================================================
+EXAMPLES ARCFACE:
 
+python3 train.py \
+--batch_size 128 \
+--batch_size_test 128 \
+--lfw_batch_size 128 \
+--criterion_type arcface \
+--model_lr 0.01 \
+--model_lr_step 2 \
+--model_lr_gamma 0.9 \
+--criterion_lr 0.01 \
+--criterion_lr_step 10 \
+--criterion_lr_gamma 0.1 
+
+===================================================
 
 
 tensorboard --logdir=old:out/2019-05-19___21-32-29/tensorboard,new:out/2019-05-20___05-49-21/tensorboard
