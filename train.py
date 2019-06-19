@@ -123,6 +123,7 @@ def test(ARGS, model, device, test_loader, loss_softmax, loss_criterion, log_fil
 
                 if ARGS.criterion_type == 'arcface':
                     logits = loss_criterion(feats, target)
+                    outputs = logits
                 elif ARGS.criterion_type == 'lmcl':
                     logits, mlogits = loss_criterion(feats, target)
                 elif ARGS.criterion_type == 'centerloss':
