@@ -10,7 +10,9 @@ from torch.autograd import Variable
 from pdb import set_trace as bp
 
 class LMCL_loss(nn.Module):
-    def __init__(self, num_classes, feat_dim, device, s=7.00, m=0.2):
+    # def __init__(self, num_classes, feat_dim, device, s=7.00, m=0.2):
+    def __init__(self, num_classes, feat_dim, device, s=7.00, m=0.35):
+
         super(LMCL_loss, self).__init__()
         self.feat_dim = feat_dim
         self.num_classes = num_classes
