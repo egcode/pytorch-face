@@ -86,6 +86,16 @@ python3 demo_export_embeddings.py ./pth/IR_50_MODEL_arcface_casia_epoch21.pth ./
 --labels_name labels_arcface_1.npy \
 --labels_strings_name label_strings_arcface_1.npy
 
+## SHORT
+python3 demo_export_embeddings.py ./pth/IR_50_MODEL_arcface_casia_epoch21.pth ./data/golovan_demo/ \
+--is_aligned 1 \
+--with_demo_images 1 \
+--image_size 112 \
+--image_batch 5 \
+--embeddings_name embeddings_arcface_1.npy \
+--labels_name labels_arcface_1.npy \
+--labels_strings_name label_strings_arcface_1.npy
+
 
 ## SHORT NOT ALIGNED
 python3 demo_export_embeddings.py ./pth/IR_50_MODEL_arcface_casia_epoch21.pth ./data/golovan_demo_not_aligned/ \
