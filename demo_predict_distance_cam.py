@@ -5,18 +5,46 @@ from __future__ import print_function
 
 '''
 
+#################################################################################
+#################################################################################
+#################################################################################
+CENTER LOSS
+#################################################################################
+
 python3 demo_predict_distance_cam.py \
 --model ./pth/IR_50_MODEL_centerloss_casia_epoch16.pth \
 --embeddings_premade ./output_arrays/embeddings_center_1.npy \
 --label_string_center ./output_arrays/label_strings_center_1.npy \
 --labels_center ./output_arrays/labels_center_1.npy
+--distance_metric 0
 
+
+#################################################################################
+#################################################################################
+#################################################################################
+ARCFACE LOSS-Eugene Casia
+#################################################################################
+
+python3 demo_predict_distance_cam.py \
+--model ./pth/IR_50_MODEL_arcface_casia_epoch21.pth \
+--embeddings_premade ./output_arrays/embeddings_arcface_1.npy \
+--label_string_center ./output_arrays/label_strings_arcface_1.npy \
+--labels_center ./output_arrays/labels_arcface_1.npy
+--distance_metric 1
+
+
+
+#################################################################################
+#################################################################################
+#################################################################################
+ARCFACE LOSS - face.evoLVe.PyTorch
+#################################################################################
 
 python3 demo_predict_distance_cam.py \
 --model ./pth/backbone_ir50_ms1m_epoch120.pth \
---embeddings_premade ./output_arrays/embeddings_center_2.npy \
---label_string_center ./output_arrays/label_strings_center_2.npy \
---labels_center ./output_arrays/labels_center_2.npy \
+--embeddings_premade ./output_arrays/embeddings_arcface_1.npy \
+--label_string_center ./output_arrays/label_strings_arcface_1.npy \
+--labels_center ./output_arrays/labels_arcface_1.npy
 --distance_metric 1
 
 '''
@@ -237,22 +265,6 @@ def add_overlays(frame, faces):
                     cv2.putText(frame, name + " " + str(round(face.distance, 2)), (face_bb[0], face_bb[3]),
                             cv2.FONT_HERSHEY_SIMPLEX, 1, color,
                             thickness=2, lineType=2)
-
-def distance(embeddings1, embeddings2, distance_metric=0):
-    if distance_metric==0:
-        # Euclidian distance
-        diff = np.subtract(embeddings1, embeddings2)
-        dist = np.sum(np.square(diff),1)
-    elif distance_metric==1:
-        # Distance based on cosine similarity
-        dot = np.sum(np.multiply(embeddings1, embeddings2), axis=1)
-        norm = np.linalg.norm(embeddings1, axis=1) * np.linalg.norm(embeddings2, axis=1)
-        similarity = dot / norm
-        dist = np.arccos(similarity) / math.pi
-    else:
-        raise 'Undefined distance metric %d' % distance_metric 
-        
-    return dist
 
 
 def parse_arguments(argv):
