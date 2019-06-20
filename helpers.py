@@ -9,6 +9,7 @@ from datetime import datetime
 import cv2
 from PIL import Image
 import numpy as np
+from scipy import spatial
 
 from pdb import set_trace as bp
 
@@ -114,3 +115,23 @@ def extract_norm_features(ccropped, flipped, model, device, tta = True):
         else:
             features = l2_norm(model(ccropped.to(device)).cpu())
     return features
+
+
+def distance(embeddings1, embeddings2, distance_metric=0):
+    if distance_metric==0:
+        # Euclidian distance
+        diff = np.subtract(embeddings1, embeddings2)
+        dist = np.sum(np.square(diff),1)
+    elif distance_metric==1:
+        # Distance based on cosine similarity
+        # dot = np.sum(np.multiply(embeddings1, embeddings2), axis=1)
+        # norm = np.linalg.norm(embeddings1, axis=1) * np.linalg.norm(embeddings2, axis=1)
+        # similarity = dot / norm
+        # dist = np.arccos(similarity) / math.pi
+
+        dist = spatial.distance.cosine(embeddings1, embeddings2)
+
+    else:
+        raise 'Undefined distance metric %d' % distance_metric 
+        
+    return dist
