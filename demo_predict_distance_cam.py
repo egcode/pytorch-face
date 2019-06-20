@@ -238,22 +238,6 @@ def add_overlays(frame, faces):
                             cv2.FONT_HERSHEY_SIMPLEX, 1, color,
                             thickness=2, lineType=2)
 
-def distance(embeddings1, embeddings2, distance_metric=0):
-    if distance_metric==0:
-        # Euclidian distance
-        diff = np.subtract(embeddings1, embeddings2)
-        dist = np.sum(np.square(diff),1)
-    elif distance_metric==1:
-        # Distance based on cosine similarity
-        dot = np.sum(np.multiply(embeddings1, embeddings2), axis=1)
-        norm = np.linalg.norm(embeddings1, axis=1) * np.linalg.norm(embeddings2, axis=1)
-        similarity = dot / norm
-        dist = np.arccos(similarity) / math.pi
-    else:
-        raise 'Undefined distance metric %d' % distance_metric 
-        
-    return dist
-
 
 def parse_arguments(argv):
     parser = argparse.ArgumentParser()
