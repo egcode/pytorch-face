@@ -5,18 +5,46 @@ from __future__ import print_function
 
 '''
 
+#################################################################################
+#################################################################################
+#################################################################################
+CENTER LOSS
+#################################################################################
+
 python3 demo_predict_distance_cam.py \
 --model ./pth/IR_50_MODEL_centerloss_casia_epoch16.pth \
 --embeddings_premade ./output_arrays/embeddings_center_1.npy \
 --label_string_center ./output_arrays/label_strings_center_1.npy \
 --labels_center ./output_arrays/labels_center_1.npy
+--distance_metric 0
 
+
+#################################################################################
+#################################################################################
+#################################################################################
+ARCFACE LOSS-Eugene Casia
+#################################################################################
+
+python3 demo_predict_distance_cam.py \
+--model ./pth/IR_50_MODEL_arcface_casia_epoch21.pth \
+--embeddings_premade ./output_arrays/embeddings_arcface_1.npy \
+--label_string_center ./output_arrays/label_strings_arcface_1.npy \
+--labels_center ./output_arrays/labels_arcface_1.npy
+--distance_metric 1
+
+
+
+#################################################################################
+#################################################################################
+#################################################################################
+ARCFACE LOSS - face.evoLVe.PyTorch
+#################################################################################
 
 python3 demo_predict_distance_cam.py \
 --model ./pth/backbone_ir50_ms1m_epoch120.pth \
---embeddings_premade ./output_arrays/embeddings_center_2.npy \
---label_string_center ./output_arrays/label_strings_center_2.npy \
---labels_center ./output_arrays/labels_center_2.npy \
+--embeddings_premade ./output_arrays/embeddings_arcface_1.npy \
+--label_string_center ./output_arrays/label_strings_arcface_1.npy \
+--labels_center ./output_arrays/labels_arcface_1.npy
 --distance_metric 1
 
 '''
