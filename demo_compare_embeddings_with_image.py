@@ -3,6 +3,24 @@ from __future__ import division
 from __future__ import print_function
 
 '''
+
+#################################################################################
+#################################################################################
+#################################################################################
+ARCFACE LOSS-Eugene Casia
+#################################################################################
+
+python3 demo_compare_embeddings_with_image.py \
+--model ./pth/IR_50_MODEL_arcface_casia_epoch21.pth \
+--image_path ./data/test_image.png \
+--embeddings_premade ./output_arrays/embeddings_arcface_1.npy \
+--label_string_center ./output_arrays/label_strings_arcface_1.npy \
+--labels_center ./output_arrays/labels_arcface_1.npy \
+--distance_metric 1
+
+
+
+
 #################################################################################
 #################################################################################
 #################################################################################
@@ -119,23 +137,6 @@ def main(ARGS):
     print(all_results_dict)
     print("=================")
     
-
-def distance(embeddings1, embeddings2, distance_metric=0):
-    if distance_metric==0:
-        # Euclidian distance
-        diff = np.subtract(embeddings1, embeddings2)
-        dist = np.sum(np.square(diff),1)
-    elif distance_metric==1:
-        # Distance based on cosine similarity
-        dot = np.sum(np.multiply(embeddings1, embeddings2), axis=1)
-        norm = np.linalg.norm(embeddings1, axis=1) * np.linalg.norm(embeddings2, axis=1)
-        similarity = dot / norm
-        dist = np.arccos(similarity) / math.pi
-    else:
-        raise 'Undefined distance metric %d' % distance_metric 
-        
-    return dist
-
 
 def parse_arguments(argv):
     parser = argparse.ArgumentParser()
