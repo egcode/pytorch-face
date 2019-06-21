@@ -49,7 +49,7 @@ python3 train.py \
 '''
 
 
-def train(ARGS, model, device, train_loader, loss_softmax, loss_criterion, optimizer_nn, optimzer_criterion, log_file_path, model_dir, logger, epoch):
+def train(ARGS, model, device, train_loader, loss_softmax, loss_criterion, optimizer, log_file_path, model_dir, logger, epoch):
     model.train()
     t = time.time()
     log_loss = 0
@@ -74,19 +74,15 @@ def train(ARGS, model, device, train_loader, loss_softmax, loss_criterion, optim
             loss = los_softm + loss_cent
 
 
-        optimizer_nn.zero_grad()
-        optimzer_criterion.zero_grad()
-
+        optimizer.zero_grad()
         loss.backward()
-
-        optimizer_nn.step()
 
         if ARGS.criterion_type == 'centerloss':
             # by doing so, weight_cent would not impact on the learning of centers
             for param in loss_criterion.parameters():
                 param.grad.data *= (1. / weight_cent)
 
-        optimzer_criterion.step()
+        optimizer.step()
 
         time_for_batch = int(time.time() - tt)
 
@@ -261,19 +257,22 @@ def main(ARGS):
     # optimizer_nn = torch.optim.Adam(model.parameters(), lr=ARGS.lr, betas=(ARGS.beta1, 0.999), weight_decay=ARGS.weight_decay)
     # optimzer_criterion = torch.optim.Adam(loss_criterion.parameters(), lr=ARGS.lr, betas=(ARGS.beta1, 0.999), weight_decay=ARGS.weight_decay)
     # else:
-    optimizer_nn = optim.SGD(model.parameters(), lr=ARGS.lr, momentum=ARGS.momentum, weight_decay=ARGS.weight_decay)
-    optimzer_criterion = optim.SGD(loss_criterion.parameters(), lr=ARGS.lr, momentum=ARGS.momentum, weight_decay=ARGS.weight_decay)
 
-    sheduler_nn = lr_scheduler.StepLR(optimizer_nn, ARGS.lr_step, gamma=ARGS.lr_gamma)
-    sheduler_criterion = lr_scheduler.StepLR(optimzer_criterion, ARGS.lr_step, gamma=ARGS.lr_gamma)
+    # optimizer_nn = optim.SGD(model.parameters(), lr=ARGS.lr, momentum=ARGS.momentum, weight_decay=ARGS.weight_decay)
+    # optimzer_criterion = optim.SGD(loss_criterion.parameters(), lr=ARGS.lr, momentum=ARGS.momentum, weight_decay=ARGS.weight_decay)
+    # sheduler_nn = lr_scheduler.StepLR(optimizer_nn, ARGS.lr_step, gamma=ARGS.lr_gamma)
+    # sheduler_criterion = lr_scheduler.StepLR(optimzer_criterion, ARGS.lr_step, gamma=ARGS.lr_gamma)
+
+
+    optimizer = torch.optim.SGD([{'params': model.parameters()}, {'params': loss_criterion.parameters()}],
+                                        lr=ARGS.lr, momentum=ARGS.momentum, weight_decay=ARGS.weight_decay)
+    sheduler = lr_scheduler.StepLR(optimizer, ARGS.lr_step, gamma=ARGS.lr_gamma)
 
     for epoch in range(1, ARGS.epochs + 1):
-        sheduler_nn.step()
-        sheduler_criterion.step()
-        
-        logger.scalar_summary("lr", sheduler_nn.get_lr()[0], epoch)
+        sheduler.step()
+        logger.scalar_summary("lr", sheduler.get_lr()[0], epoch)
 
-        train(ARGS, model, device, train_loader, loss_softmax, loss_criterion, optimizer_nn, optimzer_criterion, log_file_path, model_dir, logger, epoch)
+        train(ARGS, model, device, train_loader, loss_softmax, loss_criterion, optimizer, log_file_path, model_dir, logger, epoch)
         test(ARGS, model, device, test_loader, loss_softmax, loss_criterion, log_file_path, logger, epoch)
         validate_lfw(ARGS, model, lfw_loader, lfw_dataset, device, log_file_path, logger, lfw_distance_metric, epoch)
 
