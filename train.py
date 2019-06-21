@@ -58,6 +58,7 @@ def train(ARGS, model, device, train_loader, loss_softmax, loss_criterion, optim
 
         data, target = data.to(device), target.to(device)
 
+        # Forward prop.
         features = model(data)
 
         if ARGS.criterion_type == 'arcface':
@@ -73,7 +74,7 @@ def train(ARGS, model, device, train_loader, loss_softmax, loss_criterion, optim
             los_softm = loss_softmax(outputs, target)
             loss = los_softm + loss_cent
 
-
+        # Back prop.
         optimizer.zero_grad()
         loss.backward()
 
@@ -82,6 +83,7 @@ def train(ARGS, model, device, train_loader, loss_softmax, loss_criterion, optim
             for param in loss_criterion.parameters():
                 param.grad.data *= (1. / weight_cent)
 
+        # Update weights
         optimizer.step()
 
         time_for_batch = int(time.time() - tt)
