@@ -207,66 +207,9 @@ pip3 install -r ./requirements.txt
 ===================================================
 EXAMPLES CENTER LOSS:
 
-## IR_50 TEST  #RESULT::::: IR_50_MODEL_centerloss_casia_epoch34.pth  
-python3 train.py \
---model_path ./pth/IR_50_MODEL_centerloss.pth \
---loss_path ./pth/LOSS_centerloss.pth \
---batch_size 64 \
---batch_size_test 64 \
---lfw_batch_size 64 \
---criterion_type centerloss \
---model_lr 0.01 \
---model_lr_step 10 \
---model_lr_gamma 0.9 \
---criterion_lr 0.01 \
---criterion_lr_step 10 \
---criterion_lr_gamma 0.9 
-
-
-
-python3 train.py \
---batch_size 128 \
---batch_size_test 128 \
---lfw_batch_size 128 \
---criterion_type centerloss \
---model_lr 0.01 \
---model_lr_step 5 \
---model_lr_gamma 0.9 \
---criterion_lr 0.01 \
---criterion_lr_step 5 \
---criterion_lr_gamma 0.9 
-
-
-python3 train.py \
---model_path ./pth/IR_50_MODEL_centerloss.pth \
---loss_path ./pth/LOSS_centerloss.pth \
---batch_size 128 \
---batch_size_test 128 \
---lfw_batch_size 128 \
---criterion_type centerloss \
---model_lr 0.01 \
---model_lr_step 2 \
---model_lr_gamma 0.9 \
---criterion_lr 0.01 \
---criterion_lr_step 2 \
---criterion_lr_gamma 0.9 
-
 ===================================================
 EXAMPLES ARCFACE:
 
-python3 train.py \
---batch_size 128 \
---batch_size_test 128 \
---lfw_batch_size 128 \
---criterion_type arcface \
---margin_s 64.0 \
---margin_m 0.5 \
---model_lr 0.01 \
---model_lr_step 10 \
---model_lr_gamma 0.5 \
---criterion_lr 0.01 \
---criterion_lr_step 10 \
---criterion_lr_gamma 0.5
 
 
 ===================================================
@@ -279,13 +222,9 @@ python3 train.py \
 --criterion_type lmcl \
 --margin_s 64.0 \
 --margin_m 0.5 \
---model_lr 0.1 \
---model_lr_step 20 \
---model_lr_gamma 0.1 \
---criterion_lr 0.1 \
---criterion_lr_step 20 \
---criterion_lr_gamma 0.1
-
+--lr 0.1 \
+--lr_step 20 \
+--lr_gamma 0.1
 ===================================================
 
 

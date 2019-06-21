@@ -15,6 +15,7 @@ from sklearn import metrics
 from losses.Arcface_loss import Arcface_loss
 from losses.LMCL_loss import LMCL_loss
 from losses.Center_loss import Center_loss
+from losses.Focal_loss import Focal_loss
 from dataset.get_data import get_data
 from models.resnet import *
 from models.irse import *
@@ -37,19 +38,16 @@ python3 train.py \
 --batch_size_test 64 \
 --lfw_batch_size 64 \
 --criterion_type centerloss \
---model_lr 0.01 \
---model_lr_step 10 \
---model_lr_gamma 0.9 \
---criterion_lr 0.01 \
---criterion_lr_step 10 \
---criterion_lr_gamma 0.9 
+--lr 0.01 \
+--lr_step 10 \
+--lr_gamma 0.9 
 
 
 
 '''
 
 
-def train(ARGS, model, device, train_loader, loss_softmax, loss_criterion, optimizer_nn, optimzer_criterion, log_file_path, model_dir, logger, epoch):
+def train(ARGS, model, device, train_loader, loss_softmax, loss_criterion, optimizer, log_file_path, model_dir, logger, epoch):
     model.train()
     t = time.time()
     log_loss = 0
@@ -74,12 +72,11 @@ def train(ARGS, model, device, train_loader, loss_softmax, loss_criterion, optim
             loss = los_softm + loss_cent
 
 
-        optimizer_nn.zero_grad()
-        optimzer_criterion.zero_grad()
+        optimizer.zero_grad()
 
         loss.backward()
 
-        optimizer_nn.step()
+        optimizer.step()
 
         if ARGS.criterion_type == 'centerloss':
             # by doing so, weight_cent would not impact on the learning of centers
@@ -222,11 +219,24 @@ def main(ARGS):
     
     ####### Model setup
     print('Model type: %s' % ARGS.model_type)
+    if ARGS.model_type == 'ResNet_50':
+        model = ResNet_50(ARGS.input_size)
+    if ARGS.model_type == 'ResNet_101':
+        model = ResNet_101(ARGS.input_size)
+    if ARGS.model_type == 'ResNet_152':
+        model = ResNet_152(ARGS.input_size)
     if ARGS.model_type == 'IR_50':
         model = IR_50(ARGS.input_size)
     if ARGS.model_type == 'IR_SE_50':
         model = IR_SE_50(ARGS.input_size)
-
+    if ARGS.model_type == 'IR_101':
+        model = IR_101(ARGS.input_size)
+    if ARGS.model_type == 'IR_152':
+        model = IR_152(ARGS.input_size)
+    if ARGS.model_type == 'IR_SE_101':
+        model = IR_SE_101(ARGS.input_size)
+    if ARGS.model_type == 'IR_SE_152':
+        model = IR_SE_152(ARGS.input_size)
 
 
     if ARGS.model_path != None:
@@ -237,7 +247,10 @@ def main(ARGS):
 
     model = model.to(device)
 
-    loss_softmax = nn.CrossEntropyLoss().to(device)
+    if ARGS.loss_base == 'focal':
+        loss_softmax = Focal_loss(gamma=ARGS.focal_gamma).to(device)
+    else:
+        loss_softmax = nn.CrossEntropyLoss().to(device)
 
     ####### Criterion setup
     print('Criterion type: %s' % ARGS.criterion_type)
@@ -257,20 +270,22 @@ def main(ARGS):
         else:
             loss_criterion.load_state_dict(torch.load(ARGS.loss_path, map_location='cpu'))
 
-    # optimzer nn
-    # optimizer_nn = optim.SGD(model.parameters(), lr=ARGS.model_lr, momentum=0.9, weight_decay=0.0005)
-    optimizer_nn = torch.optim.Adam(model.parameters(), lr=ARGS.model_lr, betas=(ARGS.beta1, 0.999))
-    sheduler_nn = lr_scheduler.StepLR(optimizer_nn, ARGS.model_lr_step, gamma=ARGS.model_lr_gamma)
 
-    # optimzer_criterion = optim.SGD(loss_criterion.parameters(), lr=ARGS.criterion_lr)
-    optimzer_criterion = torch.optim.Adam(loss_criterion.parameters(), lr=ARGS.criterion_lr, betas=(ARGS.beta1, 0.999))
-    sheduler_criterion = lr_scheduler.StepLR(optimzer_criterion, ARGS.criterion_lr_step, gamma=ARGS.criterion_lr_gamma)
+    if ARGS.optimizer_type == 'adam':
+        optimizer = torch.optim.Adam([{'params': model.parameters()}, {'params': loss_criterion.parameters()}],
+                                        lr=ARGS.lr, weight_decay=ARGS.weight_decay)
+    else:
+        optimizer = torch.optim.SGD([{'params': model.parameters()}, {'params': loss_criterion.parameters()}],
+                                    lr=ARGS.lr, momentum=ARGS.momentum, weight_decay=ARGS.weight_decay)
+
+    scheduler = lr_scheduler.StepLR(optimizer, ARGS.lr_step, gamma=ARGS.lr_gamma)
+
 
     for epoch in range(1, ARGS.epochs + 1):
-        sheduler_nn.step()
-        sheduler_criterion.step()
-        
-        train(ARGS, model, device, train_loader, loss_softmax, loss_criterion, optimizer_nn, optimzer_criterion, log_file_path, model_dir, logger, epoch)
+        scheduler.step()
+        logger.scalar_summary("learning_rate", scheduler.get_lr(), epoch)
+
+        train(ARGS, model, device, train_loader, loss_softmax, loss_criterion, optimizer, log_file_path, model_dir, logger, epoch)
         test(ARGS, model, device, test_loader, loss_softmax, loss_criterion, log_file_path, logger, epoch)
         validate_lfw(ARGS, model, lfw_loader, lfw_dataset, device, log_file_path, logger, lfw_distance_metric, epoch)
 
@@ -285,28 +300,28 @@ def parse_arguments(argv):
     parser.add_argument('--input_size', type=str, help='support: [112, 112] and [224, 224]', default=[112, 112])
     parser.add_argument('--data_dir', type=str, help='Path to the data directory containing aligned face patches.', default='./data/CASIA_and_Golovan_160')
     parser.add_argument('--num_workers', type=int, help='Number of threads to use for data pipeline.', default=8)
-    parser.add_argument('--batch_size', type=int, help='Number of batches while training model.', default=512)
-    parser.add_argument('--batch_size_test', type=int, help='Number of batches while testing model.', default=512)
+    parser.add_argument('--batch_size', type=int, help='Number of batches while training model.', default=128)
+    parser.add_argument('--batch_size_test', type=int, help='Number of batches while testing model.', default=128)
     parser.add_argument('--validation_set_split_ratio', type=float, help='The ratio of the total dataset to use for validation', default=0.05)
     parser.add_argument('--min_nrof_val_images_per_class', type=float, help='Classes with fewer images will be removed from the validation set', default=0)
     # Model
     parser.add_argument('--model_path', type=str, help='Model weights if needed.', default=None)
-    parser.add_argument('--model_type', type=str, help='Model type to use for training.', default='IR_50')# support: 'ResNet_50', 'ResNet_101', 'ResNet_152', 'IR_50', 'IR_101', 'IR_152', 'IR_SE_50', 'IR_SE_101', 'IR_SE_152'
+    parser.add_argument('--model_type', type=str, help='Model type to use for training.', default='ResNet_50')# support: ['ResNet_50', 'ResNet_101', 'ResNet_152', 'IR_50', 'IR_101', 'IR_152', 'IR_SE_50', 'IR_SE_101', 'IR_SE_152']
     parser.add_argument('--features_dim', type=int, help='Number of features for loss.', default=512)
-    # Model Optimizer
-    parser.add_argument('--model_lr', type=float, help='learning rate', default=0.01)
-    parser.add_argument('--model_lr_step', type=int, help='Every step lr will be multiplied.', default=10)
-    parser.add_argument('--model_lr_gamma', type=float, help='Every step lr will be multiplied by this value.', default=0.9)
-    parser.add_argument('--beta1', type=float, default=0.5, help='beta1 for adam. default=0.5')
+    # Optimizer
+    parser.add_argument('--lr', type=float, help='learning rate', default=0.01)
+    parser.add_argument('--lr_step', type=int, help='Every step lr will be multiplied.', default=10)
+    parser.add_argument('--lr_gamma', type=float, help='Every step lr will be multiplied by this value.', default=0.9)
+    parser.add_argument('--optimizer_type', type=str, default='adam', help='optimizer type') # supports: ['adam', 'sgd']
+    parser.add_argument('--weight_decay', type=float, default=0.0005, help='weight decay')
+    parser.add_argument('--momentum', type=float, default=0.9, help='optimizer momentum')    
     # Loss 
-    parser.add_argument('--criterion_type', type=str, help='type of loss lmcl or arface.', default='centerloss')
+    parser.add_argument('--loss_base', type=str, default='softmax', help='Main loss type.') # supports ['focal', 'softmax']
+    parser.add_argument('--focal_gamma', type=float, default=2.0, help='focusing parameter gamma for Focal Loss')
+    parser.add_argument('--criterion_type', type=str, help='type of loss lmcl or arface.', default='centerloss') # support: ['centerloss', 'arcface', 'lmcl']
     parser.add_argument('--loss_path', type=str, help='Loss weights if needed.', default=None)
     parser.add_argument('--margin_s', type=float, help='scale for feature.', default=64.0)
     parser.add_argument('--margin_m', type=float, help='margin for loss.', default=0.5)    
-    # Loss Optimizer
-    parser.add_argument('--criterion_lr', type=float, help='Learing rate of model optimizer.', default=0.01)
-    parser.add_argument('--criterion_lr_step', type=int, help='Every step lr will be multiplied', default=10)
-    parser.add_argument('--criterion_lr_gamma', type=float, help='Every step lr will be multiplied by this value', default=0.9)
     # Intervals
     parser.add_argument('--model_save_interval', type=int, help='Save model with every interval epochs.', default=1)
     parser.add_argument('--test_interval', type=int, help='Perform test with every interval epochs.', default=1)
