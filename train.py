@@ -258,11 +258,11 @@ def main(ARGS):
             loss_criterion.load_state_dict(torch.load(ARGS.loss_path, map_location='cpu'))
 
     # if ARGS.optimizer_type == 'adam':
-    optimizer_nn = torch.optim.Adam(model.parameters(), lr=ARGS.lr, betas=(ARGS.beta1, 0.999), weight_decay=ARGS.weight_decay)
-    optimzer_criterion = torch.optim.Adam(loss_criterion.parameters(), lr=ARGS.lr, betas=(ARGS.beta1, 0.999), weight_decay=ARGS.weight_decay)
+    # optimizer_nn = torch.optim.Adam(model.parameters(), lr=ARGS.lr, betas=(ARGS.beta1, 0.999), weight_decay=ARGS.weight_decay)
+    # optimzer_criterion = torch.optim.Adam(loss_criterion.parameters(), lr=ARGS.lr, betas=(ARGS.beta1, 0.999), weight_decay=ARGS.weight_decay)
     # else:
-    # optimizer_nn = optim.SGD(model.parameters(), lr=ARGS.lr, momentum=ARGS.momentum, weight_decay=ARGS.weight_decay)
-    # optimzer_criterion = optim.SGD(loss_criterion.parameters(), lr=ARGS.lr, momentum=ARGS.momentum, weight_decay=ARGS.weight_decay)
+    optimizer_nn = optim.SGD(model.parameters(), lr=ARGS.lr, momentum=ARGS.momentum, weight_decay=ARGS.weight_decay)
+    optimzer_criterion = optim.SGD(loss_criterion.parameters(), lr=ARGS.lr, momentum=ARGS.momentum, weight_decay=ARGS.weight_decay)
 
     sheduler_nn = lr_scheduler.StepLR(optimizer_nn, ARGS.lr_step, gamma=ARGS.lr_gamma)
     sheduler_criterion = lr_scheduler.StepLR(optimzer_criterion, ARGS.lr_step, gamma=ARGS.lr_gamma)
