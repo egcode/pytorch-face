@@ -277,8 +277,11 @@ def main(ARGS):
     # sheduler_criterion = lr_scheduler.StepLR(optimzer_criterion, ARGS.lr_step, gamma=ARGS.lr_gamma)
 
 
-    optimizer = torch.optim.SGD([{'params': model.parameters()}, {'params': loss_criterion.parameters()}],
-                                        lr=ARGS.lr, momentum=ARGS.momentum, weight_decay=ARGS.weight_decay)
+    optimizer = torch.optim.Adam([{'params': model.parameters()}, {'params': loss_criterion.parameters()}],
+                                         lr=ARGS.lr, betas=(ARGS.beta1, 0.999))
+
+    # optimizer = torch.optim.SGD([{'params': model.parameters()}, {'params': loss_criterion.parameters()}],
+    #                                     lr=ARGS.lr, momentum=ARGS.momentum, weight_decay=ARGS.weight_decay)
     sheduler = lr_scheduler.StepLR(optimizer, ARGS.lr_step, gamma=ARGS.lr_gamma)
 
     for epoch in range(1, ARGS.epochs + 1):

@@ -277,7 +277,7 @@ python3 train.py \
 --batch_size_test 64 \
 --lfw_batch_size 64 \
 --criterion_type cosface \
---model_type ResNet_50 \
+--model_type IR_50 \
 --margin_s 64.0 \
 --margin_m 0.35 \
 --lr 0.1 \
