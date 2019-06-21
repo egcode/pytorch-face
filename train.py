@@ -125,7 +125,8 @@ def test(ARGS, model, device, test_loader, loss_softmax, loss_criterion, log_fil
                     logits = loss_criterion(feats, target)
                     outputs = logits
                 elif ARGS.criterion_type == 'lmcl':
-                    logits, mlogits = loss_criterion(feats, target)
+                    logits, _ = loss_criterion(feats, target)
+                    outputs = logits
                 elif ARGS.criterion_type == 'centerloss':
                     _, outputs = loss_criterion(feats, target)
 

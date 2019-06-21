@@ -21,10 +21,16 @@ class LMCL_loss(nn.Module):
         self.centers = nn.Parameter(torch.randn(num_classes, feat_dim))
         self.device = device
 
+        # For Softmax Feeding after model features
+        self.prelu = nn.PReLU().to(self.device)
+
     def forward(self, feat, label):
-        batch_size = feat.shape[0]
-        norms = torch.norm(feat, p=2, dim=-1, keepdim=True)
-        nfeat = torch.div(feat, norms)
+        # For Softmax Feeding after model features    
+        feat_prelu = self.prelu(feat)
+
+        batch_size = feat_prelu.shape[0]
+        norms = torch.norm(feat_prelu, p=2, dim=-1, keepdim=True)
+        nfeat = torch.div(feat_prelu, norms)
 
         norms_c = torch.norm(self.centers, p=2, dim=-1, keepdim=True)
         ncenters = torch.div(self.centers, norms_c)

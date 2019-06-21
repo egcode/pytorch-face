@@ -286,6 +286,23 @@ python3 train.py \
 --criterion_lr_gamma 0.8 
 
 ===================================================
+EXAMPLES COSFACE:
+
+python3 train.py \
+--batch_size 64 \
+--batch_size_test 64 \
+--lfw_batch_size 64 \
+--criterion_type lmcl \
+--margin_s 7.0 \
+--margin_m 0.2 \
+--model_lr 0.01 \
+--model_lr_step 2 \
+--model_lr_gamma 0.9 \
+--criterion_lr 0.01 \
+--criterion_lr_step 20 \
+--criterion_lr_gamma 0.5 
+
+===================================================
 
 
 tensorboard --logdir=old:out/2019-06-19___06-52-36/tensorboard,new:out/2019-06-20___05-45-22/tensorboard
