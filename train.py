@@ -257,13 +257,14 @@ def main(ARGS):
         else:
             loss_criterion.load_state_dict(torch.load(ARGS.loss_path, map_location='cpu'))
 
-    # optimzer nn
-    # optimizer_nn = optim.SGD(model.parameters(), lr=ARGS.lr, momentum=0.9, weight_decay=0.0005)
-    optimizer_nn = torch.optim.Adam(model.parameters(), lr=ARGS.lr, betas=(ARGS.beta1, 0.999))
-    sheduler_nn = lr_scheduler.StepLR(optimizer_nn, ARGS.lr_step, gamma=ARGS.lr_gamma)
+    if ARGS.optimizer_type == 'adam':
+        optimizer_nn = torch.optim.Adam(model.parameters(), lr=ARGS.lr, betas=(ARGS.beta1, 0.999), weight_decay=ARGS.weight_decay)
+        optimzer_criterion = torch.optim.Adam(loss_criterion.parameters(), lr=ARGS.lr, betas=(ARGS.beta1, 0.999), weight_decay=ARGS.weight_decay)
+    else:
+        optimizer_nn = optim.SGD(model.parameters(), lr=ARGS.lr, momentum=ARGS.momentum, weight_decay=ARGS.weight_decay)
+        optimzer_criterion = optim.SGD(loss_criterion.parameters(), lr=ARGS.lr, momentum=ARGS.momentum, weight_decay=ARGS.weight_decay)
 
-    # optimzer_criterion = optim.SGD(loss_criterion.parameters(), lr=ARGS.lr)
-    optimzer_criterion = torch.optim.Adam(loss_criterion.parameters(), lr=ARGS.lr, betas=(ARGS.beta1, 0.999))
+    sheduler_nn = lr_scheduler.StepLR(optimizer_nn, ARGS.lr_step, gamma=ARGS.lr_gamma)
     sheduler_criterion = lr_scheduler.StepLR(optimzer_criterion, ARGS.lr_step, gamma=ARGS.lr_gamma)
 
     for epoch in range(1, ARGS.epochs + 1):
@@ -295,11 +296,14 @@ def parse_arguments(argv):
     parser.add_argument('--model_path', type=str, help='Model weights if needed.', default=None)
     parser.add_argument('--model_type', type=str, help='Model type to use for training.', default='IR_50')# support: 'ResNet_50', 'ResNet_101', 'ResNet_152', 'IR_50', 'IR_101', 'IR_152', 'IR_SE_50', 'IR_SE_101', 'IR_SE_152'
     parser.add_argument('--features_dim', type=int, help='Number of features for loss.', default=512)
-    # Model Optimizer
+    # Optimizer
+    parser.add_argument('--optimizer_type', type=str, help='Optimizer Type.', default='adam') # support: ['adam','sgd']
     parser.add_argument('--lr', type=float, help='learning rate', default=0.01)
     parser.add_argument('--lr_step', type=int, help='Every step lr will be multiplied.', default=10)
     parser.add_argument('--lr_gamma', type=float, help='Every step lr will be multiplied by this value.', default=0.9)
     parser.add_argument('--beta1', type=float, default=0.5, help='beta1 for adam. default=0.5')
+    parser.add_argument('--weight_decay', type=float, default=0.0005, help='weight decay')
+    parser.add_argument('--momentum', type=float, default=0.9, help='momentum')
     # Loss 
     parser.add_argument('--criterion_type', type=str, help='type of loss lmcl or arface.', default='centerloss')
     parser.add_argument('--loss_path', type=str, help='Loss weights if needed.', default=None)
