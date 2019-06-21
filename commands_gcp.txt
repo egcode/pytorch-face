@@ -272,6 +272,19 @@ python3 train.py \
 ===================================================
 EXAMPLES COSFACE:
 
+python3 train.py \
+--batch_size 64 \
+--batch_size_test 64 \
+--lfw_batch_size 64 \
+--criterion_type lmcl \
+--margin_s 64.0 \
+--margin_m 0.5 \
+--model_lr 0.1 \
+--model_lr_step 20 \
+--model_lr_gamma 0.1 \
+--criterion_lr 0.1 \
+--criterion_lr_step 20 \
+--criterion_lr_gamma 0.1
 
 ===================================================
 
