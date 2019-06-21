@@ -270,6 +270,8 @@ def main(ARGS):
         sheduler_nn.step()
         sheduler_criterion.step()
         
+        logger.scalar_summary("lr", sheduler_nn.get_lr()[0], epoch)
+
         train(ARGS, model, device, train_loader, loss_softmax, loss_criterion, optimizer_nn, optimzer_criterion, log_file_path, model_dir, logger, epoch)
         test(ARGS, model, device, test_loader, loss_softmax, loss_criterion, log_file_path, logger, epoch)
         validate_lfw(ARGS, model, lfw_loader, lfw_dataset, device, log_file_path, logger, lfw_distance_metric, epoch)
