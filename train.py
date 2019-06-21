@@ -13,7 +13,7 @@ import math
 import argparse
 from sklearn import metrics
 from losses.Arcface_loss import Arcface_loss
-from losses.LMCL_loss import LMCL_loss
+from losses.Cosface_loss import Cosface_loss
 from losses.Center_loss import Center_loss
 from dataset.get_data import get_data
 from models.resnet import *
@@ -63,7 +63,7 @@ def train(ARGS, model, device, train_loader, loss_softmax, loss_criterion, optim
         if ARGS.criterion_type == 'arcface':
             logits = loss_criterion(features, target)
             loss = loss_softmax(logits, target)
-        elif ARGS.criterion_type == 'lmcl':
+        elif ARGS.criterion_type == 'cosface':
             logits, mlogits = loss_criterion(features, target)
             loss = loss_softmax(mlogits, target)
         elif ARGS.criterion_type == 'centerloss':
@@ -120,7 +120,7 @@ def test(ARGS, model, device, test_loader, loss_softmax, loss_criterion, log_fil
                 if ARGS.criterion_type == 'arcface':
                     logits = loss_criterion(feats, target)
                     outputs = logits
-                elif ARGS.criterion_type == 'lmcl':
+                elif ARGS.criterion_type == 'cosface':
                     logits, _ = loss_criterion(feats, target)
                     outputs = logits
                 elif ARGS.criterion_type == 'centerloss':
@@ -218,11 +218,24 @@ def main(ARGS):
     
     ####### Model setup
     print('Model type: %s' % ARGS.model_type)
+    if ARGS.model_type == 'ResNet_50':
+        model = ResNet_50(ARGS.input_size)
+    if ARGS.model_type == 'ResNet_101':
+        model = ResNet_101(ARGS.input_size)
+    if ARGS.model_type == 'ResNet_152':
+        model = ResNet_152(ARGS.input_size)
     if ARGS.model_type == 'IR_50':
         model = IR_50(ARGS.input_size)
+    if ARGS.model_type == 'IR_101':
+        model = IR_101(ARGS.input_size)
+    if ARGS.model_type == 'IR_152':
+        model = IR_152(ARGS.input_size)
     if ARGS.model_type == 'IR_SE_50':
         model = IR_SE_50(ARGS.input_size)
-
+    if ARGS.model_type == 'IR_SE_101':
+        model = IR_SE_101(ARGS.input_size)
+    if ARGS.model_type == 'IR_SE_152':
+        model = IR_SE_152(ARGS.input_size)
 
 
     if ARGS.model_path != None:
@@ -240,9 +253,9 @@ def main(ARGS):
     if ARGS.criterion_type == 'arcface':
         lfw_distance_metric = 1
         loss_criterion = Arcface_loss(num_classes=train_loader.dataset.num_classes, feat_dim=ARGS.features_dim, device=device, s=ARGS.margin_s, m=ARGS.margin_m).to(device)
-    elif ARGS.criterion_type == 'lmcl':
+    elif ARGS.criterion_type == 'cosface':
         lfw_distance_metric = 1
-        loss_criterion = LMCL_loss(num_classes=train_loader.dataset.num_classes, feat_dim=ARGS.features_dim, device=device, s=ARGS.margin_s, m=ARGS.margin_m).to(device)
+        loss_criterion = Cosface_loss(num_classes=train_loader.dataset.num_classes, feat_dim=ARGS.features_dim, device=device, s=ARGS.margin_s, m=ARGS.margin_m).to(device)
     elif ARGS.criterion_type == 'centerloss':
         lfw_distance_metric = 0
         loss_criterion = Center_loss(device=device, num_classes=train_loader.dataset.num_classes, feat_dim=ARGS.features_dim, use_gpu=use_cuda)
@@ -293,7 +306,7 @@ def parse_arguments(argv):
     parser.add_argument('--min_nrof_val_images_per_class', type=float, help='Classes with fewer images will be removed from the validation set', default=0)
     # Model
     parser.add_argument('--model_path', type=str, help='Model weights if needed.', default=None)
-    parser.add_argument('--model_type', type=str, help='Model type to use for training.', default='IR_50')# support: 'ResNet_50', 'ResNet_101', 'ResNet_152', 'IR_50', 'IR_101', 'IR_152', 'IR_SE_50', 'IR_SE_101', 'IR_SE_152'
+    parser.add_argument('--model_type', type=str, help='Model type to use for training.', default='IR_50')# support: ['ResNet_50', 'ResNet_101', 'ResNet_152', 'IR_50', 'IR_101', 'IR_152', 'IR_SE_50', 'IR_SE_101', 'IR_SE_152']
     parser.add_argument('--features_dim', type=int, help='Number of features for loss.', default=512)
     # Optimizer
     # parser.add_argument('--optimizer_type', type=str, help='Optimizer Type.', default='adam') # support: ['adam','sgd']
@@ -304,7 +317,7 @@ def parse_arguments(argv):
     parser.add_argument('--weight_decay', type=float, default=0.0005, help='weight decay')
     parser.add_argument('--momentum', type=float, default=0.9, help='momentum')
     # Loss 
-    parser.add_argument('--criterion_type', type=str, help='type of loss lmcl or arface.', default='centerloss')
+    parser.add_argument('--criterion_type', type=str, help='type of loss cosface or centerloss.', default='centerloss') # support ['cosface', 'centerloss']
     parser.add_argument('--loss_path', type=str, help='Loss weights if needed.', default=None)
     parser.add_argument('--margin_s', type=float, help='scale for feature.', default=64.0)
     parser.add_argument('--margin_m', type=float, help='margin for loss.', default=0.5)    
