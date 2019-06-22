@@ -383,6 +383,8 @@ stats for mnist arcface
 
 
 -------DATASET FOLDER HELPERS:-------------------------------------------
+# DS_Store delete recursively
+find . -name '.DS_Store' -type f -delete
 
 # Recursively count all the files in a directory
 find . -type f | wc -l
