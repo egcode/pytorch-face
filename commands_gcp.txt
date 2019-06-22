@@ -400,9 +400,13 @@ stats for mnist arcface
 -------DATASET FOLDER HELPERS:-------------------------------------------
 https://www.2daygeek.com/how-to-count-files-by-extension-in-linux/
 
+# Disable DS_Store file creation
+defaults write com.apple.desktopservices DSDontWriteNetworkStores true
 
 # DS_Store delete recursively
 find . -name '.DS_Store' -type f -delete
+
+
 
 # Recursively count all the files in a directory
 find . -type f | wc -l
