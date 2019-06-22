@@ -272,6 +272,7 @@ python3 train.py \
 ===================================================
 EXAMPLES COSFACE:
 
+#FIRST ATTEMPT
 python3 train.py \
 --batch_size 64 \
 --batch_size_test 64 \
@@ -284,6 +285,20 @@ python3 train.py \
 --lr_step 30 \
 --lr_gamma 0.1 
 
+#SECOND ATTEMPT lr=0.01 after 41 epochs
+python3 train.py \
+--model_path ./pth/IR_50_MODEL_cosface.pth \
+--loss_path ./pth/LOSS_cosface.pth \
+--batch_size 64 \
+--batch_size_test 64 \
+--lfw_batch_size 64 \
+--criterion_type cosface \
+--model_type IR_50 \
+--margin_s 64.0 \
+--margin_m 0.35 \
+--lr 0.01 \
+--lr_step 30 \
+--lr_gamma 0.1 
 ===================================================
 
 
