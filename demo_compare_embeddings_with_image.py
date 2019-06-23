@@ -12,7 +12,7 @@ ARCFACE LOSS-Eugene Casia
 
 python3 demo_compare_embeddings_with_image.py \
 --model ./pth/IR_50_MODEL_arcface_casia_epoch21.pth \
---image_path ./data/test_image.png \
+--image_path ./data/test_images/eugene1.png \
 --embeddings_premade ./output_arrays/embeddings_arcface_1.npy \
 --label_string_center ./output_arrays/label_strings_arcface_1.npy \
 --labels_center ./output_arrays/labels_arcface_1.npy \
@@ -29,29 +29,64 @@ CENTER LOSS
 
 python3 demo_compare_embeddings_with_image.py \
 --model ./pth/IR_50_MODEL_centerloss_casia_epoch16.pth \
---image_path ./data/test_image.png \
+--image_path ./data/test_images/eugene1.png \
 --embeddings_premade ./output_arrays/embeddings_center_1.npy \
 --label_string_center ./output_arrays/label_strings_center_1.npy \
 --labels_center ./output_arrays/labels_center_1.npy \
 --distance_metric 0
 
+#################################################################################
+#################################################################################
+#################################################################################
+COSFACE LOSS-Eugene Casia
+#################################################################################
 
-#####
-# EUGENE
-#with extract_feature distance = [0.45024702]
-#with extract_feature distance = [0.45124155]
+# Eugene Image
+python3 demo_compare_embeddings_with_image.py \
+--model ./pth/IR_50_MODEL_cosface_casia_epoch51.pth \
+--image_path ./data/test_images/eugene1.png \
+--embeddings_premade ./output_arrays/embeddings_cosface_1.npy \
+--label_string_center ./output_arrays/label_strings_cosface_1.npy \
+--labels_center ./output_arrays/labels_cosface_1.npy \
+--distance_metric 1
 
-# ALEX
-#with extract_feature distance = [1.0274765]
-#with extract_feature distance = [0.97984713]
+# Curen Image
+python3 demo_compare_embeddings_with_image.py \
+--model ./pth/IR_50_MODEL_cosface_casia_epoch51.pth \
+--image_path ./data/test_images/curen1.jpg \
+--embeddings_premade ./output_arrays/embeddings_cosface_1.npy \
+--label_string_center ./output_arrays/label_strings_cosface_1.npy \
+--labels_center ./output_arrays/labels_cosface_1.npy \
+--distance_metric 1
 
-# JULIA
-#with extract_feature distance = [1.1196184]
-#with extract_feature distance = [1.1744374]
+# Jeffrey Image
+python3 demo_compare_embeddings_with_image.py \
+--model ./pth/IR_50_MODEL_cosface_casia_epoch51.pth \
+--image_path ./data/test_images/jeffrey2.jpg \
+--embeddings_premade ./output_arrays/embeddings_cosface_1.npy \
+--label_string_center ./output_arrays/label_strings_cosface_1.npy \
+--labels_center ./output_arrays/labels_cosface_1.npy \
+--distance_metric 1
 
-# LIUBA
-#with extract_feature distance = [0.9174443]
-#with extract_feature distance = [0.8600278]
+
+# David Image
+python3 demo_compare_embeddings_with_image.py \
+--model ./pth/IR_50_MODEL_cosface_casia_epoch51.pth \
+--image_path ./data/test_images/david1.jpg \
+--embeddings_premade ./output_arrays/embeddings_cosface_1.npy \
+--label_string_center ./output_arrays/label_strings_cosface_1.npy \
+--labels_center ./output_arrays/labels_cosface_1.npy \
+--distance_metric 1
+
+# Alex Image
+python3 demo_compare_embeddings_with_image.py \
+--model ./pth/IR_50_MODEL_cosface_casia_epoch51.pth \
+--image_path ./data/test_images/alex3.jpg \
+--embeddings_premade ./output_arrays/embeddings_cosface_1.npy \
+--label_string_center ./output_arrays/label_strings_cosface_1.npy \
+--labels_center ./output_arrays/labels_cosface_1.npy \
+--distance_metric 1
+
 
 
 '''
@@ -134,7 +169,8 @@ def main(ARGS):
 
 
     print("======EMBEDDINGS ALL RESULTS===========")
-    print(all_results_dict)
+    for key, distances_arr in all_results_dict.items():
+        print("Average Distance for {} : {}".format(key, np.mean(distances_arr)))
     print("=================")
     
 
