@@ -41,8 +41,8 @@ gcloud compute scp --recurse /Users/eugene/Documents/Developer/Computer-Vision-P
 # copy to macbook CURRENT MODEL 
 gcloud compute scp --recurse instance-p100:/home/yujin/pytorch-face/pth/resnet_face50_current.pth /Users/yujin/Documents/Developer/Computer-Vision/pytorch-face/pth/resnet_face50_current.pth
 
-gcloud compute scp --recurse p100-8workers:/home/yujin/pytorch-face/pth/IR_50_MODEL_arcface.pth /Users/yujin/Documents/Developer/Computer-Vision/pytorch-face/pth/IR_50_MODEL_arcface.pth
-gcloud compute scp --recurse p100-8workers:/home/yujin/pytorch-face/pth/LOSS_arcface.pth /Users/yujin/Documents/Developer/Computer-Vision/pytorch-face/pth/LOSS_arcface.pth
+gcloud compute scp --recurse p100-8workers:/home/yujin/pytorch-face/pth/IR_50_MODEL_cosface.pth /Users/yujin/Documents/Developer/Computer-Vision/pytorch-face/pth/IR_50_MODEL_cosface_casia_epoch51.pth
+gcloud compute scp --recurse p100-8workers:/home/yujin/pytorch-face/pth/LOSS_cosface.pth /Users/yujin/Documents/Developer/Computer-Vision/pytorch-face/pth/LOSS_cosface_casia_epoch51.pth
 
 ###############
 ###############
