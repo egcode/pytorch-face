@@ -331,7 +331,7 @@ def parse_arguments(argv):
     parser.add_argument('--test_interval', type=int, help='Perform test with every interval epochs.', default=1)
     parser.add_argument('--lfw_interval', type=int, help='Perform LFW test with every interval epochs.', default=1)    
     # LFW
-    parser.add_argument('--lfw_pairs', type=str, help='The file containing the pairs to use for validation.', default='./data/lfw_112/pairs.txt')
+    parser.add_argument('--lfw_pairs', type=str, help='The file containing the pairs to use for validation.', default='./data/lfw_112/pairs_LFW.txt')
     parser.add_argument('--lfw_dir', type=str, help='Path to the data directory containing aligned face patches.', default='./data/lfw_112/lfw_112')
     parser.add_argument('--lfw_batch_size', type=int, help='Number of images to process in a batch in the LFW test set.', default=100)
     parser.add_argument('--lfw_nrof_folds', type=int, help='Number of folds to use for cross validation. Mainly used for testing.', default=10)
