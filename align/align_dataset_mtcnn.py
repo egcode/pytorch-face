@@ -14,6 +14,16 @@ python3 align_dataset_mtcnn.py \
 --gpu_memory_fraction 0.25 \
 & done
 
+
+for N in {1..4}; do \
+python3 align_dataset_mtcnn.py \
+../data/calfw \
+../data/calfw_112 \
+--image_size 112 \
+--margin 32 \
+--random_order \
+--gpu_memory_fraction 0.25 \
+& done
 '''
 # MIT License
 # 
