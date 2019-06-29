@@ -32,8 +32,8 @@ Area Under Curve (AUC): 0.998
 
 ----------------------------------------
 TEST: ---  IR_50_MODEL_cosface_casia_epoch51.pth
-Accuracy: 0.98417+-0.00602
-Validation rate: 0.90933+-0.02581 @ FAR=0.00100
+Accuracy: 0.98483+-0.00589
+Validation rate: 0.91733+-0.02546 @ FAR=0.00100
 Area Under Curve (AUC): 0.998
 ----------------------------------------
 
@@ -45,7 +45,7 @@ if __name__ == '__main__':
 
     ####### Model setup
     model = IR_50([112, 112])
-    model.load_state_dict(torch.load("./pth/backbone_ir50_ms1m_epoch120.pth", map_location='cpu'))
+    model.load_state_dict(torch.load("./pth/IR_50_MODEL_cosface_casia_epoch51.pth", map_location='cpu'))
     model.to(device)
     embedding_size = 512
     model.eval()
