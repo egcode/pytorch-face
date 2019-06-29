@@ -25,8 +25,8 @@ from pdb import set_trace as bp
 """
 ----------------------------------------
 TEST: ---  backbone_ir50_ms1m_epoch120.pth
-Accuracy: 0.99183+-0.00560
-Validation rate: 0.97667+-0.01585 @ FAR=0.00100
+Accuracy: 0.99150+-0.00565
+Validation rate: 0.97267+-0.01373 @ FAR=0.00133
 Area Under Curve (AUC): 0.998
 ----------------------------------------
 
@@ -45,14 +45,14 @@ if __name__ == '__main__':
 
     ####### Model setup
     model = IR_50([112, 112])
-    model.load_state_dict(torch.load("./pth/IR_50_MODEL_cosface_casia_epoch51.pth", map_location='cpu'))
+    model.load_state_dict(torch.load("./pth/backbone_ir50_ms1m_epoch120.pth", map_location='cpu'))
     model.to(device)
     embedding_size = 512
     model.eval()
 
     ######## LFW dataset setup
-    lfw_dir='data/lfw_160'
-    lfw_pairs = 'lfw//pairs.txt'
+    lfw_dir='./data/lfw_112/lfw_112'
+    lfw_pairs = './data/lfw_112/pairs_LFW.txt'
     batch_size = 100
     num_workers = 2
     lfw_dataset = LFW(lfw_dir=lfw_dir, lfw_pairs=lfw_pairs, input_size=[112, 112])
