@@ -6,75 +6,14 @@ from __future__ import print_function
 '''
 for N in {1..4}; do \
 python3 align_dataset_mtcnn.py \
-../../data/datasets/dataset \
-../../data/datasets/dataset_out \
---image_size 160 \
+../data/lfw \
+../data/lfw_112 \
+--image_size 112 \
 --margin 32 \
 --random_order \
 --gpu_memory_fraction 0.25 \
 & done
 
-
-for N in {1..4}; do \
-python3 align_dataset_mtcnn.py \
-../../../datasets/CASIA-WebFace \
-../../../datasets/CASIA-WebFace_160 \
---image_size 160 \
---margin 32 \
---random_order \
---gpu_memory_fraction 0.25 \
-& done
-
-for N in {1..4}; do \
-python3 align_dataset_mtcnn.py \
-../../data/datasets/arcules_employees_faces/SINGLE_24PERSONS \
-../../data/datasets/arcules_employees_faces/SINGLE_24PERSONS_160 \
---image_size 160 \
---margin 32 \
---random_order \
---gpu_memory_fraction 0.25 \
-& done
-
-for N in {1..4}; do \
-python3 align_dataset_mtcnn.py \
-../../data/datasets/arcules_employees_faces/ALL \
-../../data/datasets/arcules_employees_faces/ALL_160 \
---image_size 160 \
---margin 32 \
---random_order \
---gpu_memory_fraction 0.25 \
-& done
-
-
-for N in {1..4}; do \
-python3 align_dataset_mtcnn.py \
-../../../../Developer/Computer-Vision1/datasets/vggface2_train \
-../../../../Developer/Computer-Vision1/datasets/vggface2_train_160 \
---image_size 160 \
---margin 32 \
---random_order \
---gpu_memory_fraction 0.25 \
-& done
-
-for N in {1..4}; do \
-python3 align_dataset_mtcnn.py \
-../../../test_compress \
-../../../test_compress_160 \
---image_size 160 \
---margin 32 \
---random_order \
---gpu_memory_fraction 0.25 \
-& done
-
-for N in {1..4}; do \
-python3 align_dataset_mtcnn.py \
-../../../datasets/CASIA-WebFace \
-../../../datasets/CASIA-WebFace_160 \
---image_size 160 \
---margin 32 \
---random_order \
---gpu_memory_fraction 0.25 \
-& done
 '''
 # MIT License
 # 
