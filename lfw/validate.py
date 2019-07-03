@@ -21,15 +21,20 @@ from models.irse import *
 from pdb import set_trace as bp
 
 """
+##########################################################################
+###### Arcface not Eugene
 ----------------------------------------
-TEST: ---  backbone_ir50_ms1m_epoch120.pth
+LFW TEST: ---  backbone_ir50_ms1m_epoch120.pth
 Accuracy: 0.99150+-0.00565
 Validation rate: 0.97267+-0.01373 @ FAR=0.00133
 Area Under Curve (AUC): 0.998
 ----------------------------------------
 
+
+##########################################################################
+###### Cosface Eugene
 ----------------------------------------
-TEST: ---  IR_50_MODEL_cosface_casia_epoch51.pth
+LFW TEST: ---  IR_50_MODEL_cosface_casia_epoch51.pth
 Accuracy: 0.98483+-0.00589
 Validation rate: 0.91733+-0.02546 @ FAR=0.00100
 Area Under Curve (AUC): 0.998
@@ -160,7 +165,7 @@ def get_paths_issame_calfw():
     # Get the paths for the corresponding images
     # paths, actual_issame = get_paths(os.path.expanduser(calfw_dir), pairs)
 
-    bp()
+    
     return paths, actual_issame
 
 #-------------------------------------------------------------
@@ -207,7 +212,8 @@ if __name__ == '__main__':
 
     ####### Model setup
     model = IR_50([112, 112])
-    model.load_state_dict(torch.load("./pth/IR_50_MODEL_cosface_casia_epoch51.pth", map_location='cpu'))
+    # model.load_state_dict(torch.load("./pth/IR_50_MODEL_cosface_casia_epoch51.pth", map_location='cpu'))
+    model.load_state_dict(torch.load("./pth/backbone_ir50_ms1m_epoch120.pth", map_location='cpu'))
     model.to(device)
     embedding_size = 512
     model.eval()
