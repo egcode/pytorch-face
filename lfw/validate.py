@@ -108,23 +108,70 @@ def get_paths_issame_lfw():
 
     # Read the file containing the pairs used for testing
     pairs = read_pairs(os.path.expanduser(lfw_pairs))
-
+    bp()
     # Get the paths for the corresponding images
     paths, actual_issame = get_paths(os.path.expanduser(lfw_dir), pairs)
 
+    bp()
     return paths, actual_issame
 
 #-------------------------------------------------------------
 
+def get_paths_issame_calfw():
 
+    calfw_dir='./data/calfw_112/images'
+    calfw_pairs = './data/calfw_112/pairs_CALFW.txt'
+
+    # Read the file containing the pairs used for testing
+    # pairs = read_pairs(os.path.expanduser(calfw_pairs))
+
+    pairs = []
+    with open(calfw_pairs, 'r') as f:
+        for line in f.readlines()[0:]:
+            pair = line.strip().split()
+            pairs.append(pair)
+    arr = np.array(pairs)
+
+    paths = []
+    actual_issame = []
+    for count, person in enumerate(arr, 1): # Start counting from 1
+        if count % 2 == 0:
+            first_in_pair = arr[count-2]
+            second_in_pair = person
+
+            dir = os.path.expanduser(calfw_dir)
+            path1 = os.path.join(dir, first_in_pair[0])
+            path2 = os.path.join(dir, second_in_pair[0])
+            paths.append(path1)
+            paths.append(path2)
+
+            if first_in_pair[1] != '0':
+                actual_issame.append(True)
+            else:
+                actual_issame.append(False)
+
+               
+            # print("\nPair num: {} first: {}   second: {}".format(count/2, first_in_pair, second_in_pair))
+            # print("\Actual_issame: {}".format(actual_issame))
+            
+            # bp()
+
+    # bp()
+    # Get the paths for the corresponding images
+    # paths, actual_issame = get_paths(os.path.expanduser(calfw_dir), pairs)
+
+    bp()
+    return paths, actual_issame
+
+#-------------------------------------------------------------
 
 def validate_type(model, device, type='lfw', num_workers=2, input_size=[112, 112], batch_size=100, distance_metric=1, lfw_nrof_folds=10, subtract_mean=False, print_log=False):
     """
     distance_metric = 1 #### if CenterLoss = 0, If Arcface = 1
     """
     ######## dataset setup
-    if type == 'lfw':
-        paths, actual_issame = get_paths_issame_lfw()
+    if type == 'calfw':
+        paths, actual_issame = get_paths_issame_calfw()
     else:
         paths, actual_issame = get_paths_issame_lfw()
 
@@ -165,11 +212,19 @@ if __name__ == '__main__':
     embedding_size = 512
     model.eval()
 
-    ### Validate LFW Example
-    # distance_metric = 1 #### if CenterLoss = 0, If Arcface = 1
+    # ### Validate LFW Example
+    # # distance_metric = 1 #### if CenterLoss = 0, If Arcface = 1
+    # tpr, fpr, accuracy, val, val_std, far = validate_type(model=model, 
+    #                                                     device=device, 
+    #                                                     type='lfw',
+    #                                                     num_workers=2,
+    #                                                     print_log=True)
+
+
+
+    ### Validate CALFW Example
     tpr, fpr, accuracy, val, val_std, far = validate_type(model=model, 
                                                         device=device, 
-                                                        type='lfw',
+                                                        type='calfw',
                                                         num_workers=2,
                                                         print_log=True)
-
