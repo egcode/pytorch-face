@@ -25,9 +25,18 @@ from pdb import set_trace as bp
 ###### Arcface not Eugene
 ----------------------------------------
 LFW TEST: ---  backbone_ir50_ms1m_epoch120.pth
+Validation TYPE: lfw
 Accuracy: 0.99150+-0.00565
 Validation rate: 0.97267+-0.01373 @ FAR=0.00133
 Area Under Curve (AUC): 0.998
+----------------------------------------
+
+----------------------------------------
+CALFW TEST: ---  backbone_ir50_ms1m_epoch120.pth
+Validation TYPE: calfw
+Accuracy: 0.91500+-0.04636
+Validation rate: 0.34133+-0.34143 @ FAR=0.00033
+Area Under Curve (AUC): 0.240
 ----------------------------------------
 
 
@@ -35,9 +44,19 @@ Area Under Curve (AUC): 0.998
 ###### Cosface Eugene
 ----------------------------------------
 LFW TEST: ---  IR_50_MODEL_cosface_casia_epoch51.pth
+Validation TYPE: lfw
 Accuracy: 0.98483+-0.00589
 Validation rate: 0.91733+-0.02546 @ FAR=0.00100
 Area Under Curve (AUC): 0.998
+----------------------------------------
+
+
+----------------------------------------
+CALFW TEST: ---  IR_50_MODEL_cosface_casia_epoch51.pth
+Validation TYPE: calfw
+Accuracy: 0.86017+-0.03786
+Validation rate: 0.17283+-0.17307 @ FAR=0.00050
+Area Under Curve (AUC): 0.234
 ----------------------------------------
 
 """
@@ -98,8 +117,11 @@ def validate_model(model, lfw_loader, lfw_dataset, embedding_size, device, lfw_n
     embeddings = emb_array
 
     # np.save('embeddings.npy', embeddings) 
-    # embeddings = np.load('lfw/embeddings.npy')
-    
+    # embeddings = np.load('embeddings.npy')
+
+    # np.save('embeddings_casia.npy', embeddings) 
+    # embeddings = np.load('embeddings_casia.npy')
+
     assert np.array_equal(lab_array, np.arange(nrof_images))==True, 'Wrong labels used for evaluation, possibly caused by training examples left in the input pipeline'
     tpr, fpr, accuracy, val, val_std, far = evaluate(embeddings, lfw_dataset.actual_issame, nrof_folds=lfw_nrof_folds, distance_metric=distance_metric, subtract_mean=subtract_mean)
     
@@ -225,7 +247,6 @@ if __name__ == '__main__':
     #                                                     type='lfw',
     #                                                     num_workers=2,
     #                                                     print_log=True)
-
 
 
     ### Validate CALFW Example

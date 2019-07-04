@@ -199,6 +199,20 @@ def calculate_val_far(threshold, dist, actual_issame):
     false_accept = np.sum(np.logical_and(predict_issame, np.logical_not(actual_issame)))
     n_same = np.sum(actual_issame)
     n_diff = np.sum(np.logical_not(actual_issame))
+    
+    # Avoiding dividing by zero
+    if n_diff == 0 and n_same == 0:
+        # print("⚠️ZERO  n_diff: {}     n_same: {}".format(n_diff, n_same))
+        return 0, 0
+    elif n_same == 0:
+        # print("⚠️ZERO  n_diff: {}     n_same: {}".format(n_diff, n_same))
+        return 0, float(false_accept) / float(n_diff)
+    elif n_diff == 0:
+        # print("⚠️ZERO  n_diff: {}     n_same: {}".format(n_diff, n_same))
+        return float(true_accept) / float(n_same), 0
+    # else:
+        # print("n_diff: {}     n_same: {}".format(n_diff, n_same))
+
     val = float(true_accept) / float(n_same)
     far = float(false_accept) / float(n_diff)
     return val, far
