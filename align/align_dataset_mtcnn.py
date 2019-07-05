@@ -70,6 +70,25 @@ import align.detect_face
 import random
 from time import sleep
 
+def removeEmptyFolders(path):
+  'Function to remove empty folders'
+  if not os.path.isdir(path):
+    return
+
+  # remove empty subfolders
+  files = os.listdir(path)
+  if len(files):
+    for f in files:
+      fullpath = os.path.join(path, f)
+      if os.path.isdir(fullpath):
+        removeEmptyFolders(fullpath)
+
+  # if folder empty, delete it
+  files = os.listdir(path)
+  if len(files) == 0:
+    print("Removing empty folder:", path)
+    os.rmdir(path)
+
 class ImageClass():
     "Stores the paths to images for a given class"
     def __init__(self, name, image_paths):
@@ -206,6 +225,7 @@ def main(ARGS):
                             text_file.write('Failed  %s\n' % (output_filename))
                             misc.imsave(output_filename_failed, img)
 
+            removeEmptyFolders(output_class_dir_failed)
     print('Total number of images: %d' % nrof_images_total)
     print('Number of successfully aligned images: %d' % nrof_successfully_aligned)
             
