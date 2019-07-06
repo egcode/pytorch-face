@@ -203,13 +203,15 @@ def calculate_val_far(threshold, dist, actual_issame):
     # Avoiding dividing by zero
     if n_diff == 0 and n_same == 0:
         # print("⚠️ZERO  n_diff: {}     n_same: {}".format(n_diff, n_same))
-        return 0, 0
+        return 1, 1
     elif n_same == 0:
+        n_same = 1
         # print("⚠️ZERO  n_diff: {}     n_same: {}".format(n_diff, n_same))
-        return 0, float(false_accept) / float(n_diff)
+        # return 0, float(false_accept) / float(n_diff)
     elif n_diff == 0:
+        n_diff = 1
         # print("⚠️ZERO  n_diff: {}     n_same: {}".format(n_diff, n_same))
-        return float(true_accept) / float(n_same), 0
+        # return float(true_accept) / float(n_same), 0
     # else:
         # print("n_diff: {}     n_same: {}".format(n_diff, n_same))
 
