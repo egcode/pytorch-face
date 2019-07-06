@@ -22,43 +22,47 @@ from pdb import set_trace as bp
 
 """
 ##########################################################################
-###### Arcface not Eugene
-----------------------------------------
-LFW TEST: ---  backbone_ir50_ms1m_epoch120.pth
+###### Arcface not Eugene  backbone_ir50_ms1m_epoch120.pth
+
+============================================================
 Validation TYPE: lfw
 Accuracy: 0.99150+-0.00565
 Validation rate: 0.97267+-0.01373 @ FAR=0.00133
 Area Under Curve (AUC): 0.998
-----------------------------------------
-
-----------------------------------------
-CALFW TEST: ---  backbone_ir50_ms1m_epoch120.pth
+============================================================
+============================================================
 Validation TYPE: calfw
-Accuracy: 0.91500+-0.04636
-Validation rate: 0.34133+-0.34143 @ FAR=0.00033
+Accuracy: 0.91500+-0.04036
+Validation rate: 0.34517+-0.34530 @ FAR=0.00050
 Area Under Curve (AUC): 0.240
-----------------------------------------
-
+============================================================
+============================================================
+Validation TYPE: cplfw
+Accuracy: 0.71550+-0.09986
+Validation rate: 0.09717+-0.09788 @ FAR=0.00067
+Area Under Curve (AUC): 0.209
+============================================================
 
 ##########################################################################
-###### Cosface Eugene
-----------------------------------------
-LFW TEST: ---  IR_50_MODEL_cosface_casia_epoch51.pth
+###### Cosface Eugene IR_50_MODEL_cosface_casia_epoch51.pth
+============================================================
 Validation TYPE: lfw
 Accuracy: 0.98483+-0.00589
 Validation rate: 0.91733+-0.02546 @ FAR=0.00100
 Area Under Curve (AUC): 0.998
-----------------------------------------
-
-
-----------------------------------------
-CALFW TEST: ---  IR_50_MODEL_cosface_casia_epoch51.pth
+============================================================
+============================================================
 Validation TYPE: calfw
-Accuracy: 0.86017+-0.03786
-Validation rate: 0.17283+-0.17307 @ FAR=0.00050
-Area Under Curve (AUC): 0.234
-----------------------------------------
-
+Accuracy: 0.84600+-0.04564
+Validation rate: 0.14983+-0.15049 @ FAR=0.00050
+Area Under Curve (AUC): 0.233
+============================================================
+============================================================
+Validation TYPE: cplfw
+Accuracy: 0.73817+-0.05919
+Validation rate: 0.02567+-0.02676 @ FAR=0.00050
+Area Under Curve (AUC): 0.218
+============================================================
 """
 
 class ValidateDataset(data.Dataset):
@@ -231,8 +235,8 @@ if __name__ == '__main__':
 
     ####### Model setup
     model = IR_50([112, 112])
-    # model.load_state_dict(torch.load("./pth/IR_50_MODEL_cosface_casia_epoch51.pth", map_location='cpu'))
-    model.load_state_dict(torch.load("./pth/backbone_ir50_ms1m_epoch120.pth", map_location='cpu'))
+    model.load_state_dict(torch.load("./pth/IR_50_MODEL_cosface_casia_epoch51.pth", map_location='cpu'))
+    # model.load_state_dict(torch.load("./pth/backbone_ir50_ms1m_epoch120.pth", map_location='cpu'))
     model.to(device)
     embedding_size = 512
     model.eval()
