@@ -91,8 +91,7 @@ class ValidateDataset(data.Dataset):
         return len(self.paths)
 
 
-def validate_model(model, lfw_loader, lfw_dataset, embedding_size, device, lfw_nrof_folds, distance_metric, subtract_mean):
-    print('Runnning forward pass on LFW images')
+def validate_forward_pass(model, lfw_loader, lfw_dataset, embedding_size, device, lfw_nrof_folds, distance_metric, subtract_mean):
 
     nrof_images = lfw_dataset.nrof_embeddings
 
@@ -135,25 +134,30 @@ def get_paths_issame_lfw():
 
     # Read the file containing the pairs used for testing
     pairs = read_pairs(os.path.expanduser(lfw_pairs))
-    bp()
+
     # Get the paths for the corresponding images
     paths, actual_issame = get_paths(os.path.expanduser(lfw_dir), pairs)
 
-    bp()
     return paths, actual_issame
 
 #-------------------------------------------------------------
 
-def get_paths_issame_calfw():
+def get_paths_issame_cplfw():
+    cplfw_dir='./data/cplfw_112/images'
+    cplfw_pairs = './data/cplfw_112/pairs_CPLFW.txt'
+    return get_paths_issame_ca_or_cp_lfw(cplfw_dir, cplfw_pairs)
 
+
+def get_paths_issame_calfw():
     calfw_dir='./data/calfw_112/images'
     calfw_pairs = './data/calfw_112/pairs_CALFW.txt'
+    return get_paths_issame_ca_or_cp_lfw(calfw_dir, calfw_pairs)
 
-    # Read the file containing the pairs used for testing
-    # pairs = read_pairs(os.path.expanduser(calfw_pairs))
+
+def get_paths_issame_ca_or_cp_lfw(lfw_dir, lfw_pairs):
 
     pairs = []
-    with open(calfw_pairs, 'r') as f:
+    with open(lfw_pairs, 'r') as f:
         for line in f.readlines()[0:]:
             pair = line.strip().split()
             pairs.append(pair)
@@ -166,7 +170,7 @@ def get_paths_issame_calfw():
             first_in_pair = arr[count-2]
             second_in_pair = person
 
-            dir = os.path.expanduser(calfw_dir)
+            dir = os.path.expanduser(lfw_dir)
             path1 = os.path.join(dir, first_in_pair[0])
             path2 = os.path.join(dir, second_in_pair[0])
             paths.append(path1)
@@ -176,44 +180,37 @@ def get_paths_issame_calfw():
                 actual_issame.append(True)
             else:
                 actual_issame.append(False)
-
-               
-            # print("\nPair num: {} first: {}   second: {}".format(count/2, first_in_pair, second_in_pair))
-            # print("\Actual_issame: {}".format(actual_issame))
-            
-            # bp()
-
-    # bp()
-    # Get the paths for the corresponding images
-    # paths, actual_issame = get_paths(os.path.expanduser(calfw_dir), pairs)
-
     
     return paths, actual_issame
 
 #-------------------------------------------------------------
 
-def validate_type(model, device, type='lfw', num_workers=2, input_size=[112, 112], batch_size=100, distance_metric=1, lfw_nrof_folds=10, subtract_mean=False, print_log=False):
+def validate_model(model, device, type='lfw', num_workers=2, input_size=[112, 112], batch_size=100, distance_metric=1, lfw_nrof_folds=10, subtract_mean=False, print_log=False):
     """
     distance_metric = 1 #### if CenterLoss = 0, If Arcface = 1
     """
     ######## dataset setup
     if type == 'calfw':
         paths, actual_issame = get_paths_issame_calfw()
+    elif type == 'cplfw':
+        paths, actual_issame = get_paths_issame_cplfw()
     else:
         paths, actual_issame = get_paths_issame_lfw()
 
     lfw_dataset = ValidateDataset(paths=paths, actual_issame=actual_issame, input_size=input_size)
     lfw_loader = torch.utils.data.DataLoader(lfw_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
 
-    ### validate
-    tpr, fpr, accuracy, val, val_std, far = validate_model(model, 
-                                                        lfw_loader, 
-                                                        lfw_dataset, 
-                                                        embedding_size, 
-                                                        device,
-                                                        lfw_nrof_folds, 
-                                                        distance_metric, 
-                                                        subtract_mean)
+    print('Runnning forward pass on {} images'.format(type))
+
+    ### validate forward pass
+    tpr, fpr, accuracy, val, val_std, far = validate_forward_pass(model, 
+                                                                lfw_loader, 
+                                                                lfw_dataset, 
+                                                                embedding_size, 
+                                                                device,
+                                                                lfw_nrof_folds, 
+                                                                distance_metric, 
+                                                                subtract_mean)
 
 
     if print_log == True:
@@ -242,7 +239,7 @@ if __name__ == '__main__':
 
     # ### Validate LFW Example
     # # distance_metric = 1 #### if CenterLoss = 0, If Arcface = 1
-    # tpr, fpr, accuracy, val, val_std, far = validate_type(model=model, 
+    # tpr, fpr, accuracy, val, val_std, far = validate_model(model=model, 
     #                                                     device=device, 
     #                                                     type='lfw',
     #                                                     num_workers=2,
@@ -250,8 +247,15 @@ if __name__ == '__main__':
 
 
     ### Validate CALFW Example
-    tpr, fpr, accuracy, val, val_std, far = validate_type(model=model, 
+    tpr, fpr, accuracy, val, val_std, far = validate_model(model=model, 
                                                         device=device, 
                                                         type='calfw',
+                                                        num_workers=2,
+                                                        print_log=True)
+
+    ### Validate CPLFW Example
+    tpr, fpr, accuracy, val, val_std, far = validate_model(model=model, 
+                                                        device=device, 
+                                                        type='cplfw',
                                                         num_workers=2,
                                                         print_log=True)
