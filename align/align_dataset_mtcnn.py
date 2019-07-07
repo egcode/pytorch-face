@@ -108,6 +108,12 @@ def get_image_paths(facedir):
         image_paths = [os.path.join(facedir,img) for img in images]
     return image_paths
 
+def to_rgb(img):
+    w, h = img.shape
+    ret = np.empty((w, h, 3), dtype=np.uint8)
+    ret[:, :, 0] = ret[:, :, 1] = ret[:, :, 2] = img
+    return ret
+
 def get_dataset(path, has_class_directories=True):
     dataset = []
     path_exp = os.path.expanduser(path)
@@ -180,7 +186,7 @@ def main(ARGS):
                             text_file.write('Failed  %s\n' % (output_filename))
                             continue
                         if img.ndim == 2:
-                            img = facenet.to_rgb(img)
+                            img = to_rgb(img)
                         img = img[:,:,0:3]
     
                         bounding_boxes, _ = align.detect_face.detect_face(img, minsize, pnet, rnet, onet, threshold, factor)
