@@ -191,31 +191,35 @@ def get_paths_issame_ca_or_cp_lfw(lfw_dir, lfw_pairs):
 
 #-------------------------------------------------------------
 # CFP_FF
-def get_paths_issame_cfp_ff():
+def get_paths_issame_CFP(type='FF'):
 
-    calfw_dir='./data/cfp_112/'
-    pairs_list_F = calfw_dir + 'Pair_list_F.txt'
-    pairs_list_P = calfw_dir + 'Pair_list_P.txt'
+    cfp_dir='./data/cfp_112/'
+    pairs_list_F = cfp_dir + 'Pair_list_F.txt'
+    pairs_list_P = cfp_dir + 'Pair_list_P.txt'
 
     path_hash_F = {}
     with open(pairs_list_F, 'r') as f:
         for line in f.readlines()[0:]:
             pair = line.strip().split()
-            path_hash_F[pair[0]] = calfw_dir + pair[1]
+            path_hash_F[pair[0]] = cfp_dir + pair[1]
 
     path_hash_P = {}
     with open(pairs_list_P, 'r') as f:
         for line in f.readlines()[0:]:
             pair = line.strip().split()
-            path_hash_P[pair[0]] = calfw_dir + pair[1]
+            path_hash_P[pair[0]] = cfp_dir + pair[1]
 
 
     paths = []
     actual_issame = []
 
-    root_FF = calfw_dir + '/Split/FF'
+    if type == 'FF':
+        root_FF_or_FP = cfp_dir + '/Split/FF'
+    else:
+        root_FF_or_FP = cfp_dir + '/Split/FP'
 
-    for subdir, _, files in os.walk(root_FF):
+
+    for subdir, _, files in os.walk(root_FF_or_FP):
         for file in files:
             filepath = os.path.join(subdir, file)
 
@@ -223,7 +227,12 @@ def get_paths_issame_cfp_ff():
             for pair in pairs_arr:
             
                 first = path_hash_F[pair[0]]
-                second = path_hash_F[pair[1]]
+
+                if type == 'FF':
+                    second = path_hash_F[pair[1]]
+                else:
+                    second = path_hash_P[pair[1]]
+                
 
                 paths.append(first)
                 paths.append(second)
@@ -260,7 +269,9 @@ def validate_model(model, device, type='lfw', num_workers=2, input_size=[112, 11
     elif type == 'cplfw':
         paths, actual_issame = get_paths_issame_cplfw()
     elif type == 'cfp_ff':
-        paths, actual_issame = get_paths_issame_cfp_ff()
+        paths, actual_issame = get_paths_issame_CFP(type='FF')
+    elif type == 'cfp_fp':
+        paths, actual_issame = get_paths_issame_CFP(type='FP')
     else:
         paths, actual_issame = get_paths_issame_lfw()
 
@@ -332,5 +343,12 @@ if __name__ == '__main__':
     tpr, fpr, accuracy, val, val_std, far = validate_model(model=model, 
                                                         device=device, 
                                                         type='cfp_ff',
+                                                        num_workers=2,
+                                                        print_log=True)
+
+    ### Validate CFP_FP Example
+    tpr, fpr, accuracy, val, val_std, far = validate_model(model=model, 
+                                                        device=device, 
+                                                        type='cfp_fp',
                                                         num_workers=2,
                                                         print_log=True)
