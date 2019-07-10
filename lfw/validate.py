@@ -131,6 +131,7 @@ def validate_forward_pass(model, lfw_loader, lfw_dataset, embedding_size, device
     return tpr, fpr, accuracy, val, val_std, far
 
 #-------------------------------------------------------------
+# LFW
 def get_paths_issame_lfw():
 
     lfw_dir='./data/lfw_112/images'
@@ -146,12 +147,13 @@ def get_paths_issame_lfw():
 
 #-------------------------------------------------------------
 
+# CPLFW
 def get_paths_issame_cplfw():
     cplfw_dir='./data/cplfw_112/images'
     cplfw_pairs = './data/cplfw_112/pairs_CPLFW.txt'
     return get_paths_issame_ca_or_cp_lfw(cplfw_dir, cplfw_pairs)
 
-
+# CALFW
 def get_paths_issame_calfw():
     calfw_dir='./data/calfw_112/images'
     calfw_pairs = './data/calfw_112/pairs_CALFW.txt'
@@ -188,6 +190,65 @@ def get_paths_issame_ca_or_cp_lfw(lfw_dir, lfw_pairs):
     return paths, actual_issame
 
 #-------------------------------------------------------------
+# CFP_FF
+def get_paths_issame_cfp_ff():
+
+    calfw_dir='./data/cfp_112/'
+    pairs_list_F = calfw_dir + 'Pair_list_F.txt'
+    pairs_list_P = calfw_dir + 'Pair_list_P.txt'
+
+    path_hash_F = {}
+    with open(pairs_list_F, 'r') as f:
+        for line in f.readlines()[0:]:
+            pair = line.strip().split()
+            path_hash_F[pair[0]] = calfw_dir + pair[1]
+
+    path_hash_P = {}
+    with open(pairs_list_P, 'r') as f:
+        for line in f.readlines()[0:]:
+            pair = line.strip().split()
+            path_hash_P[pair[0]] = calfw_dir + pair[1]
+
+
+    paths = []
+    actual_issame = []
+
+    root_FF = calfw_dir + '/Split/FF'
+
+    for subdir, _, files in os.walk(root_FF):
+        for file in files:
+            filepath = os.path.join(subdir, file)
+
+            pairs_arr = parse_dif_same_file(filepath)
+            for pair in pairs_arr:
+            
+                first = path_hash_F[pair[0]]
+                second = path_hash_F[pair[1]]
+
+                paths.append(first)
+                paths.append(second)
+
+                if file == 'diff.txt':
+                    actual_issame.append(False)
+                else:
+                    actual_issame.append(True)
+
+    # bp()
+    return paths, actual_issame
+
+
+def parse_dif_same_file(filepath):
+    pairs_arr = []
+    with open(filepath, 'r') as f:
+        for line in f.readlines()[0:]:
+            pair = line.strip().split(',')
+            pairs_arr.append(pair)
+    return pairs_arr     
+
+# CFP_FP
+
+
+#-------------------------------------------------------------
 
 def validate_model(model, device, type='lfw', num_workers=2, input_size=[112, 112], batch_size=100, distance_metric=1, lfw_nrof_folds=10, subtract_mean=False, print_log=False):
     """
@@ -198,6 +259,8 @@ def validate_model(model, device, type='lfw', num_workers=2, input_size=[112, 11
         paths, actual_issame = get_paths_issame_calfw()
     elif type == 'cplfw':
         paths, actual_issame = get_paths_issame_cplfw()
+    elif type == 'cfp_ff':
+        paths, actual_issame = get_paths_issame_cfp_ff()
     else:
         paths, actual_issame = get_paths_issame_lfw()
 
@@ -235,8 +298,8 @@ if __name__ == '__main__':
 
     ####### Model setup
     model = IR_50([112, 112])
-    model.load_state_dict(torch.load("./pth/IR_50_MODEL_cosface_casia_epoch51.pth", map_location='cpu'))
-    # model.load_state_dict(torch.load("./pth/backbone_ir50_ms1m_epoch120.pth", map_location='cpu'))
+    # model.load_state_dict(torch.load("./pth/IR_50_MODEL_cosface_casia_epoch51.pth", map_location='cpu'))
+    model.load_state_dict(torch.load("./pth/backbone_ir50_ms1m_epoch120.pth", map_location='cpu'))
     model.to(device)
     embedding_size = 512
     model.eval()
@@ -251,15 +314,23 @@ if __name__ == '__main__':
 
 
     ### Validate CALFW Example
-    tpr, fpr, accuracy, val, val_std, far = validate_model(model=model, 
-                                                        device=device, 
-                                                        type='calfw',
-                                                        num_workers=2,
-                                                        print_log=True)
+    # tpr, fpr, accuracy, val, val_std, far = validate_model(model=model, 
+    #                                                     device=device, 
+    #                                                     type='calfw',
+    #                                                     num_workers=2,
+    #                                                     print_log=True)
 
     ### Validate CPLFW Example
+    # tpr, fpr, accuracy, val, val_std, far = validate_model(model=model, 
+    #                                                     device=device, 
+    #                                                     type='cplfw',
+    #                                                     num_workers=2,
+    #                                                     print_log=True)
+
+
+    ### Validate CFP_FF Example
     tpr, fpr, accuracy, val, val_std, far = validate_model(model=model, 
                                                         device=device, 
-                                                        type='cplfw',
+                                                        type='cfp_ff',
                                                         num_workers=2,
                                                         print_log=True)
