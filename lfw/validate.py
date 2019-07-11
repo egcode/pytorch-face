@@ -331,8 +331,8 @@ if __name__ == '__main__':
 
     ####### Model setup
     model = IR_50([112, 112])
-    model.load_state_dict(torch.load("./pth/IR_50_MODEL_cosface_casia_epoch51.pth", map_location='cpu'))
-    # model.load_state_dict(torch.load("./pth/backbone_ir50_ms1m_epoch120.pth", map_location='cpu'))
+    # model.load_state_dict(torch.load("./pth/IR_50_MODEL_cosface_casia_epoch51.pth", map_location='cpu'))
+    model.load_state_dict(torch.load("./pth/backbone_ir50_ms1m_epoch120.pth", map_location='cpu'))
     model.to(device)
     embedding_size = 512
     model.eval()
