@@ -224,13 +224,13 @@ def get_paths_issame_CFP(cfp_dir, type='FF'):
     with open(pairs_list_F, 'r') as f:
         for line in f.readlines()[0:]:
             pair = line.strip().split()
-            path_hash_F[pair[0]] = cfp_dir + pair[1]
+            path_hash_F[pair[0]] = cfp_dir + '/' + pair[1]
 
     path_hash_P = {}
     with open(pairs_list_P, 'r') as f:
         for line in f.readlines()[0:]:
             pair = line.strip().split()
-            path_hash_P[pair[0]] = cfp_dir + pair[1]
+            path_hash_P[pair[0]] = cfp_dir + '/' + pair[1]
 
 
     paths = []
