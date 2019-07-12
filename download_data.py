@@ -10,11 +10,6 @@ from tqdm import tqdm
 import math
 
 data_dict = {
-    'lfw_160':'1KxMtqYMhYy2jU6q9DZqoc0_cFL6Md0gE', 
-    'CASIA_Webface_160':'175YhXe26wMMxSRuKGAbbVCkY5MLDk5m7', 
-    'go' : '1EFdYOLvQY63-bBPoKJz79XUl-QiZll4c',
-    'golovan_160' : '1AUVdEfRy1lelj9xYhkTudUP47SsfGFVU',
-    'CASIA_and_Golovan_160' : '1Z1nzXX9KxUUjGauc5hHcj9dwgybsecNj',
     'LFW_112': '11-uZAudZsBX5NkmYtYeMR0PPaWN3KVSG',
     'CPLFW_112': '1YeWzDL8XmAWXoRx5mVcObxwczGLP7Tsh',
     'CALFW_112': '1J2KXbbfBpxxFdvPhAi0q5MHjTS7O4Ai6',
@@ -30,6 +25,11 @@ def download_and_extract_file(model_name, data_dir):
         with zipfile.ZipFile(destination, 'r') as zip_ref:
             print('Extracting file to %s' % data_dir)
             zip_ref.extractall(data_dir)
+            print("Removing archive file {}".format(destination))
+            if os.path.exists(destination):
+                os.remove(destination)
+            else:
+                print("Failed to remove file {}".format(destination))
 
 def download_file_from_google_drive(file_id, destination):
     
@@ -76,11 +76,6 @@ if __name__ == '__main__':
     out_dir = 'data/'
     if not os.path.isdir(out_dir):  # Create the out directory if it doesn't exist
         os.makedirs(out_dir)
-
-    # download_and_extract_file('go', out_dir)
-    # download_and_extract_file('lfw_160', out_dir)
-    # download_and_extract_file('CASIA_Webface_160', out_dir)
-    # download_and_extract_file('CASIA_and_Golovan_160', out_dir)
 
     download_and_extract_file('LFW_112', out_dir)
     download_and_extract_file('CPLFW_112', out_dir)
