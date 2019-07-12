@@ -8,6 +8,7 @@ __pycache__/
 out/
 output_arrays/
 data/
+data_backup/
 # C extensions
 *.so
 
