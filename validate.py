@@ -278,10 +278,7 @@ def parse_dif_same_file(filepath):
 
 #-------------------------------------------------------------
 
-def validate_model(model, device, root_dir, type='lfw', num_workers=2, input_size=[112, 112], batch_size=100, distance_metric=1, lfw_nrof_folds=10, subtract_mean=False, print_log=False):
-    """
-    distance_metric = 1 #### if CenterLoss = 0, If Arcface = 1
-    """
+def get_validate_dataset_and_loader(root_dir, type='LFW', num_workers=2, input_size=[112, 112], batch_size=100):
     ######## dataset setup
     if type == 'CALFW':
         paths, actual_issame = get_paths_issame_CALFW(root_dir)
@@ -294,39 +291,29 @@ def validate_model(model, device, root_dir, type='lfw', num_workers=2, input_siz
     else:
         paths, actual_issame = get_paths_issame_LFW(root_dir)
 
-    lfw_dataset = ValidateDataset(paths=paths, actual_issame=actual_issame, input_size=input_size)
-    lfw_loader = torch.utils.data.DataLoader(lfw_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
+    dataset = ValidateDataset(paths=paths, actual_issame=actual_issame, input_size=input_size)
+    loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
 
-    print('Runnning forward pass on {} images'.format(type))
-
-    ### validate forward pass
-    tpr, fpr, accuracy, val, val_std, far = validate_forward_pass(model, 
-                                                                lfw_loader, 
-                                                                lfw_dataset, 
-                                                                embedding_size, 
-                                                                device,
-                                                                lfw_nrof_folds, 
-                                                                distance_metric, 
-                                                                subtract_mean)
+    return dataset, loader
 
 
-    if print_log == True:
-        print("=" * 60)
-        print("Validation TYPE: {}".format(type))
-        print('Accuracy: %2.5f+-%2.5f' % (np.mean(accuracy), np.std(accuracy)))
-        print('Validation rate: %2.5f+-%2.5f @ FAR=%2.5f' % (val, val_std, far))
-        auc = metrics.auc(fpr, tpr)
-        print('Area Under Curve (AUC): %1.3f' % auc)
-        # eer = brentq(lambda x: 1. - x - interpolate.interp1d(fpr, tpr)(x), 0., 1.)
-        # print('Equal Error Rate (EER): %1.3f' % eer)
-        print("=" * 60)
-
-    return tpr, fpr, accuracy, val, val_std, far
-
+def print_validate_result(tpr, fpr, accuracy, val, val_std, far):
+    print("=" * 60)
+    print("Validation TYPE: {}".format(type))
+    print('Accuracy: %2.5f+-%2.5f' % (np.mean(accuracy), np.std(accuracy)))
+    print('Validation rate: %2.5f+-%2.5f @ FAR=%2.5f' % (val, val_std, far))
+    auc = metrics.auc(fpr, tpr)
+    print('Area Under Curve (AUC): %1.3f' % auc)
+    # eer = brentq(lambda x: 1. - x - interpolate.interp1d(fpr, tpr)(x), 0., 1.)
+    # print('Equal Error Rate (EER): %1.3f' % eer)
+    print("=" * 60)
 
 
 
 if __name__ == '__main__':
+
+    ######### distance_metric = 1 #### if CenterLoss = 0, If Cosface = 1
+
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     ####### Model setup
@@ -337,50 +324,125 @@ if __name__ == '__main__':
     embedding_size = 512
     model.eval()
 
-    # ### Validate LFW Example
-    # # distance_metric = 1 #### if CenterLoss = 0, If Arcface = 1
-    tpr, fpr, accuracy, val, val_std, far = validate_model(model=model, 
-                                                        device=device,
-                                                        root_dir='./data/lfw_112', 
-                                                        type='LFW',
-                                                        num_workers=2,
-                                                        distance_metric=1,
-                                                        print_log=True)
+    ##########################################################################################
+    #### Validate LFW Example
+    type='LFW'
+    root_dir='./data/lfw_112'
+    dataset, loader = get_validate_dataset_and_loader(root_dir=root_dir, 
+                                                            type=type, num_workers=2, 
+                                                            input_size=[112, 112], 
+                                                            batch_size=100)
+
+    print('Runnning forward pass on {} images'.format(type))
+
+    tpr, fpr, accuracy, val, val_std, far = validate_forward_pass(model, 
+                                                                loader, 
+                                                                dataset, 
+                                                                embedding_size, 
+                                                                device,
+                                                                lfw_nrof_folds=10, 
+                                                                distance_metric=1, 
+                                                                subtract_mean=False)
+
+    print_validate_result(tpr, fpr, accuracy, val, val_std, far)
+    #### End of Validate LFW Example
+    ##########################################################################################
 
 
+    ##########################################################################################
     ### Validate CALFW Example
-    tpr, fpr, accuracy, val, val_std, far = validate_model(model=model, 
-                                                        device=device,
-                                                        root_dir='./data/calfw_112', 
-                                                        type='CALFW',
-                                                        num_workers=2,
-                                                        distance_metric=1,                                                        
-                                                        print_log=True)
+    type='CALFW'
+    root_dir='./data/calfw_112'
+    dataset, loader = get_validate_dataset_and_loader(root_dir=root_dir, 
+                                                            type=type, num_workers=2, 
+                                                            input_size=[112, 112], 
+                                                            batch_size=100)
 
+    print('Runnning forward pass on {} images'.format(type))
+
+    tpr, fpr, accuracy, val, val_std, far = validate_forward_pass(model, 
+                                                                loader, 
+                                                                dataset, 
+                                                                embedding_size, 
+                                                                device,
+                                                                lfw_nrof_folds=10, 
+                                                                distance_metric=1, 
+                                                                subtract_mean=False)
+
+    print_validate_result(tpr, fpr, accuracy, val, val_std, far)
+    #### End of Validate CALFW Example
+    ##########################################################################################
+
+    ##########################################################################################
     ### Validate CPLFW Example
-    tpr, fpr, accuracy, val, val_std, far = validate_model(model=model, 
-                                                        device=device, 
-                                                        root_dir='./data/cplfw_112', 
-                                                        type='CPLFW',
-                                                        num_workers=2,
-                                                        distance_metric=1,
-                                                        print_log=True)
+    type='CPLFW'
+    root_dir='./data/cplfw_112'
+    dataset, loader = get_validate_dataset_and_loader(root_dir=root_dir, 
+                                                            type=type, num_workers=2, 
+                                                            input_size=[112, 112], 
+                                                            batch_size=100)
+
+    print('Runnning forward pass on {} images'.format(type))
+
+    tpr, fpr, accuracy, val, val_std, far = validate_forward_pass(model, 
+                                                                loader, 
+                                                                dataset, 
+                                                                embedding_size, 
+                                                                device,
+                                                                lfw_nrof_folds=10, 
+                                                                distance_metric=1, 
+                                                                subtract_mean=False)
+
+    print_validate_result(tpr, fpr, accuracy, val, val_std, far)
+    #### End of Validate CPLFW Example
+    ##########################################################################################
 
 
+    ##########################################################################################
     ### Validate CFP_FF Example
-    tpr, fpr, accuracy, val, val_std, far = validate_model(model=model, 
-                                                        device=device, 
-                                                        root_dir='./data/cfp_112', 
-                                                        type='CFP_FF',
-                                                        num_workers=2,
-                                                        distance_metric=1,
-                                                        print_log=True)
+    type='CFP_FF'
+    root_dir='./data/cfp_112'
+    dataset, loader = get_validate_dataset_and_loader(root_dir=root_dir, 
+                                                            type=type, num_workers=2, 
+                                                            input_size=[112, 112], 
+                                                            batch_size=100)
 
+    print('Runnning forward pass on {} images'.format(type))
+
+    tpr, fpr, accuracy, val, val_std, far = validate_forward_pass(model, 
+                                                                loader, 
+                                                                dataset, 
+                                                                embedding_size, 
+                                                                device,
+                                                                lfw_nrof_folds=10, 
+                                                                distance_metric=1, 
+                                                                subtract_mean=False)
+
+    print_validate_result(tpr, fpr, accuracy, val, val_std, far)
+    #### End of Validate CFP_FF Example
+    ##########################################################################################
+
+
+    ##########################################################################################
     ### Validate CFP_FP Example
-    tpr, fpr, accuracy, val, val_std, far = validate_model(model=model, 
-                                                        device=device, 
-                                                        root_dir='./data/cfp_112', 
-                                                        type='CFP_FP',
-                                                        num_workers=2,
-                                                        distance_metric=1,
-                                                        print_log=True)
+    type='CFP_FP'
+    root_dir='./data/cfp_112'
+    dataset, loader = get_validate_dataset_and_loader(root_dir=root_dir, 
+                                                            type=type, num_workers=2, 
+                                                            input_size=[112, 112], 
+                                                            batch_size=100)
+
+    print('Runnning forward pass on {} images'.format(type))
+
+    tpr, fpr, accuracy, val, val_std, far = validate_forward_pass(model, 
+                                                                loader, 
+                                                                dataset, 
+                                                                embedding_size, 
+                                                                device,
+                                                                lfw_nrof_folds=10, 
+                                                                distance_metric=1, 
+                                                                subtract_mean=False)
+
+    print_validate_result(tpr, fpr, accuracy, val, val_std, far)
+    #### End of Validate CFP_FP Example
+    ##########################################################################################
