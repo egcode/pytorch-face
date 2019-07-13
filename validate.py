@@ -329,7 +329,8 @@ if __name__ == '__main__':
     type='LFW'
     root_dir='./data/lfw_112'
     dataset, loader = get_validate_dataset_and_loader(root_dir=root_dir, 
-                                                            type=type, num_workers=2, 
+                                                            type=type, 
+                                                            num_workers=2, 
                                                             input_size=[112, 112], 
                                                             batch_size=100)
 
@@ -354,7 +355,8 @@ if __name__ == '__main__':
     type='CALFW'
     root_dir='./data/calfw_112'
     dataset, loader = get_validate_dataset_and_loader(root_dir=root_dir, 
-                                                            type=type, num_workers=2, 
+                                                            type=type, 
+                                                            num_workers=2, 
                                                             input_size=[112, 112], 
                                                             batch_size=100)
 
@@ -378,7 +380,8 @@ if __name__ == '__main__':
     type='CPLFW'
     root_dir='./data/cplfw_112'
     dataset, loader = get_validate_dataset_and_loader(root_dir=root_dir, 
-                                                            type=type, num_workers=2, 
+                                                            type=type, 
+                                                            num_workers=2, 
                                                             input_size=[112, 112], 
                                                             batch_size=100)
 
@@ -403,7 +406,8 @@ if __name__ == '__main__':
     type='CFP_FF'
     root_dir='./data/cfp_112'
     dataset, loader = get_validate_dataset_and_loader(root_dir=root_dir, 
-                                                            type=type, num_workers=2, 
+                                                            type=type, 
+                                                            num_workers=2, 
                                                             input_size=[112, 112], 
                                                             batch_size=100)
 
@@ -428,7 +432,8 @@ if __name__ == '__main__':
     type='CFP_FP'
     root_dir='./data/cfp_112'
     dataset, loader = get_validate_dataset_and_loader(root_dir=root_dir, 
-                                                            type=type, num_workers=2, 
+                                                            type=type, 
+                                                            num_workers=2, 
                                                             input_size=[112, 112], 
                                                             batch_size=100)
 
