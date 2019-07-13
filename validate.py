@@ -13,7 +13,7 @@ from sklearn import metrics
 from scipy.optimize import brentq
 from scipy import interpolate
 
-from lfw.lfw_helper import *
+from validate_helpers import *
 
 from models.resnet import *
 from models.irse import *
