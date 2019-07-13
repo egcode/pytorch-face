@@ -10,6 +10,7 @@ from tqdm import tqdm
 import math
 
 data_dict = {
+    'CASIA_Webface_160':'175YhXe26wMMxSRuKGAbbVCkY5MLDk5m7', 
     'LFW_112': '11-uZAudZsBX5NkmYtYeMR0PPaWN3KVSG',
     'CPLFW_112': '1YeWzDL8XmAWXoRx5mVcObxwczGLP7Tsh',
     'CALFW_112': '1J2KXbbfBpxxFdvPhAi0q5MHjTS7O4Ai6',
@@ -81,3 +82,5 @@ if __name__ == '__main__':
     download_and_extract_file('CPLFW_112', out_dir)
     download_and_extract_file('CALFW_112', out_dir)
     download_and_extract_file('CFP_112', out_dir)
+
+    download_and_extract_file('CASIA_Webface_160', out_dir)
