@@ -18,9 +18,8 @@ from losses.Center_loss import Center_loss
 from dataset.get_data import get_data
 from models.resnet import *
 from models.irse import *
-from lfw.lfw_pytorch import *
-from lfw.lfw_helper import *
 from helpers import *
+from validate import *
 from datetime import datetime, timedelta
 import time
 from logger import Logger
@@ -144,36 +143,49 @@ def test(ARGS, model, device, test_loader, loss_softmax, loss_criterion, log_fil
         print_and_log(log_file_path, 'Total time for test: {}'.format(timedelta(seconds=time_for_test)))
 
 
-def validate_lfw(ARGS, model, lfw_loader, lfw_dataset, device, log_file_path, logger, lfw_distance_metric, epoch):
-    if epoch % ARGS.lfw_interval == 0 or epoch == ARGS.epochs:
-        model.eval()
-        t = time.time()
+def validate(ARGS, validation_data_dic, model, device, log_file_path, logger, lfw_distance_metric, epoch):
+    if epoch % ARGS.validate_interval == 0 or epoch == ARGS.epochs:
 
         embedding_size = ARGS.features_dim
 
-        tpr, fpr, accuracy, val, val_std, far = lfw_validate_model(model, lfw_loader, lfw_dataset, embedding_size, device,
-                                                                    ARGS.lfw_nrof_folds, lfw_distance_metric, ARGS.lfw_subtract_mean)
+        for val_type in ARGS.validations:
+            dataset = validation_data_dic[val_type+'_dataset']
+            loader = validation_data_dic[val_type+'_loader']
 
-        # print('\nEpoch: '+str(epoch))
-        # print('Accuracy: %2.5f+-%2.5f' % (np.mean(accuracy), np.std(accuracy)))
-        # print('Validation rate: %2.5f+-%2.5f @ FAR=%2.5f' % (val, val_std, far))
-        print_and_log(log_file_path, '\nEpoch: '+str(epoch))
-        print_and_log(log_file_path, 'Accuracy: %2.5f+-%2.5f' % (np.mean(accuracy), np.std(accuracy)))
-        print_and_log(log_file_path, 'Validation rate: %2.5f+-%2.5f @ FAR=%2.5f' % (val, val_std, far))
+            model.eval()
+            t = time.time()
+            print('Runnning forward pass on {} images'.format(val_type))
 
-        auc = metrics.auc(fpr, tpr)
-        # print('Area Under Curve (AUC): %1.3f' % auc)
-        print_and_log(log_file_path, 'Area Under Curve (AUC): %1.3f' % auc)
+            tpr, fpr, accuracy, val, val_std, far = validate_forward_pass(model, 
+                                                                        loader, 
+                                                                        dataset, 
+                                                                        embedding_size, 
+                                                                        device,
+                                                                        lfw_nrof_folds=ARGS.lfw_nrof_folds, 
+                                                                        distance_metric=lfw_distance_metric, 
+                                                                        subtract_mean=ARGS.lfw_subtract_mean)
 
-        # eer = brentq(lambda x: 1. - x - interpolate.interp1d(fpr, tpr)(x), 0., 1.)
-        # print('Equal Error Rate (EER): %1.3f' % eer)
-        time_for_lfw = int(time.time() - t)
-        print_and_log(log_file_path, 'Total time for LFW evaluation: {}'.format(timedelta(seconds=time_for_lfw)))
 
-        logger.scalar_summary("lfw_accuracy", np.mean(accuracy), epoch)
-        # logger.scalar_summary("Validation_rate", val, epoch)
-        # logger.scalar_summary("FAR", far, epoch)
-        # logger.scalar_summary("Area_under_curve", auc, epoch)
+            # print('\nEpoch: '+str(epoch))
+            # print('Accuracy: %2.5f+-%2.5f' % (np.mean(accuracy), np.std(accuracy)))
+            # print('Validation rate: %2.5f+-%2.5f @ FAR=%2.5f' % (val, val_std, far))
+            print_and_log(log_file_path, '\nEpoch: '+str(epoch))
+            print_and_log(log_file_path, 'Accuracy: %2.5f+-%2.5f' % (np.mean(accuracy), np.std(accuracy)))
+            print_and_log(log_file_path, 'Validation rate: %2.5f+-%2.5f @ FAR=%2.5f' % (val, val_std, far))
+
+            auc = metrics.auc(fpr, tpr)
+            # print('Area Under Curve (AUC): %1.3f' % auc)
+            print_and_log(log_file_path, 'Area Under Curve (AUC): %1.3f' % auc)
+
+            # eer = brentq(lambda x: 1. - x - interpolate.interp1d(fpr, tpr)(x), 0., 1.)
+            # print('Equal Error Rate (EER): %1.3f' % eer)
+            time_for_val = int(time.time() - t)
+            print_and_log(log_file_path, 'Total time for {} evaluation: {}'.format(val_type, timedelta(seconds=time_for_val)))
+
+            logger.scalar_summary(val_type +"_accuracy", np.mean(accuracy), epoch)
+            # logger.scalar_summary("Validation_rate", val, epoch)
+            # logger.scalar_summary("FAR", far, epoch)
+            # logger.scalar_summary("Area_under_curve", auc, epoch)
 
 
 def main(ARGS):
@@ -213,11 +225,27 @@ def main(ARGS):
     print('Data directory: %s' % ARGS.data_dir)
     train_loader, test_loader = get_data(ARGS, device)
 
-    ######## LFW Data setup
-    print('LFW directory: %s' % ARGS.lfw_dir)
-    lfw_dataset = LFW(lfw_dir=ARGS.lfw_dir, lfw_pairs=ARGS.lfw_pairs, input_size=ARGS.input_size)
-    lfw_loader = torch.utils.data.DataLoader(lfw_dataset, batch_size=ARGS.lfw_batch_size, shuffle=False, num_workers=ARGS.num_workers)
+    ######## Validation Data setup
+    validation_paths_dic = {
+                    "LFW" : ARGS.lfw_dir,
+                    "CALFW" : ARGS.calfw_dir,
+                    "CPLFW" : ARGS.cplfw_dir,
+                    "CFP_FF" : ARGS.cfp_ff_dir,
+                    "CFP_FP" : ARGS.cfp_fp_dir
+                    }
+    print_and_log(log_file_path, "Validation_paths_dic: " + str(validation_paths_dic))
+    validation_data_dic = {}
+    for val_type in ARGS.validations:
+        print_and_log(log_file_path, 'Init dataset and loader for validation type: {}'.format(val_type))
+        dataset, loader = get_validate_dataset_and_loader(root_dir=validation_paths_dic[val_type], 
+                                                                type=val_type, 
+                                                                num_workers=ARGS.num_workers, 
+                                                                input_size=ARGS.input_size, 
+                                                                batch_size=ARGS.validate_batch_size)
+        validation_data_dic[val_type+'_dataset'] = dataset
+        validation_data_dic[val_type+'_loader'] = loader
     
+
     ####### Model setup
     print('Model type: %s' % ARGS.model_type)
     if ARGS.model_type == 'ResNet_50':
@@ -292,7 +320,7 @@ def main(ARGS):
 
         train(ARGS, model, device, train_loader, loss_softmax, loss_criterion, optimizer, log_file_path, model_dir, logger, epoch)
         test(ARGS, model, device, test_loader, loss_softmax, loss_criterion, log_file_path, logger, epoch)
-        validate_lfw(ARGS, model, lfw_loader, lfw_dataset, device, log_file_path, logger, lfw_distance_metric, epoch)
+        validate(ARGS, validation_data_dic, model, device, log_file_path, logger, lfw_distance_metric, epoch)
 
 
 def parse_arguments(argv):
@@ -303,7 +331,7 @@ def parse_arguments(argv):
     parser.add_argument('--epochs', type=int, help='Training epochs training.', default=200)
     # Data
     parser.add_argument('--input_size', type=str, help='support: [112, 112] and [224, 224]', default=[112, 112])
-    parser.add_argument('--data_dir', type=str, help='Path to the data directory containing aligned face patches.', default='./data/CASIA_and_Golovan_160')
+    parser.add_argument('--data_dir', type=str, help='Path to the data directory containing aligned face patches.', default='./data/CASIA_Webface_160')
     parser.add_argument('--num_workers', type=int, help='Number of threads to use for data pipeline.', default=8)
     parser.add_argument('--batch_size', type=int, help='Number of batches while training model.', default=512)
     parser.add_argument('--batch_size_test', type=int, help='Number of batches while testing model.', default=512)
@@ -329,14 +357,18 @@ def parse_arguments(argv):
     # Intervals
     parser.add_argument('--model_save_interval', type=int, help='Save model with every interval epochs.', default=1)
     parser.add_argument('--test_interval', type=int, help='Perform test with every interval epochs.', default=1)
-    parser.add_argument('--lfw_interval', type=int, help='Perform LFW test with every interval epochs.', default=1)    
-    # LFW
-    parser.add_argument('--lfw_pairs', type=str, help='The file containing the pairs to use for validation.', default='./data/lfw_112/pairs_LFW.txt')
-    parser.add_argument('--lfw_dir', type=str, help='Path to the data directory containing aligned face patches.', default='./data/lfw_112/images')
-    parser.add_argument('--lfw_batch_size', type=int, help='Number of images to process in a batch in the LFW test set.', default=100)
-    parser.add_argument('--lfw_nrof_folds', type=int, help='Number of folds to use for cross validation. Mainly used for testing.', default=10)
-    # parser.add_argument('--lfw_distance_metric', type=int, help='Type of distance metric to use. 0: Euclidian, 1:Cosine similarity distance.', default=0)
-    parser.add_argument('--lfw_subtract_mean', help='Subtract feature mean before calculating distance.', action='store_true', default=False)
+    parser.add_argument('--validate_interval', type=int, help='Perform validation test with every interval epochs.', default=1)    
+    # Validation
+    parser.add_argument('--validations', nargs='+', help='Face validation types', default=['LFW', 'CALFW', 'CPLFW', 'CFP_FF', 'CFP_FP'])  # support ['LFW', 'CALFW', 'CPLFW', 'CFP_FF', 'CFP_FP']
+    parser.add_argument('--lfw_dir', type=str, help='Path to the data directory containing aligned face patches.', default='./data/lfw_112')
+    parser.add_argument('--calfw_dir', type=str, help='Path to the data directory containing aligned face patches.', default='./data/calfw_112')
+    parser.add_argument('--cplfw_dir', type=str, help='Path to the data directory containing aligned face patches.', default='./data/cplfw_112')
+    parser.add_argument('--cfp_ff_dir', type=str, help='Path to the data directory containing aligned face patches.', default='./data/cfp_112')
+    parser.add_argument('--cfp_fp_dir', type=str, help='Path to the data directory containing aligned face patches.', default='./data/cfp_112')
+    # parser.add_argument('--validate_distance_metric', type=int, help='Type of distance metric to use. 0: Euclidian, 1:Cosine similarity distance.', default=0)
+    parser.add_argument('--validate_subtract_mean', help='Subtract feature mean before calculating distance.', action='store_true', default=False)
+    parser.add_argument('--validate_batch_size', type=int, help='Number of images to process in a batch in the LFW test set.', default=100)
+    parser.add_argument('--validate_nrof_folds', type=int, help='Number of folds to use for cross validation. Mainly used for testing.', default=10)
     return parser.parse_args(argv)
   
 
