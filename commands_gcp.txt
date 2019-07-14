@@ -217,6 +217,18 @@ python3 train.py \
 --lr_gamma 0.1
 
 ===================================================
+EXAMPLES ARFCACE LOSS:
+
+python3 train.py \
+--batch_size 128 \
+--batch_size_test 128 \
+--validate_batch_size 128 \
+--criterion_type arcface \
+--lr 0.01 \
+--lr_step 20 \
+--lr_gamma 0.1
+
+===================================================
 EXAMPLES COSFACE:
 
 #FIRST ATTEMPT
@@ -269,7 +281,7 @@ tensorboard --logdir=old:out/2019-06-19___06-52-36/tensorboard,new:out/2019-06-2
 tensorboard --logdir=old1:out/2019-06-21___17-18-37/tensorboard,old2:out/2019-06-22___17-35-05/tensorboard,new:out/2019-06-23___05-04-30/tensorboard
 tensorboard --logdir=old1:out/2019-05-12___22-18-42/tensorboard,old2:out/2019-05-13___02-56-25/tensorboard,old3:out/2019-05-13___15-26-25/tensorboard,new:out/2019-05-14___14-17-40/tensorboard
 
-tensorboard --logdir=out/2019-06-21___12-15-31/tensorboard
+tensorboard --logdir=out/2019-07-14___15-48-05/tensorboard
 
 
 RuntimeError: CUDA out of memory. Tried to allocate 100.00 MiB (GPU 0; 11.17 GiB total capacity; 10.67 GiB already allocated; 69.06 MiB free; 92.90 MiB cached)
