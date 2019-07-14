@@ -28,21 +28,14 @@ from pdb import set_trace as bp
 
 '''
 EXAMPLES:
-## IR_50 TEST  #RESULT::::: IR_50_MODEL_centerloss_casia_epoch34.pth  
 python3 train.py \
---model_path ./pth/IR_50_MODEL_centerloss.pth \
---loss_path ./pth/LOSS_centerloss.pth \
---batch_size 64 \
---batch_size_test 64 \
---lfw_batch_size 64 \
+--batch_size 128 \
+--batch_size_test 128 \
+--validate_batch_size 128 \
 --criterion_type centerloss \
---model_lr 0.01 \
---model_lr_step 10 \
---model_lr_gamma 0.9 \
---criterion_lr 0.01 \
---criterion_lr_step 10 \
---criterion_lr_gamma 0.9 
-
+--lr 0.01 \
+--lr_step 10 \
+--lr_gamma 0.1
 
 
 '''
@@ -143,7 +136,7 @@ def test(ARGS, model, device, test_loader, loss_softmax, loss_criterion, log_fil
         print_and_log(log_file_path, 'Total time for test: {}'.format(timedelta(seconds=time_for_test)))
 
 
-def validate(ARGS, validation_data_dic, model, device, log_file_path, logger, lfw_distance_metric, epoch):
+def validate(ARGS, validation_data_dic, model, device, log_file_path, logger, distance_metric, epoch):
     if epoch % ARGS.validate_interval == 0 or epoch == ARGS.epochs:
 
         embedding_size = ARGS.features_dim
@@ -161,9 +154,9 @@ def validate(ARGS, validation_data_dic, model, device, log_file_path, logger, lf
                                                                         dataset, 
                                                                         embedding_size, 
                                                                         device,
-                                                                        lfw_nrof_folds=ARGS.lfw_nrof_folds, 
-                                                                        distance_metric=lfw_distance_metric, 
-                                                                        subtract_mean=ARGS.lfw_subtract_mean)
+                                                                        lfw_nrof_folds=ARGS.validate_nrof_folds, 
+                                                                        distance_metric=distance_metric, 
+                                                                        subtract_mean=ARGS.validate_subtract_mean)
 
 
             # print('\nEpoch: '+str(epoch))
@@ -281,13 +274,13 @@ def main(ARGS):
     ####### Criterion setup
     print('Criterion type: %s' % ARGS.criterion_type)
     if ARGS.criterion_type == 'arcface':
-        lfw_distance_metric = 1
+        distance_metric = 1
         loss_criterion = Arcface_loss(num_classes=train_loader.dataset.num_classes, feat_dim=ARGS.features_dim, device=device, s=ARGS.margin_s, m=ARGS.margin_m).to(device)
     elif ARGS.criterion_type == 'cosface':
-        lfw_distance_metric = 1
+        distance_metric = 1
         loss_criterion = Cosface_loss(num_classes=train_loader.dataset.num_classes, feat_dim=ARGS.features_dim, device=device, s=ARGS.margin_s, m=ARGS.margin_m).to(device)
     elif ARGS.criterion_type == 'centerloss':
-        lfw_distance_metric = 0
+        distance_metric = 0
         loss_criterion = Center_loss(device=device, num_classes=train_loader.dataset.num_classes, feat_dim=ARGS.features_dim, use_gpu=use_cuda)
 
     if ARGS.loss_path != None:
@@ -320,7 +313,7 @@ def main(ARGS):
 
         train(ARGS, model, device, train_loader, loss_softmax, loss_criterion, optimizer, log_file_path, model_dir, logger, epoch)
         test(ARGS, model, device, test_loader, loss_softmax, loss_criterion, log_file_path, logger, epoch)
-        validate(ARGS, validation_data_dic, model, device, log_file_path, logger, lfw_distance_metric, epoch)
+        validate(ARGS, validation_data_dic, model, device, log_file_path, logger, distance_metric, epoch)
 
 
 def parse_arguments(argv):
