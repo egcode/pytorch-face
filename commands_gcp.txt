@@ -210,7 +210,7 @@ EXAMPLES CENTER LOSS:
 python3 train.py \
 --batch_size 128 \
 --batch_size_test 128 \
---lfw_batch_size 128 \
+--validate_batch_size 128 \
 --criterion_type centerloss \
 --lr 0.01 \
 --lr_step 10 \
