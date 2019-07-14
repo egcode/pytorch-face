@@ -311,8 +311,8 @@ def main(ARGS):
         sheduler.step()
         logger.scalar_summary("lr", sheduler.get_lr()[0], epoch)
 
-        # train(ARGS, model, device, train_loader, loss_softmax, loss_criterion, optimizer, log_file_path, model_dir, logger, epoch)
-        # test(ARGS, model, device, test_loader, loss_softmax, loss_criterion, log_file_path, logger, epoch)
+        train(ARGS, model, device, train_loader, loss_softmax, loss_criterion, optimizer, log_file_path, model_dir, logger, epoch)
+        test(ARGS, model, device, test_loader, loss_softmax, loss_criterion, log_file_path, logger, epoch)
         validate(ARGS, validation_data_dic, model, device, log_file_path, logger, distance_metric, epoch)
 
 
