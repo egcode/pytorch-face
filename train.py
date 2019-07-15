@@ -147,7 +147,7 @@ def validate(ARGS, validation_data_dic, model, device, log_file_path, logger, di
 
             model.eval()
             t = time.time()
-            print('Runnning forward pass on {} images'.format(val_type))
+            print('\n\nRunnning forward pass on {} images'.format(val_type))
 
             tpr, fpr, accuracy, val, val_std, far = validate_forward_pass(model, 
                                                                         loader, 
@@ -174,7 +174,8 @@ def validate(ARGS, validation_data_dic, model, device, log_file_path, logger, di
             # print('Equal Error Rate (EER): %1.3f' % eer)
             time_for_val = int(time.time() - t)
             print_and_log(log_file_path, 'Total time for {} evaluation: {}'.format(val_type, timedelta(seconds=time_for_val)))
-
+            print("\n")
+                
             logger.scalar_summary(val_type +"_accuracy", np.mean(accuracy), epoch)
             # logger.scalar_summary("Validation_rate", val, epoch)
             # logger.scalar_summary("FAR", far, epoch)
