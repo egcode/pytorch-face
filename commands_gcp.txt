@@ -219,9 +219,8 @@ python3 train.py \
 ===================================================
 EXAMPLES ARFCACE LOSS:
 
+#FIRST ATTEMPT 40 epochs
 python3 train.py \
---model_path ./pth/IR_50_MODEL_arcface.pth \
---loss_path ./pth/LOSS_arcface.pth \
 --batch_size 128 \
 --batch_size_test 128 \
 --validate_batch_size 128 \
@@ -230,6 +229,17 @@ python3 train.py \
 --lr_step 30 \
 --lr_gamma 0.1
 
+#SECOND ATTEMPT 
+python3 train.py \
+--model_path ./pth/IR_50_MODEL_arcface.pth \
+--loss_path ./pth/LOSS_arcface.pth \
+--batch_size 128 \
+--batch_size_test 128 \
+--validate_batch_size 128 \
+--criterion_type arcface \
+--lr 0.01 \
+--lr_step 20 \
+--lr_gamma 0.1
 ===================================================
 EXAMPLES COSFACE:
 
@@ -279,7 +289,7 @@ python3 train.py \
 ===================================================
 
 
-tensorboard --logdir=old:out/2019-06-19___06-52-36/tensorboard,new:out/2019-06-20___05-45-22/tensorboard
+tensorboard --logdir=old:out/2019-07-15___07-07-37/tensorboard,new:out/2019-07-16___05-31-59/tensorboard
 tensorboard --logdir=old1:out/2019-06-21___17-18-37/tensorboard,old2:out/2019-06-22___17-35-05/tensorboard,new:out/2019-06-23___05-04-30/tensorboard
 tensorboard --logdir=old1:out/2019-05-12___22-18-42/tensorboard,old2:out/2019-05-13___02-56-25/tensorboard,old3:out/2019-05-13___15-26-25/tensorboard,new:out/2019-05-14___14-17-40/tensorboard
 
