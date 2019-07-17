@@ -302,7 +302,7 @@ def main(ARGS):
 
     
     
-    if ARGS.criterion_type == 'arcface':
+    if ARGS.criterion_type == 'arcface' or ARGS.criterion_type == 'cosface':
         ##################
         if ARGS.model_type.find("IR") >= 0:
             backbone_paras_only_bn, backbone_paras_wo_bn = separate_irse_bn_paras(
@@ -362,7 +362,7 @@ def parse_arguments(argv):
     parser.add_argument('--weight_decay', type=float, default=0.0005, help='weight decay')
     parser.add_argument('--momentum', type=float, default=0.9, help='momentum')
     # Loss 
-    parser.add_argument('--criterion_type', type=str, help='type of loss cosface or centerloss.', default='centerloss') # support ['cosface', 'centerloss']
+    parser.add_argument('--criterion_type', type=str, help='type of loss cosface or centerloss.', default='centerloss') # support ['arcface', 'cosface', 'centerloss']
     parser.add_argument('--loss_path', type=str, help='Loss weights if needed.', default=None)
     parser.add_argument('--margin_s', type=float, help='scale for feature.', default=64.0)
     parser.add_argument('--margin_m', type=float, help='margin for loss.', default=0.5)    
