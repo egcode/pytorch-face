@@ -240,6 +240,17 @@ python3 train.py \
 --lr 0.01 \
 --lr_step 20 \
 --lr_gamma 0.1
+
+python3 train.py \
+--model_path ./pth/IR_50_MODEL_arcface.pth \
+--loss_path ./pth/LOSS_arcface.pth \
+--batch_size 128 \
+--batch_size_test 128 \
+--validate_batch_size 128 \
+--criterion_type arcface \
+--lr 0.001 \
+--lr_step 10 \
+--lr_gamma 0.1
 ===================================================
 EXAMPLES COSFACE:
 
@@ -290,7 +301,7 @@ python3 train.py \
 
 
 tensorboard --logdir=old:out/2019-07-15___07-07-37/tensorboard,new:out/2019-07-16___05-31-59/tensorboard
-tensorboard --logdir=old1:out/2019-06-21___17-18-37/tensorboard,old2:out/2019-06-22___17-35-05/tensorboard,new:out/2019-06-23___05-04-30/tensorboard
+tensorboard --logdir=old1:out/2019-07-15___07-07-37/tensorboard,old2:out/2019-07-16___05-31-59/tensorboard,new:out/2019-07-17___01-32-23/tensorboard
 tensorboard --logdir=old1:out/2019-05-12___22-18-42/tensorboard,old2:out/2019-05-13___02-56-25/tensorboard,old3:out/2019-05-13___15-26-25/tensorboard,new:out/2019-05-14___14-17-40/tensorboard
 
 tensorboard --logdir=out/2019-07-14___15-48-05/tensorboard
