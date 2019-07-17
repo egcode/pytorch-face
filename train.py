@@ -302,7 +302,7 @@ def main(ARGS):
 
     
     
-    if ARGS.criterion_type == 'arcface' or ARGS.criterion_type == 'cosface':
+    if ARGS.criterion_type == 'arcface':
         ##################
         if ARGS.model_type.find("IR") >= 0:
             backbone_paras_only_bn, backbone_paras_wo_bn = separate_irse_bn_paras(
