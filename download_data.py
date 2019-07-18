@@ -85,4 +85,4 @@ if __name__ == '__main__':
     download_and_extract_file('CALFW_112', out_dir)
     download_and_extract_file('CFP_112', out_dir)
 
-    download_and_extract_file('CASIA_and_Golovan_160', out_dir)
+    download_and_extract_file('Deepglint_112', out_dir)
