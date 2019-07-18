@@ -10,7 +10,8 @@ from tqdm import tqdm
 import math
 
 data_dict = {
-    'CASIA_Webface_160':'175YhXe26wMMxSRuKGAbbVCkY5MLDk5m7', 
+    'Deepglint_112':'1Lqvh24913uquWxa3YS_APluEmbNKQ4Us',
+    # 'CASIA_Webface_160':'175YhXe26wMMxSRuKGAbbVCkY5MLDk5m7', 
     'CASIA_and_Golovan_160' : '1Z1nzXX9KxUUjGauc5hHcj9dwgybsecNj',
     'LFW_112': '11-uZAudZsBX5NkmYtYeMR0PPaWN3KVSG',
     'CPLFW_112': '1YeWzDL8XmAWXoRx5mVcObxwczGLP7Tsh',
