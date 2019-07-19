@@ -221,9 +221,11 @@ python3 train.py \
 EXAMPLES ARFCACE LOSS:
 
 python3 train.py \
+--data_dir ./data/Vggface2_160 \
 --batch_size 128 \
 --batch_size_test 128 \
 --validate_batch_size 128 \
+--validation_set_split_ratio 0.001 \
 --criterion_type arcface \
 --lr 0.1 \
 --lr_step 20 \
