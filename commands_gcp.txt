@@ -17,9 +17,10 @@ gcloud compute scp --recurse /Users/eugene/Documents/HACHATHON/facenet instance-
 # copy to GCP DATASET
 gcloud compute scp --recurse /Users/yujin/Documents/Developer/Computer-Vision/datasets/CASIA-WebFace_160 instance-cpu:/mnt/disks/datasets/CASIA-WebFace_160
 
-################PTH copy to GCP Instance
-gcloud compute scp --recurse /Users/yujin/Documents/Developer/Computer-Vision/pytorch-face/pth/resnet50_current.pth instance-p100:/home/yujin/pytorch-face/pth/resnet50_current.pth
+################ZIP copy to GCP Instance
+gcloud compute scp --recurse /Users/yujin/Documents/Developer/Computer-Vision/pytorch-face/data/Vggface2_160.zip p100-8cpu-30gbram:/home/yujin/pytorch-face/data/Vggface2_160.zip
 
+################PTH copy to GCP Instance
 gcloud compute scp --recurse /Users/yujin/Documents/Developer/Computer-Vision/pytorch-face/pth/resnet18_current.pth instance-p100:/home/yujin/pytorch-face/pth/resnet18_current.pth
 
 
