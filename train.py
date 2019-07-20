@@ -79,10 +79,11 @@ def train(ARGS, model, device, train_loader, loss_softmax, loss_criterion, optim
         optimizer.step()
 
         time_for_batch = int(time.time() - tt)
+        time_for_current_epoch = int(time.time() - t)
 
         log = 'Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f} \tbatch_time: {}   Total time for epoch: {}'.format(
             epoch, batch_idx * len(data), len(train_loader.dataset),
-            100. * batch_idx / len(train_loader), loss.item(), timedelta(seconds=time_for_batch), timedelta(seconds=time_for_epoch))
+            100. * batch_idx / len(train_loader), loss.item(), timedelta(seconds=time_for_batch), timedelta(seconds=time_for_current_epoch))
         print_and_log(log_file_path, log)
 
         log_loss = loss.item()
