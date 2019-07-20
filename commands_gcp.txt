@@ -15,7 +15,7 @@ https://console.cloud.google.com/compute/instances?authuser=1&project=sandbox-hl
 gcloud compute scp --recurse /Users/eugene/Documents/HACHATHON/facenet instance-eugene:/home/eugene/facenet
 
 # copy to GCP DATASET
-gcloud compute scp --recurse /Users/yujin/Documents/Developer/Computer-Vision/datasets/CASIA-WebFace_160 instance-cpu:/mnt/disks/datasets/CASIA-WebFace_160
+gcloud compute scp --recurse /Users/yujin/Documents/Developer/Computer-Vision/pytorch-face/data/Vggface2_160 p100-8cpu-30gbram:/home/yujin/pytorch-face/data/Vggface2_160
 
 ################ZIP copy to GCP Instance
 gcloud compute scp --recurse /Users/yujin/Documents/Developer/Computer-Vision/pytorch-face/data/Vggface2_160.zip p100-8cpu-30gbram:/home/yujin/pytorch-face/data/Vggface2_160.zip
