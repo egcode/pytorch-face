@@ -82,7 +82,7 @@ def train(ARGS, model, device, train_loader, loss_softmax, loss_criterion, optim
         time_for_current_epoch = int(time.time() - t)
         percent = 100. * batch_idx / len(train_loader)
 
-        if ARGS.model_save_interval_percent != 0:
+        if ARGS.model_save_interval_percent > 0:
             if round(percent) % ARGS.model_save_interval_percent == 0:
                 suffix = str(epoch) + "_" + str(round(percent))
                 save_model(ARGS, ARGS.model_type, model_dir, model, log_file_path, suffix)

@@ -221,7 +221,7 @@ python3 train.py \
 EXAMPLES ARFCACE LOSS:
 
 python3 train.py \
---data_dir ./data/CASIA_Webface_160 \
+--data_dir ./data/CASIA-WebFace_160 \
 --batch_size 128 \
 --batch_size_test 128 \
 --validate_batch_size 128 \
