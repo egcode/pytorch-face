@@ -378,7 +378,7 @@ def parse_arguments(argv):
     parser.add_argument('--margin_m', type=float, help='margin for loss.', default=0.5)    
     # Intervals
     parser.add_argument('--model_save_interval', type=int, help='Save model with every interval epochs.', default=1)
-    parser.add_argument('--model_save_interval_percent', type=int, help='Save model with every percent in epoch.', default=0)
+    parser.add_argument('--model_save_interval_percent', type=int, help='Save model with every percent in epoch. Useful with large datasets', default=0)
     parser.add_argument('--test_interval', type=int, help='Perform test with every interval epochs.', default=1)
     parser.add_argument('--validate_interval', type=int, help='Perform validation test with every interval epochs.', default=1)    
     # Validation
