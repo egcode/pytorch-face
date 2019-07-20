@@ -80,10 +80,16 @@ def train(ARGS, model, device, train_loader, loss_softmax, loss_criterion, optim
 
         time_for_batch = int(time.time() - tt)
         time_for_current_epoch = int(time.time() - t)
+        percent = 100. * batch_idx / len(train_loader)
+
+        if ARGS.model_save_interval_percent != 0:
+            if round(percent) % ARGS.model_save_interval_percent == 0:
+                suffix = str(epoch) + "_" + str(round(percent))
+                save_model(ARGS, ARGS.model_type, model_dir, model, log_file_path, suffix)
 
         log = 'Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f} \tbatch_time: {}   Total time for epoch: {}'.format(
             epoch, batch_idx * len(data), len(train_loader.dataset),
-            100. * batch_idx / len(train_loader), loss.item(), timedelta(seconds=time_for_batch), timedelta(seconds=time_for_current_epoch))
+            percent, loss.item(), timedelta(seconds=time_for_batch), timedelta(seconds=time_for_current_epoch))
         print_and_log(log_file_path, log)
 
         log_loss = loss.item()
@@ -96,8 +102,9 @@ def train(ARGS, model, device, train_loader, loss_softmax, loss_criterion, optim
     time_for_epoch = int(time.time() - t)
     print_and_log(log_file_path, 'Total time for epoch: {}'.format(timedelta(seconds=time_for_epoch)))
 
-    save_model(ARGS, ARGS.model_type, model_dir, model, log_file_path, epoch)
-    save_model(ARGS, ARGS.criterion_type, model_dir, loss_criterion, log_file_path, epoch)
+    if epoch % ARGS.model_save_interval == 0 or epoch == ARGS.epochs:
+        save_model(ARGS, ARGS.model_type, model_dir, model, log_file_path, epoch)
+        save_model(ARGS, ARGS.criterion_type, model_dir, loss_criterion, log_file_path, epoch)
 
 def test(ARGS, model, device, test_loader, loss_softmax, loss_criterion, log_file_path, logger, epoch):
 
@@ -369,6 +376,7 @@ def parse_arguments(argv):
     parser.add_argument('--margin_m', type=float, help='margin for loss.', default=0.5)    
     # Intervals
     parser.add_argument('--model_save_interval', type=int, help='Save model with every interval epochs.', default=1)
+    parser.add_argument('--model_save_interval_percent', type=int, help='Save model with every percent in epoch.', default=0)
     parser.add_argument('--test_interval', type=int, help='Perform test with every interval epochs.', default=1)
     parser.add_argument('--validate_interval', type=int, help='Perform validation test with every interval epochs.', default=1)    
     # Validation

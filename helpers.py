@@ -17,10 +17,9 @@ from pdb import set_trace as bp
 ## Train Helpers
 
 def save_model(ARGS, type, model_dir, model, log_file_path, epoch):
-    if epoch % ARGS.model_save_interval == 0 or epoch == ARGS.epochs:
-        save_name = os.path.join(model_dir, type + '_' + str(epoch) + '.pth')
-        print_and_log(log_file_path, "Saving Model name: " + str(save_name))
-        torch.save(model.state_dict(), save_name)        
+    save_name = os.path.join(model_dir, type + '_' + str(epoch) + '.pth')
+    print_and_log(log_file_path, "Saving Model name: " + str(save_name))
+    torch.save(model.state_dict(), save_name)        
 
 def write_arguments_to_file(ARGS, filename):
     with open(filename, 'w') as f:

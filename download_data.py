@@ -12,7 +12,7 @@ import math
 data_dict = {
     'Vggface2_raw':'1jdZw6ZmB7JRK6RS6QP3YEr2sufJ5ibtO',
     'Deepglint_112':'1Lqvh24913uquWxa3YS_APluEmbNKQ4Us',
-    # 'CASIA_Webface_160':'175YhXe26wMMxSRuKGAbbVCkY5MLDk5m7', 
+    'CASIA_Webface_160':'175YhXe26wMMxSRuKGAbbVCkY5MLDk5m7', 
     'CASIA_and_Golovan_160' : '1Z1nzXX9KxUUjGauc5hHcj9dwgybsecNj',
     'LFW_112': '11-uZAudZsBX5NkmYtYeMR0PPaWN3KVSG',
     'CPLFW_112': '1YeWzDL8XmAWXoRx5mVcObxwczGLP7Tsh',
@@ -81,10 +81,12 @@ if __name__ == '__main__':
     if not os.path.isdir(out_dir):  # Create the out directory if it doesn't exist
         os.makedirs(out_dir)
 
-    download_and_extract_file('LFW_112', out_dir)
-    download_and_extract_file('CPLFW_112', out_dir)
-    download_and_extract_file('CALFW_112', out_dir)
-    download_and_extract_file('CFP_112', out_dir)
+    # download_and_extract_file('LFW_112', out_dir)
+    # download_and_extract_file('CPLFW_112', out_dir)
+    # download_and_extract_file('CALFW_112', out_dir)
+    # download_and_extract_file('CFP_112', out_dir)
+
+    download_and_extract_file('CASIA_Webface_160', out_dir)
 
     # download_and_extract_file('Deepglint_112', out_dir)
     # download_and_extract_file('Vggface2_raw', out_dir)
