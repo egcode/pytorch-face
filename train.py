@@ -45,6 +45,7 @@ def train(ARGS, model, device, train_loader, loss_softmax, loss_criterion, optim
     model.train()
     t = time.time()
     log_loss = 0
+    saved_percents_in_epochs = []
     for batch_idx, (data, target) in enumerate(train_loader):
         tt = time.time()
 
@@ -82,9 +83,10 @@ def train(ARGS, model, device, train_loader, loss_softmax, loss_criterion, optim
         time_for_current_epoch = int(time.time() - t)
         percent = 100. * batch_idx / len(train_loader)
 
-        if ARGS.model_save_interval_percent != 0 and round(percent) != 0:
+        if ARGS.model_save_interval_percent != 0 and round(percent) != 0 and round(percent) not in saved_percents_in_epochs:
             if round(percent) % ARGS.model_save_interval_percent == 0:
                 suffix = str(epoch) + "_" + str(round(percent))
+                saved_percents_in_epochs.append(round(percent))
                 save_model(ARGS, ARGS.model_type, model_dir, model, log_file_path, suffix)
 
         log = 'Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f} \tbatch_time: {}   Total time for epoch: {}'.format(
