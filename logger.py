@@ -2,6 +2,10 @@
 # tensorboard --logdir='./logs' --port=6006
 # tensorboard --logdir=old:20190121-211337/tensorboard,new:20190121-211430/tensorboard --port=6006
 
+import os
+import sys
+import argparse
+
 import tensorflow as tf
 import numpy as np
 import scipy.misc 
@@ -72,3 +76,49 @@ class Logger(object):
         summary = tf.Summary(value=[tf.Summary.Value(tag=tag, histo=hist)])
         self.writer.add_summary(summary, step)
         self.writer.flush()
+
+
+
+def main(ARGS):
+    out_dir = os.path.expanduser(ARGS.out_dir)
+    assert os.path.isdir(out_dir), "Path {} does not exist ".format(ARGS.out_dir)
+
+    print("\nStarting Tensorboard")
+
+    date_folders = []
+    files = os.listdir(out_dir)
+    if len(files):
+        for f in files:
+            date_folders.append(f)
+
+    command_string = "tensorboard --logdir="
+
+    assert date_folders, "No tensorboard folders"
+    date_folders.sort()  
+
+    for i,folder in enumerate(date_folders):
+        tensorboard_path = os.path.join(os.path.join(out_dir, folder), 'tensorboard')
+        print("Full Tensorboard Path: {}".format(tensorboard_path))
+        command_string += str(i+1) + ":" + tensorboard_path
+        if i != len(date_folders)-1:
+            command_string += ","
+
+    # Port
+    command_string += " --port={}".format(ARGS.tensorboard_port)
+
+#--port=6006
+# tensorboard --logdir=old:out/2019-07-20___18-13-10/tensorboard,new:out/2019-07-21___14-45-41/tensorboard
+
+    print("FINAL STING: {}".format(command_string))
+    print("\n")
+    os.system(command_string)
+
+    
+def parse_arguments(argv):
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--out_dir', type=str,  help='Directory where models and event logs are stored.', default='./out')
+    parser.add_argument('--tensorboard_port', type=int, help='Tensorboard port for command', default=6006)
+    return parser.parse_args(argv)
+  
+if __name__ == '__main__':
+    main(parse_arguments(sys.argv[1:]))

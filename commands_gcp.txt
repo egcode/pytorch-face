@@ -45,6 +45,8 @@ gcloud compute scp --recurse instance-p100:/home/yujin/pytorch-face/pth/resnet_f
 gcloud compute scp --recurse p100-8workers:/home/yujin/pytorch-face/pth/IR_50_MODEL_cosface.pth /Users/yujin/Documents/Developer/Computer-Vision/pytorch-face/pth/IR_50_MODEL_cosface_casia_epoch51.pth
 gcloud compute scp --recurse p100-8workers:/home/yujin/pytorch-face/pth/LOSS_cosface.pth /Users/yujin/Documents/Developer/Computer-Vision/pytorch-face/pth/LOSS_cosface_casia_epoch51.pth
 
+gcloud compute scp --recurse p100-8cpu-30gbram:/home/yujin/pytorch-face/out /Users/yujin/Documents/Developer/Computer-Vision/pytorch-face/out
+
 ###############
 ###############
 # copy to macbook CURRENT ARCFACE MODEL 
@@ -263,8 +265,7 @@ python3 train.py \
 
 ===================================================
 
-
-tensorboard --logdir=old:out/2019-07-15___07-07-37/tensorboard,new:out/2019-07-16___05-31-59/tensorboard
+tensorboard --logdir=old:out/2019-07-20___18-13-10/tensorboard,new:out/2019-07-21___14-45-41/tensorboard
 tensorboard --logdir=old1:out/2019-07-15___07-07-37/tensorboard,old2:out/2019-07-16___05-31-59/tensorboard,new:out/2019-07-17___01-32-23/tensorboard
 tensorboard --logdir=old1:out/2019-05-12___22-18-42/tensorboard,old2:out/2019-05-13___02-56-25/tensorboard,old3:out/2019-05-13___15-26-25/tensorboard,new:out/2019-05-14___14-17-40/tensorboard
 
