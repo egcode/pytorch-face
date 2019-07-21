@@ -91,11 +91,10 @@ def main(ARGS):
         for f in files:
             date_folders.append(f)
 
-    command_string = "tensorboard --logdir="
-
     assert date_folders, "No tensorboard folders"
-    date_folders.sort()  
 
+    command_string = "tensorboard --logdir="
+    date_folders.sort()  
     for i,folder in enumerate(date_folders):
         tensorboard_path = os.path.join(os.path.join(out_dir, folder), 'tensorboard')
         print("Full Tensorboard Path: {}".format(tensorboard_path))
@@ -109,7 +108,7 @@ def main(ARGS):
 #--port=6006
 # tensorboard --logdir=old:out/2019-07-20___18-13-10/tensorboard,new:out/2019-07-21___14-45-41/tensorboard
 
-    print("FINAL STING: {}".format(command_string))
+    print("FINAL Command String: {}".format(command_string))
     print("\n")
     os.system(command_string)
 
