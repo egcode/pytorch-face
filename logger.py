@@ -1,6 +1,6 @@
 # Code referenced from https://gist.github.com/gyglim/1f8dfb1b5c82627ae3efcfbbadb9f514
 # tensorboard --logdir='./logs' --port=6006
-# tensorboard --logdir=old:20190121-211337/tensorboard,new:20190121-211430/tensorboard --port=6006
+# tensorboard --logdir=old:out/2019-07-20___18-13-10/tensorboard,new:out/2019-07-21___14-45-41/tensorboard --port=6006
 
 import os
 import sys
@@ -97,16 +97,13 @@ def main(ARGS):
     date_folders.sort()  
     for i,folder in enumerate(date_folders):
         tensorboard_path = os.path.join(os.path.join(out_dir, folder), 'tensorboard')
-        print("Full Tensorboard Path: {}".format(tensorboard_path))
+        # print("Full Tensorboard Path: {}".format(tensorboard_path))
         command_string += str(i+1) + ":" + tensorboard_path
         if i != len(date_folders)-1:
             command_string += ","
 
     # Port
     command_string += " --port={}".format(ARGS.tensorboard_port)
-
-#--port=6006
-# tensorboard --logdir=old:out/2019-07-20___18-13-10/tensorboard,new:out/2019-07-21___14-45-41/tensorboard
 
     print("FINAL Command String: {}".format(command_string))
     print("\n")
