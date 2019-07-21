@@ -88,6 +88,7 @@ def train(ARGS, model, device, train_loader, loss_softmax, loss_criterion, optim
                 suffix = str(epoch) + "_" + str(round(percent))
                 saved_percents_in_epochs.append(round(percent))
                 save_model(ARGS, ARGS.model_type, model_dir, model, log_file_path, suffix)
+                save_model(ARGS, ARGS.criterion_type, model_dir, loss_criterion, log_file_path, suffix)
 
         log = 'Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f} \tbatch_time: {}   Total time for epoch: {}'.format(
             epoch, batch_idx * len(data), len(train_loader.dataset),
