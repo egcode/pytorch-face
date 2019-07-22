@@ -234,6 +234,7 @@ def main(ARGS):
     print_and_log(log_file_path, "Pytorch version:  " + str(torch.__version__))
     use_cuda = torch.cuda.is_available()
     print_and_log(log_file_path, "Use CUDA: " + str(use_cuda))
+    print_and_log(log_file_path, "Use APEX: " + str(APEX_AVAILABLE))
 
     device = torch.device("cuda" if use_cuda else "cpu")
 
