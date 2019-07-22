@@ -25,6 +25,12 @@ import time
 from logger import Logger
 from pdb import set_trace as bp
 
+try:
+    from apex import amp
+    APEX_AVAILABLE = True
+except ModuleNotFoundError:
+    APEX_AVAILABLE = False
+
 
 '''
 EXAMPLES:
@@ -69,7 +75,12 @@ def train(ARGS, model, device, train_loader, loss_softmax, loss_criterion, optim
 
         # Back prop.
         optimizer.zero_grad()
-        loss.backward()
+
+        if APEX_AVAILABLE:
+            with amp.scale_loss(loss, optimizer) as scaled_loss:
+                scaled_loss.backward()
+        else:
+            loss.backward()
 
         if ARGS.criterion_type == 'centerloss':
             # by doing so, weight_cent would not impact on the learning of centers
@@ -336,6 +347,12 @@ def main(ARGS):
     # optimizer = torch.optim.SGD([{'params': model.parameters()}, {'params': loss_criterion.parameters()}],
     #                                     lr=ARGS.lr, momentum=ARGS.momentum, weight_decay=ARGS.weight_decay)
     sheduler = lr_scheduler.StepLR(optimizer, ARGS.lr_step, gamma=ARGS.lr_gamma)
+
+    if APEX_AVAILABLE:
+        model, optimizer = amp.initialize(
+            model, optimizer, opt_level="O2", 
+            keep_batchnorm_fp32=True, loss_scale="dynamic"
+        )
 
     for epoch in range(1, ARGS.epochs + 1):
         sheduler.step()

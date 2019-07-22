@@ -155,6 +155,9 @@ sudo apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda
 sudo apt-get update
 sudo apt-get install cuda
 
+# change ~/.profile
+export PATH=/usr/local/cuda-10.0/bin:$PATH
+export LD_LIBRARY_PATH=/usr/local/cuda-10.0/lib64:$LD_LIBRARY_PATH
 
 -------Get data about GPU:-------------------------------------------
 
@@ -172,6 +175,12 @@ cat /proc/driver/nvidia/version
 
 nvidia-smi
 
+-------Install APEX:-------------------------------------------
+git clone https://github.com/NVIDIA/apex
+cd apex
+pip3 install -v --no-cache-dir --global-option="--cpp_ext" --global-option="--cuda_ext" ./
+
+
 -------Install TORCH:-------------------------------------------
 
 
@@ -180,12 +189,12 @@ sudo apt install python-pip	#python 2
 sudo apt install python3-pip	#python 3
 
 # Install PYTORCH
-pip3 install torch torchvision
+pip3 install https://download.pytorch.org/whl/cu100/torch-1.1.0-cp35-cp35m-linux_x86_64.whl
+pip3 install https://download.pytorch.org/whl/cu100/torchvision-0.3.0-cp35-cp35m-linux_x86_64.whl
 
-import torch; print("Pytorch version:  " + str(torch.__version__)); print("Use CUDA: " + str(torch.cuda.is_available()))
-print("cudnn enabled: " + str(torch.backends.cudnn.enabled))
+pip3 install torch_nightly -f https://download.pytorch.org/whl/nightly/cu100/torch_nightly.html
 
-
+import torch; print("Pytorch version:  " + str(torch.__version__));print("Use CUDA: " + str(torch.cuda.is_available()));print("cudnn enabled: " + str(torch.backends.cudnn.enabled));print("Cuda Version: " + str(torch.version.cuda))
 
 # Install GIT
 sudo apt update
