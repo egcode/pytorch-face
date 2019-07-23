@@ -155,7 +155,7 @@ sudo apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda
 sudo apt-get update
 sudo apt-get install cuda
 
-# change ~/.profile
+# change ~/.bashrc
 export PATH=/usr/local/cuda-10.0/bin:$PATH
 export LD_LIBRARY_PATH=/usr/local/cuda-10.0/lib64:$LD_LIBRARY_PATH
 
@@ -175,20 +175,22 @@ cat /proc/driver/nvidia/version
 
 nvidia-smi
 
--------Install APEX:-------------------------------------------
-git clone https://github.com/NVIDIA/apex
-cd apex
-pip3 install -v --no-cache-dir --global-option="--cpp_ext" --global-option="--cuda_ext" ./
-
-
 -------Install TORCH:-------------------------------------------
-
 
 # Install PIP
 sudo apt install python-pip	#python 2
 sudo apt install python3-pip	#python 3
 
+# Conda
+curl -O https://repo.continuum.io/archive/Anaconda3-5.0.1-Linux-x86_64.sh
+sha256sum Anaconda3-5.0.1-Linux-x86_64.sh
+bash Anaconda3-5.0.1-Linux-x86_64.sh
+source ~/.bashrc
+conda list
+
 # Install Pytorch CUDA 10
+conda install pytorch torchvision cuda100 -c pytorch
+# or
 pip3 install torch_nightly -f https://download.pytorch.org/whl/nightly/cu100/torch_nightly.html
 
 import torch; print("Pytorch version:  " + str(torch.__version__));print("Use CUDA: " + str(torch.cuda.is_available()));print("cudnn enabled: " + str(torch.backends.cudnn.enabled));print("Cuda Version: " + str(torch.version.cuda))
@@ -205,8 +207,14 @@ git clone https://github.com/egcode/pytorch-losses.git
 
 python3 test_arcface_mnist.py
 
-
 ####
+
+-------Install APEX:-------------------------------------------
+# 'nvcc --version'===GPU and  'torch.version.cuda'===Pytorch CUDA Versions should be the same 
+git clone https://github.com/NVIDIA/apex
+cd apex
+pip install -v --no-cache-dir --global-option="--cpp_ext" --global-option="--cuda_ext" ./
+
 
 -------TRAIN:-------------------------------------------
 git clone https://github.com/egcode/pytorch-face.git
