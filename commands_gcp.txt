@@ -138,23 +138,34 @@ sudo apt update && sudo apt dist-upgrade
 sudo apt install build-essential
 
 
-
-
 # The kernel headers
 uname -r  ### somethin like: 3.16.6-2-default
 sudo apt-get install linux-headers-$(uname -r)
 
 
-# CUDA
+
+
+# CUDA 10.1
+wget http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64/cuda-repo-ubuntu1604_10.1.168-1_amd64.deb
+sudo apt-key adv --fetch-keys http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64/7fa2af80.pub
+sudo dpkg -i cuda-repo-ubuntu1604_10.1.168-1_amd64.deb
+sudo apt-get update
+sudo apt-get install cuda
+# change ~/.bashrc
+export PATH=/usr/local/cuda-10.1/bin:$PATH
+export LD_LIBRARY_PATH=/usr/local/cuda-10.1/lib64:$LD_LIBRARY_PATH
+
+
+####  OR  ####
+
+# CUDA 10
 # download CUDA
 wget https://developer.nvidia.com/compute/cuda/10.0/Prod/local_installers/cuda-repo-ubuntu1604-10-0-local-10.0.130-410.48_1.0-1_amd64
 mv cuda-repo-ubuntu1604-10-0-local-10.0.130-410.48_1.0-1_amd64 cuda-repo-ubuntu1604-10-0-local-10.0.130-410.48_1.0-1_amd64.deb
-
+sudo apt-key adv --fetch-keys http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64/7fa2af80.pub
 sudo dpkg -i cuda-repo-ubuntu1604-10-0-local-10.0.130-410.48_1.0-1_amd64.deb
-sudo apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64/7fa2af80.pub
 sudo apt-get update
 sudo apt-get install cuda
-
 # change ~/.bashrc
 export PATH=/usr/local/cuda-10.0/bin:$PATH
 export LD_LIBRARY_PATH=/usr/local/cuda-10.0/lib64:$LD_LIBRARY_PATH
@@ -185,6 +196,8 @@ sudo apt install python3-pip	#python 3
 curl -O https://repo.continuum.io/archive/Anaconda3-5.0.1-Linux-x86_64.sh
 sha256sum Anaconda3-5.0.1-Linux-x86_64.sh
 bash Anaconda3-5.0.1-Linux-x86_64.sh
+#edit ~/.bashrc
+export PATH=/home/yujin/anaconda3/bin:$PATH
 source ~/.bashrc
 conda list
 
@@ -369,6 +382,7 @@ stats for mnist arcface
 
 ##### Colab 		- Total time: 0:17:29
 ##### Nvidia Tesla K80  - Total time: 0:18:07
+##### Nvidia Tesla T4   - Total time: 0:05:47
 ##### Nvidia Tesla P100 - Total time: 0:05:19
 ##### Nvidia Tesla V100 - Total time: 0:03:42
 
