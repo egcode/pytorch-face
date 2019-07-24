@@ -9,7 +9,7 @@ import random
 import tensorflow as tf
 import numpy as np
 
-import lfw
+# import lfw
 import h5py
 import math
 
