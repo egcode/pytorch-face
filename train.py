@@ -347,13 +347,14 @@ def main(ARGS):
 
     # optimizer = torch.optim.SGD([{'params': model.parameters()}, {'params': loss_criterion.parameters()}],
     #                                     lr=ARGS.lr, momentum=ARGS.momentum, weight_decay=ARGS.weight_decay)
-    sheduler = lr_scheduler.StepLR(optimizer, ARGS.lr_step, gamma=ARGS.lr_gamma)
 
     if APEX_AVAILABLE:
         model, optimizer = amp.initialize(
             model, optimizer, opt_level="O2", 
             keep_batchnorm_fp32=True, loss_scale="dynamic"
         )
+
+    sheduler = lr_scheduler.StepLR(optimizer, ARGS.lr_step, gamma=ARGS.lr_gamma)
 
     for epoch in range(1, ARGS.epochs + 1):
         sheduler.step()
