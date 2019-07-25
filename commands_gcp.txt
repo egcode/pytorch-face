@@ -126,7 +126,7 @@ cat /etc/fstab
 ------------------------------------------------------
 ------------------------------------------------------
 ------------------------------------------------------
--------Install CUDA Ubuntu 16.04------------------------------
+-------Install CUDA Ubuntu------------------------------
 
 # To verify that your GPU is CUDA-capable
 lspci | grep -i nvidia
@@ -145,7 +145,7 @@ sudo apt-get install linux-headers-$(uname -r)
 
 
 
-# CUDA 10.1
+# CUDA 10.1   Ubuntu - 16.04
 wget http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64/cuda-repo-ubuntu1604_10.1.168-1_amd64.deb
 sudo apt-key adv --fetch-keys http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64/7fa2af80.pub
 sudo dpkg -i cuda-repo-ubuntu1604_10.1.168-1_amd64.deb
@@ -158,7 +158,7 @@ export LD_LIBRARY_PATH=/usr/local/cuda-10.1/lib64:$LD_LIBRARY_PATH
 
 ####  OR  ####
 
-# CUDA 10
+# CUDA 10  Ubuntu - 16.04
 # download CUDA
 wget https://developer.nvidia.com/compute/cuda/10.0/Prod/local_installers/cuda-repo-ubuntu1604-10-0-local-10.0.130-410.48_1.0-1_amd64
 mv cuda-repo-ubuntu1604-10-0-local-10.0.130-410.48_1.0-1_amd64 cuda-repo-ubuntu1604-10-0-local-10.0.130-410.48_1.0-1_amd64.deb
@@ -169,6 +169,24 @@ sudo apt-get install cuda
 # change ~/.bashrc
 export PATH=/usr/local/cuda-10.0/bin:$PATH
 export LD_LIBRARY_PATH=/usr/local/cuda-10.0/lib64:$LD_LIBRARY_PATH
+
+
+####  OR  ####
+
+# CUDA 10  Ubuntu - 18.04
+# download CUDA
+wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/cuda-repo-ubuntu1804_10.0.130-1_amd64.deb
+sudo dpkg -i cuda-repo-ubuntu1804_10.0.130-1_amd64.deb
+sudo apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/7fa2af80.pub
+sudo apt-get update
+sudo apt-get install cuda
+# change ~/.bashrc
+export PATH=/usr/local/cuda-10.0/bin:$PATH
+export LD_LIBRARY_PATH=/usr/local/cuda-10.0/lib64:$LD_LIBRARY_PATH
+
+
+
+
 
 -------Get data about GPU:-------------------------------------------
 
