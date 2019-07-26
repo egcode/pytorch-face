@@ -297,12 +297,9 @@ python3 train.py \
 EXAMPLES ARFCACE LOSS:
 
 python3 train.py \
---data_dir ./data/Vggface2_160 \
 --batch_size 128 \
 --batch_size_test 128 \
 --validate_batch_size 128 \
---validation_set_split_ratio 0.01 \
---model_save_interval_percent 10 \
 --criterion_type arcface \
 --lr 0.1 \
 --lr_step 10 \
@@ -433,6 +430,9 @@ stats for mnist arcface
 ##### Nvidia Tesla P100 - Total time: 0:05:19
 ##### Nvidia Tesla V100 - Total time: 0:03:42
 
+stats for mnist arcface  CASIA_and_Golovan_160 - one epoch
+##### Nvidia Tesla T4   - Total time: 0:54:00
+##### Nvidia Tesla P100 - Total time: 0:35:00
 
 
 -------DATASET FOLDER HELPERS:-------------------------------------------
