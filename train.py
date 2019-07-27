@@ -351,13 +351,13 @@ def main(ARGS):
     #                                     lr=ARGS.lr, momentum=ARGS.momentum, weight_decay=ARGS.weight_decay)
 
     if APEX_AVAILABLE:
-        # model, optimizer = amp.initialize(
-        #     model, optimizer, opt_level="O2", 
-        #     keep_batchnorm_fp32=True, loss_scale="dynamic"
-        # )
         model, optimizer = amp.initialize(
-            model, optimizer, opt_level="O1", loss_scale="dynamic"
+            model, optimizer, opt_level="O2", 
+            keep_batchnorm_fp32=True, loss_scale="dynamic"
         )
+        # model, optimizer = amp.initialize(
+        #     model, optimizer, opt_level="O1", loss_scale="dynamic"
+        # )
 
     sheduler = lr_scheduler.StepLR(optimizer, ARGS.lr_step, gamma=ARGS.lr_gamma)
 
