@@ -350,7 +350,7 @@ def main(ARGS):
 
     if APEX_AVAILABLE:
         model, optimizer = amp.initialize(
-            model, optimizer, opt_level="O2", 
+            model, optimizer, opt_level="O1", 
             keep_batchnorm_fp32=True, loss_scale="dynamic"
         )
 
