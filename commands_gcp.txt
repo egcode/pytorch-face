@@ -322,9 +322,9 @@ python3 train.py \
 #####deepglint
 python3 train.py \
 --data_dir ./data/Deepglint \
---batch_size 256 \
---batch_size_test 256 \
---validate_batch_size 256 \
+--batch_size 64 \
+--batch_size_test 64 \
+--validate_batch_size 64 \
 --validation_set_split_ratio 0.0 \
 --model_save_interval_percent 10 \
 --criterion_type arcface \
