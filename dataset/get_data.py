@@ -22,14 +22,19 @@ class FacesDataset(data.Dataset):
         self.label_list = label_list
         self.num_classes = num_classes
 
-        normalize = T.Normalize(mean=[0.5], std=[0.5])
+        # self.transforms = T.Compose([
+        #     T.RandomResizedCrop(input_size[0], scale=(0.7, 1.0)),
+        #     T.RandomRotation(10),
+        #     T.RandomHorizontalFlip(),
+        #     T.ToTensor(),
+        #     T.Normalize(mean=[0.5], std=[0.5])
+        # ])
 
         self.transforms = T.Compose([
-            T.RandomResizedCrop(input_size[0], scale=(0.7, 1.0)),
-            T.RandomRotation(10),
+            T.Resize(input_size),
             T.RandomHorizontalFlip(),
             T.ToTensor(),
-            normalize
+            T.Normalize(mean=[0.5], std=[0.5])
         ])
 
     def __getitem__(self, index):
