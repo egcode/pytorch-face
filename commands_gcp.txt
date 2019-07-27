@@ -321,7 +321,7 @@ python3 train.py \
 
 #####deepglint
 python3 train.py \
---data_dir ./data/images \
+--data_dir ./data/Deepglint \
 --batch_size 256 \
 --batch_size_test 256 \
 --validate_batch_size 256 \
