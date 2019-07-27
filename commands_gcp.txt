@@ -72,7 +72,7 @@ gcloud compute scp --recurse /Users/eugene/Documents/Developer/Computer-Vision-P
 # copy to macbook CURRENT MODEL 
 gcloud compute scp --recurse instance-p100:/home/yujin/pytorch-face/pth/resnet_face50_current.pth /Users/yujin/Documents/Developer/Computer-Vision/pytorch-face/pth/resnet_face50_current.pth
 
-gcloud compute scp --recurse p100-8workers:/home/yujin/pytorch-face/pth/IR_50_MODEL_cosface.pth /Users/yujin/Documents/Developer/Computer-Vision/pytorch-face/pth/IR_50_MODEL_cosface_casia_epoch51.pth
+gcloud compute scp --recurse v100-8cpu-30gb-apex:/home/yujin/pytorch-face/pth/IR_50_MODEL_arcface.pth /Users/yujin/Documents/Developer/Computer-Vision/pytorch-face/pth/IR_50_MODEL_arcface_vgg2_epoch32.pth
 gcloud compute scp --recurse p100-8workers:/home/yujin/pytorch-face/pth/LOSS_cosface.pth /Users/yujin/Documents/Developer/Computer-Vision/pytorch-face/pth/LOSS_cosface_casia_epoch51.pth
 
 gcloud compute scp --recurse p100-8cpu-30gbram:/home/yujin/pytorch-face/out /Users/yujin/Documents/Developer/Computer-Vision/pytorch-face/out
@@ -309,14 +309,27 @@ python3 train.py \
 --model_path ./pth/IR_50_MODEL_arcface.pth \
 --loss_path ./pth/LOSS_arcface.pth \
 --data_dir ./data/Vggface2_160 \
---batch_size 128 \
---batch_size_test 128 \
---validate_batch_size 128 \
+--batch_size 256 \
+--batch_size_test 256 \
+--validate_batch_size 256 \
 --validation_set_split_ratio 0.01 \
 --model_save_interval_percent 10 \
 --criterion_type arcface \
 --lr 0.001 \
 --lr_step 5 \
+--lr_gamma 0.1
+
+#####deepglint
+python3 train.py \
+--data_dir ./data/images \
+--batch_size 256 \
+--batch_size_test 256 \
+--validate_batch_size 256 \
+--validation_set_split_ratio 0.0 \
+--model_save_interval_percent 10 \
+--criterion_type arcface \
+--lr 0.1 \
+--lr_step 20 \
 --lr_gamma 0.1
 
 ===================================================
