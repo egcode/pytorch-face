@@ -297,12 +297,14 @@ python3 train.py \
 EXAMPLES ARFCACE LOSS:
 
 python3 train.py \
---batch_size 128 \
---batch_size_test 128 \
---validate_batch_size 128 \
+--data_dir ./data/CASIA_and_Golovan_160 \
+--batch_size 64 \
+--batch_size_test 64 \
+--validate_batch_size 64 \
 --criterion_type arcface \
+--validation_set_split_ratio 0.0 \
 --lr 0.1 \
---lr_step 10 \
+--lr_step 20 \
 --lr_gamma 0.1
 
 python3 train.py \
