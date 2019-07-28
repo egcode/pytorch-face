@@ -114,7 +114,7 @@ COSFACE LOSS-Eugene Casia
 #################################################################################
 
 ## ALL FAMILY
-python3 demo_export_embeddings.py ./pth/IR_50_MODEL_cosface_casia_epoch51.pth ./data/golovan_160/ \
+python3 demo_export_embeddings.py ./pth/IR_50_MODEL_cosface_casia_epoch51.pth ./data/golovan_112/ \
 --is_aligned 1 \
 --with_demo_images 1 \
 --image_size 112 \
