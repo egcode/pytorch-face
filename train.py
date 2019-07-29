@@ -367,7 +367,9 @@ def main(ARGS):
             model, optimizer, opt_level="O0", loss_scale=1.0
         )
 
+    #### Since StepLR and MultiStepLR are both buggy, use custom schedule_lr method
     # sheduler = lr_scheduler.StepLR(optimizer, ARGS.lr_step, gamma=ARGS.lr_gamma)
+    # sheduler = lr_scheduler.MultiStepLR(optimizer, milestones=[30,80], gamma=ARGS.lr_gamma)
 
     for epoch in range(1, ARGS.epochs + 1):
         schedule_lr(ARGS, log_file_path, optimizer, epoch)
