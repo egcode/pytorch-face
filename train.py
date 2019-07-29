@@ -397,7 +397,7 @@ def parse_arguments(argv):
     parser.add_argument('--features_dim', type=int, help='Number of features for loss.', default=512)
     # Optimizer
     # parser.add_argument('--optimizer_type', type=str, help='Optimizer Type.', default='adam') # support: ['adam','sgd']
-    parser.add_argument('--lr', type=float, help='learning rate', default=0.01)
+    parser.add_argument('--lr', type=float, help='learning rate', default=0.1)
     parser.add_argument('--lr_schedule_steps', nargs='+', type=int, help='Steps when to multiply lr by lr_gamma.', default=[15, 28, 40])
     parser.add_argument('--lr_gamma', type=float, help='Every step lr will be multiplied by this value.', default=0.1)
     parser.add_argument('--beta1', type=float, default=0.5, help='beta1 for adam. default=0.5')
