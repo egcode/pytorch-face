@@ -59,6 +59,13 @@ def print_and_log(log_file_path, string_to_write):
         t = "[" + str(datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S')) + "] " 
         log_file.write(t + string_to_write + "\n")
 
+def schedule_lr(ARGS, log_file_path, optimizer, epoch):
+    for lr_schedule_step in ARGS.lr_schedule_steps:
+        if epoch == lr_schedule_step:
+            for params in optimizer.param_groups:                 
+                params['lr'] *= ARGS.lr_gamma
+    print_and_log(log_file_path, "Learning rate: " + str(optimizer.param_groups[0]['lr']) + " Epoch: " + str(epoch))
+
 ###################################################################
 ## Features Helpers
 

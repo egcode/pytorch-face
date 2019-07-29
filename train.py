@@ -367,16 +367,15 @@ def main(ARGS):
             model, optimizer, opt_level="O0", loss_scale=1.0
         )
 
-    sheduler = lr_scheduler.StepLR(optimizer, ARGS.lr_step, gamma=ARGS.lr_gamma)
+    # sheduler = lr_scheduler.StepLR(optimizer, ARGS.lr_step, gamma=ARGS.lr_gamma)
 
     for epoch in range(1, ARGS.epochs + 1):
-        sheduler.step()
-        logger.scalar_summary("lr", sheduler.get_lr()[0], epoch)
+        schedule_lr(ARGS, log_file_path, optimizer, epoch)
+        logger.scalar_summary("lr", optimizer.param_groups[0]['lr'], epoch)
 
         train(ARGS, model, device, train_loader, loss_softmax, loss_criterion, optimizer, log_file_path, model_dir, logger, epoch)
         # test(ARGS, model, device, test_loader, loss_softmax, loss_criterion, log_file_path, logger, epoch)
         validate(ARGS, validation_data_dic, model, device, log_file_path, logger, distance_metric, epoch)
-
 
 def parse_arguments(argv):
     parser = argparse.ArgumentParser()
@@ -399,8 +398,8 @@ def parse_arguments(argv):
     # Optimizer
     # parser.add_argument('--optimizer_type', type=str, help='Optimizer Type.', default='adam') # support: ['adam','sgd']
     parser.add_argument('--lr', type=float, help='learning rate', default=0.01)
-    parser.add_argument('--lr_step', type=int, help='Every step lr will be multiplied.', default=10)
-    parser.add_argument('--lr_gamma', type=float, help='Every step lr will be multiplied by this value.', default=0.9)
+    parser.add_argument('--lr_schedule_steps', nargs='+', type=int, help='Steps when to multiply lr by lr_gamma.', default=[15, 28, 40])
+    parser.add_argument('--lr_gamma', type=float, help='Every step lr will be multiplied by this value.', default=0.1)
     parser.add_argument('--beta1', type=float, default=0.5, help='beta1 for adam. default=0.5')
     parser.add_argument('--weight_decay', type=float, default=0.0005, help='weight decay')
     parser.add_argument('--momentum', type=float, default=0.9, help='momentum')

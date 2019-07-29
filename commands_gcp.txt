@@ -311,7 +311,7 @@ python3 train.py \
 --criterion_type arcface \
 --validation_set_split_ratio 0.0 \
 --lr 0.1 \
---lr_step 20 \
+--lr_schedule_steps 20 40 60 \
 --lr_gamma 0.1
 
 python3 train.py \
@@ -325,7 +325,7 @@ python3 train.py \
 --model_save_interval_percent 10 \
 --criterion_type arcface \
 --lr 0.001 \
---lr_step 10 \
+--lr_schedule_steps 15 24 35 \
 --lr_gamma 0.1
 
 #####deepglint
@@ -338,7 +338,7 @@ python3 train.py \
 --model_save_interval_percent 10 \
 --criterion_type arcface \
 --lr 0.1 \
---lr_step 20 \
+--lr_schedule_steps 15 24 35 \
 --lr_gamma 0.1
 
 ===================================================
@@ -361,7 +361,7 @@ python3 train.py \
 --margin_m 0.35 \
 --validation_set_split_ratio 0.0 \
 --lr 0.1 \
---lr_step 20 \
+--lr_schedule_steps 20 40 60 \
 --lr_gamma 0.1
 
 
