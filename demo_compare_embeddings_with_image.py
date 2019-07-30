@@ -43,16 +43,35 @@ COSFACE LOSS-Eugene Casia
 
 # Eugene Image
 python3 demo_compare_embeddings_with_image.py \
---model ./pth/IR_50_MODEL_cosface_casia_epoch51.pth \
+--model ./pth/IR_50_MODEL_cosface_casia_epoch66_lfw9858.pth \
 --image_path ./data/test_images/eugene1.png \
 --embeddings_premade ./output_arrays/embeddings_cosface_1.npy \
 --label_string_center ./output_arrays/label_strings_cosface_1.npy \
 --labels_center ./output_arrays/labels_cosface_1.npy \
 --distance_metric 1
 
+# Liuba Image
+python3 demo_compare_embeddings_with_image.py \
+--model ./pth/IR_50_MODEL_cosface_casia_epoch66_lfw9858.pth \
+--image_path ./data/test_images/liuba1.jpg \
+--embeddings_premade ./output_arrays/embeddings_cosface_1.npy \
+--label_string_center ./output_arrays/label_strings_cosface_1.npy \
+--labels_center ./output_arrays/labels_cosface_1.npy \
+--distance_metric 1
+
+# Julia Image
+python3 demo_compare_embeddings_with_image.py \
+--model ./pth/IR_50_MODEL_cosface_casia_epoch66_lfw9858.pth \
+--image_path ./data/test_images/julia1.jpg \
+--embeddings_premade ./output_arrays/embeddings_cosface_1.npy \
+--label_string_center ./output_arrays/label_strings_cosface_1.npy \
+--labels_center ./output_arrays/labels_cosface_1.npy \
+--distance_metric 1
+
+
 # Curen Image
 python3 demo_compare_embeddings_with_image.py \
---model ./pth/IR_50_MODEL_cosface_casia_epoch51.pth \
+--model ./pth/IR_50_MODEL_cosface_casia_epoch66_lfw9858.pth \
 --image_path ./data/test_images/curen1.jpg \
 --embeddings_premade ./output_arrays/embeddings_cosface_1.npy \
 --label_string_center ./output_arrays/label_strings_cosface_1.npy \
@@ -61,7 +80,7 @@ python3 demo_compare_embeddings_with_image.py \
 
 # Jeffrey Image
 python3 demo_compare_embeddings_with_image.py \
---model ./pth/IR_50_MODEL_cosface_casia_epoch51.pth \
+--model ./pth/IR_50_MODEL_cosface_casia_epoch66_lfw9858.pth \
 --image_path ./data/test_images/jeffrey2.jpg \
 --embeddings_premade ./output_arrays/embeddings_cosface_1.npy \
 --label_string_center ./output_arrays/label_strings_cosface_1.npy \
@@ -71,7 +90,7 @@ python3 demo_compare_embeddings_with_image.py \
 
 # David Image
 python3 demo_compare_embeddings_with_image.py \
---model ./pth/IR_50_MODEL_cosface_casia_epoch51.pth \
+--model ./pth/IR_50_MODEL_cosface_casia_epoch66_lfw9858.pth \
 --image_path ./data/test_images/david1.jpg \
 --embeddings_premade ./output_arrays/embeddings_cosface_1.npy \
 --label_string_center ./output_arrays/label_strings_cosface_1.npy \
@@ -80,7 +99,7 @@ python3 demo_compare_embeddings_with_image.py \
 
 # Alex Image
 python3 demo_compare_embeddings_with_image.py \
---model ./pth/IR_50_MODEL_cosface_casia_epoch51.pth \
+--model ./pth/IR_50_MODEL_cosface_casia_epoch66_lfw9858.pth \
 --image_path ./data/test_images/alex3.jpg \
 --embeddings_premade ./output_arrays/embeddings_cosface_1.npy \
 --label_string_center ./output_arrays/label_strings_cosface_1.npy \

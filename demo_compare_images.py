@@ -13,30 +13,30 @@ ARCFACE LOSS - face.evoLVe.PyTorch
 ##### NOT SAME        without extract_feature distance = [1.043365702033043] 
 python3 demo_compare_images.py \
 --model ./pth/backbone_ir50_ms1m_epoch120.pth \
---image_one_path ./data/golovan_160/Liuba/IMG_0179.png \
---image_two_path ./data/golovan_160/Julia/0001.png \
+--image_one_path ./data/golovan_112/Liuba/IMG_0179.jpg \
+--image_two_path ./data/golovan_112/Julia/0001.jpg \
 --distance_metric 1
 
 ##### NOT SAME        without extract_feature distance = [1.0594086982309818]
 python3 demo_compare_images.py \
 --model ./pth/backbone_ir50_ms1m_epoch120.pth \
---image_one_path ./data/golovan_160/Alex/haweF.png \
---image_two_path ./data/golovan_160/Julia/0001.png \
+--image_one_path ./data/golovan_112/Alex/haweF.jpg \
+--image_two_path ./data/golovan_112/Julia/0001.jpg \
 --distance_metric 1
 
 ##### NOT SAME        without extract_feature distance = [0.9408659227192402]
 python3 demo_compare_images.py \
 --model ./pth/backbone_ir50_ms1m_epoch120.pth \
---image_one_path ./data/golovan_160/Eugene/hawfd.png \
---image_two_path ./data/golovan_160/Julia/IMG_1922.png \
+--image_one_path ./data/golovan_112/Eugene/hawfd.jpg \
+--image_two_path ./data/golovan_112/Julia/IMG_1922.jpg \
 --distance_metric 1
 
 
 ##### NOT SAME        without extract_feature distance = [0.8103613704442978]
 python3 demo_compare_images.py \
 --model ./pth/backbone_ir50_ms1m_epoch120.pth \
---image_one_path ./data/golovan_160/Eugene/IMG_0083.png \
---image_two_path ./data/golovan_160/Alex/hawefds.png \
+--image_one_path ./data/golovan_112/Eugene/IMG_0083.jpg \
+--image_two_path ./data/golovan_112/Alex/hawefds.jpg \
 --distance_metric 1
 
 
@@ -46,98 +46,98 @@ python3 demo_compare_images.py \
 ##### SAME            without extract_feature distance = [0.4351288080215454]
 python3 demo_compare_images.py \
 --model ./pth/backbone_ir50_ms1m_epoch120.pth \
---image_one_path ./data/golovan_160/Julia/0003.png \
---image_two_path ./data/golovan_160/Julia/0001.png \
+--image_one_path ./data/golovan_112/Julia/0003.jpg \
+--image_two_path ./data/golovan_112/Julia/0001.jpg \
 --distance_metric 1
 
 ##### SAME            without extract_feature distance = [0.9727675095200539]
 python3 demo_compare_images.py \
 --model ./pth/backbone_ir50_ms1m_epoch120.pth \
---image_one_path ./data/golovan_160/Julia/0003.png \
---image_two_path ./data/golovan_160/Julia/0004.png \
+--image_one_path ./data/golovan_112/Julia/0003.jpg \
+--image_two_path ./data/golovan_112/Julia/0004.jpg \
 --distance_metric 1
 
 ##### SAME            without extract_feature distance = [0.7395100891590118]
 python3 demo_compare_images.py \
 --model ./pth/backbone_ir50_ms1m_epoch120.pth \
---image_one_path ./data/golovan_160/Eugene/IMG_9489.png \
---image_two_path ./data/golovan_160/Eugene/IMG_E7066.png \
+--image_one_path ./data/golovan_112/Eugene/IMG_9489.jpg \
+--image_two_path ./data/golovan_112/Eugene/IMG_E7066.jpg \
 --distance_metric 1
 
 ##### SAME            without extract_feature distance = [0.37082868814468384]
 python3 demo_compare_images.py \
 --model ./pth/backbone_ir50_ms1m_epoch120.pth \
---image_one_path ./data/golovan_160/Alex/harfds.png \
---image_two_path ./data/golovan_160/Alex/hawefd.png \
+--image_one_path ./data/golovan_112/Alex/harfds.jpg \
+--image_two_path ./data/golovan_112/Alex/hawefd.jpg \
 --distance_metric 1
 
 
 #################################################################################
 #################################################################################
 #################################################################################
-ARCFACE LOSS-Eugene Casia
+COSFACE LOSS-Eugene Casia
 #################################################################################
 
 
-##### NOT SAME        without extract_feature distance = [1.0465557985007763] 
+##### NOT SAME        without extract_feature distance = [1.0327684432268143] 
 python3 demo_compare_images.py \
---model ./pth/IR_50_MODEL_arcface_casia_epoch21.pth \
---image_one_path ./data/golovan_160/Liuba/IMG_0179.png \
---image_two_path ./data/golovan_160/Julia/0001.png \
+--model ./pth/IR_50_MODEL_cosface_casia_epoch26_lfw9895.pth \
+--image_one_path ./data/golovan_112/Liuba/IMG_0179.jpg \
+--image_two_path ./data/golovan_112/Julia/0001.jpg \
 --distance_metric 1
 
-##### NOT SAME        without extract_feature distance = [0.708492249250412]
+##### NOT SAME        without extract_feature distance = [0.7779765576124191]
 python3 demo_compare_images.py \
---model ./pth/IR_50_MODEL_arcface_casia_epoch21.pth \
---image_one_path ./data/golovan_160/Alex/haweF.png \
---image_two_path ./data/golovan_160/Julia/0001.png \
+--model ./pth/IR_50_MODEL_cosface_casia_epoch26_lfw9895.pth \
+--image_one_path ./data/golovan_112/Alex/haweF.jpg \
+--image_two_path ./data/golovan_112/Julia/0001.jpg \
 --distance_metric 1
 
-##### NOT SAME        without extract_feature distance = [0.8642878979444504]
+##### NOT SAME        without extract_feature distance = [0.9319485202431679]
 python3 demo_compare_images.py \
---model ./pth/IR_50_MODEL_arcface_casia_epoch21.pth \
---image_one_path ./data/golovan_160/Eugene/hawfd.png \
---image_two_path ./data/golovan_160/Julia/IMG_1922.png \
---distance_metric 1
-
-
-##### NOT SAME        without extract_feature distance = [0.8804192990064621]
-python3 demo_compare_images.py \
---model ./pth/IR_50_MODEL_arcface_casia_epoch21.pth \
---image_one_path ./data/golovan_160/Eugene/IMG_0083.png \
---image_two_path ./data/golovan_160/Alex/hawefds.png \
+--model ./pth/IR_50_MODEL_cosface_casia_epoch26_lfw9895.pth \
+--image_one_path ./data/golovan_112/Eugene/hawfd.jpg \
+--image_two_path ./data/golovan_112/Julia/IMG_1922.jpg \
 --distance_metric 1
 
 
-
-
-
-##### SAME            without extract_feature distance = [0.1647181510925293]
+##### NOT SAME        without extract_feature distance = [0.9556785896420479]
 python3 demo_compare_images.py \
---model ./pth/IR_50_MODEL_arcface_casia_epoch21.pth \
---image_one_path ./data/golovan_160/Julia/0003.png \
---image_two_path ./data/golovan_160/Julia/0001.png \
+--model ./pth/IR_50_MODEL_cosface_casia_epoch26_lfw9895.pth \
+--image_one_path ./data/golovan_112/Eugene/IMG_0083.jpg \
+--image_two_path ./data/golovan_112/Alex/hawefds.jpg \
 --distance_metric 1
 
-##### SAME            without extract_feature distance = [0.27410292625427246]
+
+
+
+
+##### SAME            without extract_feature distance = [0.6051977872848511]
 python3 demo_compare_images.py \
---model ./pth/IR_50_MODEL_arcface_casia_epoch21.pth \
---image_one_path ./data/golovan_160/Julia/0003.png \
---image_two_path ./data/golovan_160/Julia/0004.png \
+--model ./pth/IR_50_MODEL_cosface_casia_epoch26_lfw9895.pth \
+--image_one_path ./data/golovan_112/Julia/0003.jpg \
+--image_two_path ./data/golovan_112/Julia/0001.jpg \
 --distance_metric 1
 
-##### SAME            without extract_feature distance = [0.163324773311615]
+##### SAME            without extract_feature distance = [0.6651143133640289]
 python3 demo_compare_images.py \
---model ./pth/IR_50_MODEL_arcface_casia_epoch21.pth \
---image_one_path ./data/golovan_160/Eugene/IMG_9489.png \
---image_two_path ./data/golovan_160/Eugene/IMG_E7066.png \
+--model ./pth/IR_50_MODEL_cosface_casia_epoch26_lfw9895.pth \
+--image_one_path ./data/golovan_112/Julia/0003.jpg \
+--image_two_path ./data/golovan_112/Julia/0004.jpg \
 --distance_metric 1
 
-##### SAME            without extract_feature distance = [0.0513153076171875]
+##### SAME            without extract_feature distance = [0.45191264152526855]
 python3 demo_compare_images.py \
---model ./pth/IR_50_MODEL_arcface_casia_epoch21.pth \
---image_one_path ./data/golovan_160/Alex/harfds.png \
---image_two_path ./data/golovan_160/Alex/hawefd.png \
+--model ./pth/IR_50_MODEL_cosface_casia_epoch26_lfw9895.pth \
+--image_one_path ./data/golovan_112/Eugene/IMG_9489.jpg \
+--image_two_path ./data/golovan_112/Eugene/IMG_E7066.jpg \
+--distance_metric 1
+
+##### SAME            without extract_feature distance = [0.3767945170402527]
+python3 demo_compare_images.py \
+--model ./pth/IR_50_MODEL_cosface_casia_epoch26_lfw9895.pth \
+--image_one_path ./data/golovan_112/Alex/harfds.jpg \
+--image_two_path ./data/golovan_112/Alex/hawefd.jpg \
 --distance_metric 1
 
 
@@ -153,30 +153,30 @@ CENTER LOSS
 ##### NOT SAME        without extract_feature distance = [1.1721499] 
 python3 demo_compare_images.py \
 --model ./pth/IR_50_MODEL_centerloss_casia_epoch16.pth \
---image_one_path ./data/golovan_160/Liuba/IMG_0179.png \
---image_two_path ./data/golovan_160/Julia/0001.png \
+--image_one_path ./data/golovan_112/Liuba/IMG_0179.jpg \
+--image_two_path ./data/golovan_112/Julia/0001.jpg \
 --distance_metric 0
 
 ##### NOT SAME        without extract_feature distance = [1.2014594]
 python3 demo_compare_images.py \
 --model ./pth/IR_50_MODEL_centerloss_casia_epoch16.pth \
---image_one_path ./data/golovan_160/Alex/haweF.png \
---image_two_path ./data/golovan_160/Julia/0001.png \
+--image_one_path ./data/golovan_112/Alex/haweF.jpg \
+--image_two_path ./data/golovan_112/Julia/0001.jpg \
 --distance_metric 0
 
 ##### NOT SAME        without extract_feature distance = [1.2041703]
 python3 demo_compare_images.py \
 --model ./pth/IR_50_MODEL_centerloss_casia_epoch16.pth \
---image_one_path ./data/golovan_160/Eugene/hawfd.png \
---image_two_path ./data/golovan_160/Julia/IMG_1922.png \
+--image_one_path ./data/golovan_112/Eugene/hawfd.jpg \
+--image_two_path ./data/golovan_112/Julia/IMG_1922.jpg \
 --distance_metric 0
 
 
 ##### NOT SAME        without extract_feature distance = [0.86273426]
 python3 demo_compare_images.py \
 --model ./pth/IR_50_MODEL_centerloss_casia_epoch16.pth \
---image_one_path ./data/golovan_160/Eugene/IMG_0083.png \
---image_two_path ./data/golovan_160/Alex/hawefds.png \
+--image_one_path ./data/golovan_112/Eugene/IMG_0083.jpg \
+--image_two_path ./data/golovan_112/Alex/hawefds.jpg \
 --distance_metric 0
 
 
@@ -186,29 +186,29 @@ python3 demo_compare_images.py \
 ##### SAME            without extract_feature distance = [0.58154285]
 python3 demo_compare_images.py \
 --model ./pth/IR_50_MODEL_centerloss_casia_epoch16.pth \
---image_one_path ./data/golovan_160/Julia/0003.png \
---image_two_path ./data/golovan_160/Julia/0001.png \
+--image_one_path ./data/golovan_112/Julia/0003.jpg \
+--image_two_path ./data/golovan_112/Julia/0001.jpg \
 --distance_metric 0
 
 ##### SAME            without extract_feature distance = [0.8795128]
 python3 demo_compare_images.py \
 --model ./pth/IR_50_MODEL_centerloss_casia_epoch16.pth \
---image_one_path ./data/golovan_160/Julia/0003.png \
---image_two_path ./data/golovan_160/Julia/0004.png \
+--image_one_path ./data/golovan_112/Julia/0003.jpg \
+--image_two_path ./data/golovan_112/Julia/0004.jpg \
 --distance_metric 0
 
 ##### SAME            without extract_feature distance = [0.50008076]
 python3 demo_compare_images.py \
 --model ./pth/IR_50_MODEL_centerloss_casia_epoch16.pth \
---image_one_path ./data/golovan_160/Eugene/IMG_9489.png \
---image_two_path ./data/golovan_160/Eugene/IMG_E7066.png \
+--image_one_path ./data/golovan_112/Eugene/IMG_9489.jpg \
+--image_two_path ./data/golovan_112/Eugene/IMG_E7066.jpg \
 --distance_metric 0
 
 ##### SAME            without extract_feature distance = [0.25166833]
 python3 demo_compare_images.py \
 --model ./pth/IR_50_MODEL_centerloss_casia_epoch16.pth \
---image_one_path ./data/golovan_160/Alex/harfds.png \
---image_two_path ./data/golovan_160/Alex/hawefd.png \
+--image_one_path ./data/golovan_112/Alex/harfds.jpg \
+--image_two_path ./data/golovan_112/Alex/hawefd.jpg \
 --distance_metric 0
 
 

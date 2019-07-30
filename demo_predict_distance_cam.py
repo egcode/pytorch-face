@@ -12,7 +12,7 @@ COSFACE LOSS-Eugene Casia
 #################################################################################
 
 python3 demo_predict_distance_cam.py \
---model ./pth/IR_50_MODEL_cosface_casia_epoch51.pth \
+--model ./pth/IR_50_MODEL_cosface_casia_epoch66_lfw9858.pth \
 --embeddings_premade ./output_arrays/embeddings_cosface_1.npy \
 --label_string_center ./output_arrays/label_strings_cosface_1.npy \
 --labels_center ./output_arrays/labels_cosface_1.npy
@@ -86,7 +86,7 @@ from models.irse import *
 from helpers import *
 from pdb import set_trace as bp
 
-max_threshold = 0.9 # if distance larger than this value, class labeled as 'unknown_class'
+max_threshold = 1.0 # if distance larger than this value, class labeled as 'unknown_class'
 
 unknown_class = "unknown"  # unknown folder
 
@@ -182,6 +182,11 @@ def main(ARGS):
     model.to(device)
     model.eval()
 
+    transforms = T.Compose([
+        T.Resize([112, 112]),
+        T.ToTensor(),
+        T.Normalize(mean=[0.5], std=[0.5])
+    ])
 
     while True:
 
@@ -200,8 +205,10 @@ def main(ARGS):
             # phase_train_placeholder = tf.get_default_graph().get_tensor_by_name("phase_train:0")
 
             pil_image = Image.fromarray(face.image, mode='RGB')
-            # pil_image.save('pilllllllll.png')
-            image_data_rgb = np.asarray(pil_image) # shape=(160, 160, 3)  color_array=(255, 255, 255)
+            # pil_image = transforms(pil_image)
+            # pil_image = pil_image.permute(1, 2, 0)
+
+            image_data_rgb = np.asarray(pil_image) # shape=(112, 112, 3)  color_array=(255, 255, 255)
             ccropped, flipped = crop_and_flip(image_data_rgb, for_dataloader=False)
 
             with torch.no_grad():
@@ -219,10 +226,10 @@ def main(ARGS):
         for i in range(len(faces)):
             for j in range(nrof_premade):
                 face = faces[i]
-                dist = np.sqrt(np.sum(np.square(np.subtract(face.embedding, embeddings_premade[j,:]))))
+                # dist = np.sqrt(np.sum(np.square(np.subtract(face.embedding, embeddings_premade[j,:]))))
                 
-                # dist = distance(face.embedding, embeddings_premade[j,:].reshape((1, 512)), ARGS.distance_metric)
-                # print("Distance: {}".format(dist))
+                dist = distance(face.embedding, embeddings_premade[j,:].reshape((1, 512)), ARGS.distance_metric)
+                print("Distance: {}".format(dist))
 
                 label = label_string_center[j]
                 if label in face.all_results_dict: # if label value in dictionary

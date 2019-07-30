@@ -114,7 +114,7 @@ COSFACE LOSS-Eugene Casia
 #################################################################################
 
 ## ALL FAMILY
-python3 demo_export_embeddings.py ./pth/IR_50_MODEL_cosface_casia_epoch51.pth ./data/golovan_112/ \
+python3 demo_export_embeddings.py ./pth/IR_50_MODEL_cosface_casia_epoch66_lfw9858.pth ./data/golovan_112/ \
 --is_aligned 1 \
 --with_demo_images 1 \
 --image_size 112 \
@@ -124,7 +124,7 @@ python3 demo_export_embeddings.py ./pth/IR_50_MODEL_cosface_casia_epoch51.pth ./
 --labels_strings_name label_strings_cosface_1.npy
 
 ## SHORT
-python3 demo_export_embeddings.py ./pth/IR_50_MODEL_cosface_casia_epoch51.pth ./data/golovan_160/ \
+python3 demo_export_embeddings.py ./pth/IR_50_MODEL_cosface_casia_epoch26_lfw9895.pth ./data/golovan_160/ \
 --is_aligned 1 \
 --with_demo_images 1 \
 --image_size 112 \
@@ -135,7 +135,7 @@ python3 demo_export_embeddings.py ./pth/IR_50_MODEL_cosface_casia_epoch51.pth ./
 
 
 ## SHORT NOT ALIGNED
-python3 demo_export_embeddings.py ./pth/IR_50_MODEL_cosface_casia_epoch51.pth ./data/golovan_160/ \
+python3 demo_export_embeddings.py ./pth/IR_50_MODEL_cosface_casia_epoch26_lfw9895.pth ./data/golovan_160/ \
 --is_aligned 0 \
 --with_demo_images 1 \
 --image_size 112 \
