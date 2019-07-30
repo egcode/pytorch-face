@@ -182,11 +182,11 @@ def main(ARGS):
     model.to(device)
     model.eval()
 
-    transforms = T.Compose([
-        T.Resize([112, 112]),
-        T.ToTensor(),
-        T.Normalize(mean=[0.5], std=[0.5])
-    ])
+    # transforms = T.Compose([
+    #     T.Resize([112, 112]),
+    #     T.ToTensor(),
+    #     T.Normalize(mean=[0.5], std=[0.5])
+    # ])
 
     while True:
 
@@ -205,6 +205,7 @@ def main(ARGS):
             # phase_train_placeholder = tf.get_default_graph().get_tensor_by_name("phase_train:0")
 
             pil_image = Image.fromarray(face.image, mode='RGB')
+    
             # pil_image = transforms(pil_image)
             # pil_image = pil_image.permute(1, 2, 0)
 
@@ -229,7 +230,7 @@ def main(ARGS):
                 # dist = np.sqrt(np.sum(np.square(np.subtract(face.embedding, embeddings_premade[j,:]))))
                 
                 dist = distance(face.embedding, embeddings_premade[j,:].reshape((1, 512)), ARGS.distance_metric)
-                print("Distance: {}".format(dist))
+                # print("Distance: {}".format(dist))
 
                 label = label_string_center[j]
                 if label in face.all_results_dict: # if label value in dictionary
