@@ -12,7 +12,7 @@ COSFACE LOSS-Eugene Casia
 #################################################################################
 
 python3 demo_predict_distance_cam.py \
---model ./pth/IR_50_MODEL_cosface_casia_epoch66_lfw9858.pth \
+--model ./pth/IR_50_MODEL_cosface_casia_epoch26_lfw9895.pth \
 --embeddings_premade ./output_arrays/embeddings_cosface_1.npy \
 --label_string_center ./output_arrays/label_strings_cosface_1.npy \
 --labels_center ./output_arrays/labels_cosface_1.npy
@@ -86,7 +86,7 @@ from models.irse import *
 from helpers import *
 from pdb import set_trace as bp
 
-max_threshold = 1.0 # if distance larger than this value, class labeled as 'unknown_class'
+max_threshold = 1.5 # if distance larger than this value, class labeled as 'unknown_class'
 
 unknown_class = "unknown"  # unknown folder
 
