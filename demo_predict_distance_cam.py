@@ -15,7 +15,8 @@ python3 demo_predict_distance_cam.py \
 --model ./pth/IR_50_MODEL_cosface_casia_epoch26_lfw9895.pth \
 --embeddings_premade ./output_arrays/embeddings_cosface_1.npy \
 --label_string_center ./output_arrays/label_strings_cosface_1.npy \
---labels_center ./output_arrays/labels_cosface_1.npy
+--labels_center ./output_arrays/labels_cosface_1.npy \
+--show_distance 1 \
 --distance_metric 1
 
 
@@ -29,7 +30,7 @@ python3 demo_predict_distance_cam.py \
 --model ./pth/IR_50_MODEL_centerloss_casia_epoch16.pth \
 --embeddings_premade ./output_arrays/embeddings_center_1.npy \
 --label_string_center ./output_arrays/label_strings_center_1.npy \
---labels_center ./output_arrays/labels_center_1.npy
+--labels_center ./output_arrays/labels_center_1.npy \
 --distance_metric 0
 
 
@@ -43,7 +44,7 @@ python3 demo_predict_distance_cam.py \
 --model ./pth/IR_50_MODEL_arcface_casia_epoch21.pth \
 --embeddings_premade ./output_arrays/embeddings_arcface_1.npy \
 --label_string_center ./output_arrays/label_strings_arcface_1.npy \
---labels_center ./output_arrays/labels_arcface_1.npy
+--labels_center ./output_arrays/labels_arcface_1.npy \
 --distance_metric 1
 
 
@@ -58,7 +59,7 @@ python3 demo_predict_distance_cam.py \
 --model ./pth/backbone_ir50_ms1m_epoch120.pth \
 --embeddings_premade ./output_arrays/embeddings_arcface_1.npy \
 --label_string_center ./output_arrays/label_strings_arcface_1.npy \
---labels_center ./output_arrays/labels_arcface_1.npy
+--labels_center ./output_arrays/labels_arcface_1.npy \
 --distance_metric 1
 
 '''
@@ -86,7 +87,7 @@ from models.irse import *
 from helpers import *
 from pdb import set_trace as bp
 
-max_threshold = 1.5 # if distance larger than this value, class labeled as 'unknown_class'
+max_threshold = 0.5 # if distance larger than this value, class labeled as 'unknown_class'
 
 unknown_class = "unknown"  # unknown folder
 
@@ -245,7 +246,7 @@ def main(ARGS):
             # print(faces[i].all_results_dict)
             faces[i].parse_all_results_dict()
 
-        add_overlays(frame, faces)
+        add_overlays(frame, faces, ARGS)
 
         cv2.imshow("Frame", frame)
         key = cv2.waitKey(1) & 0xFF
@@ -260,7 +261,7 @@ def main(ARGS):
     video_capture.release()
     cv2.destroyAllWindows()
 
-def add_overlays(frame, faces):
+def add_overlays(frame, faces, ARGS):
     color_positive = (0, 255, 0)
     color_negative = (0, 0, 255)
     if faces is not None:
@@ -279,14 +280,13 @@ def add_overlays(frame, faces):
                           (face_bb[0], face_bb[1]), (face_bb[2], face_bb[3]),
                           color, 2)
 
-            if face.name == unknown_class:
-                    cv2.putText(frame, name, (face_bb[0], face_bb[3]),
-                            cv2.FONT_HERSHEY_SIMPLEX, 1, color,
-                            thickness=2, lineType=2)
-            elif face.name is not None and face.name:
-                    cv2.putText(frame, name + " " + str(round(face.distance, 2)), (face_bb[0], face_bb[3]),
-                            cv2.FONT_HERSHEY_SIMPLEX, 1, color,
-                            thickness=2, lineType=2)
+            final_name = name
+            if ARGS.show_distance==1:
+                final_name = name + " " + str(round(face.distance, 2))
+            
+            cv2.putText(frame, final_name, (face_bb[0], face_bb[3]),
+                    cv2.FONT_HERSHEY_SIMPLEX, 1, color,
+                    thickness=2, lineType=2)
 
 
 def parse_arguments(argv):
@@ -299,6 +299,7 @@ def parse_arguments(argv):
     parser.add_argument('--embeddings_premade', type=str, help='Premade embeddings array .npy format')
     parser.add_argument('--label_string_center', type=str, help='Premade label strings array .npy format')
     parser.add_argument('--labels_center', type=str, help='Premade labels integers array .npy format')
+    parser.add_argument('--show_distance', type=int, help='Show distance on label 0:False 1:True', default=0)
     parser.add_argument('--distance_metric', type=int, help='Type of distance metric to use. 0: Euclidian, 1:Cosine similarity distance.', default=0)
     return parser.parse_args(argv)
 
