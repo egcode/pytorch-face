@@ -460,6 +460,7 @@ stats for mnist arcface
 ##### Nvidia Tesla T4   - Total time: 0:05:47
 ##### Nvidia Tesla P100 - Total time: 0:05:19
 ##### Nvidia Tesla V100 - Total time: 0:03:42
+##### Geforce 2080ti - Total time: 0:02:46
 
 stats for mnist arcface  CASIA_and_Golovan_160 - one epoch
 ##### Nvidia Tesla T4   - Total time: 0:54:00 - APEX
