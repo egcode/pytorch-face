@@ -5,38 +5,24 @@ from __future__ import print_function
 """Performs face alignment and stores face thumbnails in the output directory."""
 '''
 for N in {1..4}; do \
-python3 align/align_dataset_mtcnn.py \
-./data/lfw \
-./data/lfw_112 \
+python3 align_dataset_mtcnn.py \
+../data/lfw \
+../data/lfw_112 \
 --image_size 112 \
 --margin 32 \
 --random_order \
 --gpu_memory_fraction 0.25 \
 & done
 
-
-for N in {1..4}; do \
-python3 align/align_dataset_mtcnn.py \
-./data/calfw \
-./data/calfw_112 \
+for N in {1..10}; do \
+python3 align_dataset_mtcnn.py \
+../data/MS_Celeb_1M_raw \
+../data/MS_Celeb_1M_112 \
 --image_size 112 \
 --margin 32 \
 --random_order \
---gpu_memory_fraction 0.25 \
+--gpu_memory_fraction 0.1 \
 & done
-
-
-for N in {1..2}; do \
-python3 align/align_dataset_mtcnn.py \
-./data/cplfw \
-./data/cplfw_112 \
---image_size 112 \
---margin 32 \
---random_order \
---gpu_memory_fraction 0.25 \
-& done
-
-
 '''
 # MIT License
 # 
@@ -66,7 +52,7 @@ import os
 import argparse
 import tensorflow as tf
 import numpy as np
-import align.detect_face
+import detect_face
 import random
 from time import sleep
 
@@ -144,7 +130,7 @@ def main(ARGS):
         gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=ARGS.gpu_memory_fraction)
         sess = tf.Session(config=tf.ConfigProto(gpu_options=gpu_options, log_device_placement=False))
         with sess.as_default():
-            pnet, rnet, onet = align.detect_face.create_mtcnn(sess, None)
+            pnet, rnet, onet = detect_face.create_mtcnn(sess, None)
     
     minsize = 20 # minimum size of face
     threshold = [ 0.6, 0.7, 0.7 ]  # three steps's threshold
@@ -189,7 +175,7 @@ def main(ARGS):
                             img = to_rgb(img)
                         img = img[:,:,0:3]
     
-                        bounding_boxes, _ = align.detect_face.detect_face(img, minsize, pnet, rnet, onet, threshold, factor)
+                        bounding_boxes, _ = detect_face.detect_face(img, minsize, pnet, rnet, onet, threshold, factor)
                         nrof_faces = bounding_boxes.shape[0]
                         if nrof_faces>0:
                             det = bounding_boxes[:,0:4]
