@@ -14,14 +14,14 @@ python3 align_dataset_mtcnn.py \
 --gpu_memory_fraction 0.25 \
 & done
 
-for N in {1..10}; do \
+for N in {1..8}; do \
 python3 align_dataset_mtcnn.py \
 ../data/MS_Celeb_1M_raw \
 ../data/MS_Celeb_1M_112 \
 --image_size 112 \
 --margin 32 \
 --random_order \
---gpu_memory_fraction 0.1 \
+--gpu_memory_fraction 0.125 \
 & done
 '''
 # MIT License
