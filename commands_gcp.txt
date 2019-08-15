@@ -256,6 +256,8 @@ pip3 install torch_nightly -f https://download.pytorch.org/whl/nightly/cu100/tor
 ###rest of stuff
 conda install py-opencv
 conda install tensorflow-gpu
+conda install scipy=1.1.0
+
 
 import torch; print("Pytorch version:  " + str(torch.__version__));print("Use CUDA: " + str(torch.cuda.is_available()));print("cudnn enabled: " + str(torch.backends.cudnn.enabled));print("Cuda Version: " + str(torch.version.cuda))
 
