@@ -496,6 +496,12 @@ find . -type f -name "*.jpg" | wc -l
 #or
 ls -lR | grep --count \.jpg$
 
+# find files not matching extension
+find . -type f -not -name "*.jpg" -exec ls -l {} \;
+
+# delete files not mathing extension
+find . -type f -not -name "*.jpg" -delete
+
 # count folders in directory
 find . -mindepth 1 -maxdepth 1 -type d | wc -l
 
