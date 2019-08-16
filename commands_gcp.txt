@@ -496,7 +496,6 @@ find . -type f -name "*.jpg" | wc -l
 #or
 ls -lR | grep --count \.jpg$
 
-
 # count folders in directory
 find . -mindepth 1 -maxdepth 1 -type d | wc -l
 
