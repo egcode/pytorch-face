@@ -509,5 +509,8 @@ find . -type f | sed -n 's/..*\.//p' | sort | uniq -c
 # Delete files with specific extension
 find . -type f -iname \*.jpg -delete
 
+# Delete empty directory
+find . -empty -type d -delete
+
 # Difference folders difference file
 vimdiff <(cd calfw/aligned_images/; find . | sort) <(cd calfw_112/aligned_images/; find . | sort)
