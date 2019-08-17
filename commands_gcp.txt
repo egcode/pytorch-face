@@ -350,7 +350,7 @@ python3 train.py \
 ===================================================
 EXAMPLES COSFACE:
 
-# COSFACE Epoch-26
+# COSFACE CASIA Epoch-26
 # LFW-0.9895 
 # CALFW-0.8812  
 # CPLFW-0.797
@@ -369,22 +369,6 @@ python3 train.py \
 --lr 0.1 \
 --lr_schedule_steps 25 40 60 \
 --lr_gamma 0.1
-
-#percent example
-python3 train.py \
---data_dir ./data/ttt \
---batch_size 64 \
---batch_size_test 64 \
---validate_batch_size 64 \
---criterion_type cosface \
---margin_s 64.0 \
---margin_m 0.35 \
---validation_set_split_ratio 0.0 \
---lr 0.1 \
---lr_schedule_steps 25 40 60 \
---lr_gamma 0.1 \
---model_save_interval_percent 10
-
 
 
 # COSFACE DeepGlint_112 Epoch-
@@ -407,6 +391,27 @@ python3 train.py \
 --lr_schedule_steps 25 40 60 \
 --lr_gamma 0.1 \
 --model_save_interval_percent 10
+--model_save_latest_path ./pth_latest \
+--model_save_interval_percent_tag _percent
+
+# RESTORE DeepGlint_112
+python3 train.py \
+--model_path ./pth/IR_50_latest.pth \
+--loss_path ./pth/cosface_latest.pth \
+--data_dir ./data/DeepGlint_112 \
+--batch_size 64 \
+--batch_size_test 64 \
+--validate_batch_size 64 \
+--criterion_type cosface \
+--margin_s 64.0 \
+--margin_m 0.35 \
+--validation_set_split_ratio 0.0 \
+--lr 0.1 \
+--lr_schedule_steps 25 40 60 \
+--lr_gamma 0.1 \
+--model_save_interval_percent 10 \
+--model_save_latest_path ./pth_latest \
+--model_save_interval_percent_tag _percent
 ===================================================
 
 tensorboard --logdir=old:out/2019-07-20___18-13-10/tensorboard,new:out/2019-07-21___14-45-41/tensorboard
