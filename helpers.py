@@ -26,7 +26,7 @@ def save_model(ARGS, type, model_dir, model, log_file_path, epoch):
             os.makedirs(ARGS.model_save_latest_path)
         latest_save_path = os.path.join(ARGS.model_save_latest_path, type + '_' + 'latest' + '.pth')
         print_and_log(log_file_path, "Saving latest model: " + str(latest_save_path))
-        torch.save(model.state_dict(), save_path) 
+        torch.save(model.state_dict(), latest_save_path) 
 
 def write_arguments_to_file(ARGS, filename):
     with open(filename, 'w') as f:
