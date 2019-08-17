@@ -29,10 +29,11 @@ def save_model(ARGS, type, model_dir, model, log_file_path, epoch):
         torch.save(model.state_dict(), latest_save_path) 
 
 def removePercentTaggedFile(tag, model_dir):
-    for _, _, files in os.walk(model_dir):
+    for subdir, _, files in os.walk(model_dir):
         for file in files:
             if tag in file:
-                os.remove(file)
+                filepath = os.path.join(subdir, file)
+                os.remove(filepath)
 
 def write_arguments_to_file(ARGS, filename):
     with open(filename, 'w') as f:
