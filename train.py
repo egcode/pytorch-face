@@ -96,7 +96,7 @@ def train(ARGS, model, device, train_loader, loss_softmax, loss_criterion, optim
 
         if ARGS.model_save_interval_percent != 0 and round(percent) != 0 and round(percent) not in saved_percents_in_epochs:
             if round(percent) % ARGS.model_save_interval_percent == 0:
-                suffix = str(epoch) + "_" + str(round(percent))
+                suffix = str(epoch) + "_" + str(round(percent)) + ARGS.model_save_interval_percent_tag
                 saved_percents_in_epochs.append(round(percent))
                 save_model(ARGS, ARGS.model_type, model_dir, model, log_file_path, suffix)
                 save_model(ARGS, ARGS.criterion_type, model_dir, loss_criterion, log_file_path, suffix)
@@ -119,6 +119,7 @@ def train(ARGS, model, device, train_loader, loss_softmax, loss_criterion, optim
     if epoch % ARGS.model_save_interval == 0 or epoch == ARGS.epochs:
         save_model(ARGS, ARGS.model_type, model_dir, model, log_file_path, epoch)
         save_model(ARGS, ARGS.criterion_type, model_dir, loss_criterion, log_file_path, epoch)
+        removePercentTaggedFile(ARGS.model_save_interval_percent_tag, model_dir)
 
 def test(ARGS, model, device, test_loader, loss_softmax, loss_criterion, log_file_path, logger, epoch):
 
@@ -413,6 +414,7 @@ def parse_arguments(argv):
     # Intervals
     parser.add_argument('--model_save_interval', type=int, help='Save model with every interval epochs.', default=1)
     parser.add_argument('--model_save_interval_percent', type=int, help='Save model with every percent in epoch. Useful with large datasets', default=0)
+    parser.add_argument('--model_save_interval_percent_tag', type=str, help='Percented model saves will be deleted based on tag.', default='percent')
     parser.add_argument('--model_save_latest_path', type=str, help='Save latest saved model path.', default='./pth_latest')
     parser.add_argument('--test_interval', type=int, help='Perform test with every interval epochs.', default=1)
     parser.add_argument('--validate_interval', type=int, help='Perform validation test with every interval epochs.', default=1)    
