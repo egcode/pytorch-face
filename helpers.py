@@ -18,9 +18,15 @@ from pdb import set_trace as bp
 ## Train Helpers
 
 def save_model(ARGS, type, model_dir, model, log_file_path, epoch):
-    save_name = os.path.join(model_dir, type + '_' + str(epoch) + '.pth')
-    print_and_log(log_file_path, "Saving Model name: " + str(save_name))
-    torch.save(model.state_dict(), save_name)        
+    save_path = os.path.join(model_dir, type + '_' + str(epoch) + '.pth')
+    print_and_log(log_file_path, "Saving Model path: " + str(save_path))
+    torch.save(model.state_dict(), save_path) 
+    if ARGS.model_save_latest_path:
+        if not os.path.isdir(ARGS.model_save_latest_path):  # Create the latest saved pth directory if it doesn't exist
+            os.makedirs(ARGS.model_save_latest_path)
+        latest_save_path = os.path.join(ARGS.model_save_latest_path, type + '_' + 'latest' + '.pth')
+        print_and_log(log_file_path, "Saving latest model: " + str(latest_save_path))
+        torch.save(model.state_dict(), save_path) 
 
 def write_arguments_to_file(ARGS, filename):
     with open(filename, 'w') as f:
