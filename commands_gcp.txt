@@ -396,8 +396,8 @@ python3 train.py \
 
 # RESTORE DeepGlint_112
 python3 train.py \
---model_path ./pth/IR_50_latest.pth \
---loss_path ./pth/cosface_latest.pth \
+--model_path ./pth_latest/IR_50_latest.pth \
+--loss_path ./pth_latest/cosface_latest.pth \
 --data_dir ./data/DeepGlint_112 \
 --batch_size 64 \
 --batch_size_test 64 \
