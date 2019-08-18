@@ -41,6 +41,7 @@ CENTER LOSS
 
 ## ALL FAMILY
 python3  app/export_embeddings.py ./pth/IR_50_MODEL_centerloss_casia_epoch16.pth ./data/golovan_160/ \
+--mean_per_class 1 \
 --is_aligned 1 \
 --with_demo_images 1 \
 --image_size 112 \
@@ -56,6 +57,7 @@ COSFACE LOSS-Eugene Casia
 #################################################################################
 
 python3 app/export_embeddings.py ./pth/IR_50_MODEL_cosface_casia_epoch26_lfw9895.pth ./data/golovan_112/ \
+--mean_per_class 1 \
 --is_aligned 1 \
 --with_demo_images 1 \
 --image_size 112 \
@@ -238,13 +240,55 @@ def main(ARGS):
     run_time = time.time() - start_time
     print('Run time: ', run_time)
 
-    #   export emedings and labels
-    np.save(out_dir + ARGS.embeddings_name, emb_array)
-    np.save(out_dir + ARGS.labels, lab_array)
+    if ARGS.mean_per_class==1:
+        print("Exporting embeddings mean for class")
 
+        label_strings = np.array(label_strings)
+        label_strings_all = label_strings[label_list]
 
-    label_strings = np.array(label_strings)
-    np.save(out_dir + ARGS.labels_strings, label_strings[label_list])
+        all_results_dict = {}
+        for j in range(nrof_images):
+            embedding = emb_array[j,:]
+            label = label_strings_all[j]
+            if label in all_results_dict: # if label value in dictionary
+                arr = all_results_dict.get(label)
+                arr.append(embedding)
+            else:
+                all_results_dict[label] = [embedding]
+
+        ## Saving mean
+        nrof_classes = len(classes)
+        emb_array_out = np.zeros((nrof_classes, embedding_size))
+        lab_array_out = np.zeros((0,0))
+        label_strings_out = []
+        
+        embedding_index = 0
+        for key, embeddings_arr in all_results_dict.items():
+
+            numpy_arr = np.array(embeddings_arr)
+            mean = np.mean(numpy_arr, axis=0)
+            emb_array_out[embedding_index] = mean
+
+            lab_array_out = np.append(lab_array_out, embedding_index)
+            embedding_index += 1
+
+            label_strings_out.append(key)
+
+        #   export emedings and labels
+        np.save(out_dir + ARGS.embeddings_name, emb_array_out)
+        np.save(out_dir + ARGS.labels, lab_array_out)
+
+        label_strings = np.array(label_strings_out)
+        np.save(out_dir + ARGS.labels_strings, label_strings)
+
+    else:
+        print("Exporting All embeddings")
+        #   export emedings and labels
+        np.save(out_dir + ARGS.embeddings_name, emb_array)
+        np.save(out_dir + ARGS.labels, lab_array)
+
+        label_strings = np.array(label_strings)
+        np.save(out_dir + ARGS.labels_strings, label_strings[label_list])
 
 
 def load_and_align_data(image_path, image_size, margin, gpu_memory_fraction):
@@ -282,6 +326,7 @@ def parse_arguments(argv):
     parser.add_argument('model', type=str, help='pth model file')
     parser.add_argument('data_dir', type=str, help='Directory containing images. If images are not already aligned and cropped include --is_aligned False.')
     parser.add_argument('--output_dir', type=str, help='Dir where to save all embeddings and demo images', default='output_arrays/')
+    parser.add_argument('--mean_per_class', type=int, help='Export mean of all embeddings for each class 0:False 1:True', default=1)
     parser.add_argument('--is_aligned', type=int, help='Is the data directory already aligned and cropped? 0:False 1:True', default=1)
     parser.add_argument('--with_demo_images', type=int, help='Embedding Images 0:False 1:True', default=1)
     parser.add_argument('--image_size', type=int, help='Image size (height, width) in pixels.', default=112)
