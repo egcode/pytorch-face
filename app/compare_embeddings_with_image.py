@@ -14,8 +14,8 @@ python3 app/compare_embeddings_with_image.py \
 --model ./pth/IR_50_MODEL_centerloss_casia_epoch16.pth \
 --image_path ./data/test_images/eugene1.png \
 --embeddings_premade ./output_arrays/embeddings_center_1.npy \
---label_string_center ./output_arrays/label_strings_center_1.npy \
---labels_center ./output_arrays/labels_center_1.npy \
+--label_strings ./output_arrays/label_strings_center_1.npy \
+--labels ./output_arrays/labels_center_1.npy \
 --distance_metric 0
 
 #################################################################################
@@ -29,8 +29,8 @@ python3 app/compare_embeddings_with_image.py \
 --model ./pth/IR_50_MODEL_cosface_casia_epoch66_lfw9858.pth \
 --image_path ./data/test_images/eugene1.png \
 --embeddings_premade ./output_arrays/embeddings_cosface_1.npy \
---label_string_center ./output_arrays/label_strings_cosface_1.npy \
---labels_center ./output_arrays/labels_cosface_1.npy \
+--label_strings ./output_arrays/label_strings_cosface_1.npy \
+--labels ./output_arrays/labels_cosface_1.npy \
 --distance_metric 1
 
 # Liuba Image
@@ -38,8 +38,8 @@ python3 app/compare_embeddings_with_image.py \
 --model ./pth/IR_50_MODEL_cosface_casia_epoch66_lfw9858.pth \
 --image_path ./data/test_images/liuba1.jpg \
 --embeddings_premade ./output_arrays/embeddings_cosface_1.npy \
---label_string_center ./output_arrays/label_strings_cosface_1.npy \
---labels_center ./output_arrays/labels_cosface_1.npy \
+--label_strings ./output_arrays/label_strings_cosface_1.npy \
+--labels ./output_arrays/labels_cosface_1.npy \
 --distance_metric 1
 
 # Julia Image
@@ -47,8 +47,8 @@ python3 app/compare_embeddings_with_image.py \
 --model ./pth/IR_50_MODEL_cosface_casia_epoch66_lfw9858.pth \
 --image_path ./data/test_images/julia1.jpg \
 --embeddings_premade ./output_arrays/embeddings_cosface_1.npy \
---label_string_center ./output_arrays/label_strings_cosface_1.npy \
---labels_center ./output_arrays/labels_cosface_1.npy \
+--label_strings ./output_arrays/label_strings_cosface_1.npy \
+--labels ./output_arrays/labels_cosface_1.npy \
 --distance_metric 1
 
 
@@ -57,8 +57,8 @@ python3 app/compare_embeddings_with_image.py \
 --model ./pth/IR_50_MODEL_cosface_casia_epoch66_lfw9858.pth \
 --image_path ./data/test_images/curen1.jpg \
 --embeddings_premade ./output_arrays/embeddings_cosface_1.npy \
---label_string_center ./output_arrays/label_strings_cosface_1.npy \
---labels_center ./output_arrays/labels_cosface_1.npy \
+--label_strings ./output_arrays/label_strings_cosface_1.npy \
+--labels ./output_arrays/labels_cosface_1.npy \
 --distance_metric 1
 
 # Jeffrey Image
@@ -66,8 +66,8 @@ python3 app/compare_embeddings_with_image.py \
 --model ./pth/IR_50_MODEL_cosface_casia_epoch66_lfw9858.pth \
 --image_path ./data/test_images/jeffrey2.jpg \
 --embeddings_premade ./output_arrays/embeddings_cosface_1.npy \
---label_string_center ./output_arrays/label_strings_cosface_1.npy \
---labels_center ./output_arrays/labels_cosface_1.npy \
+--label_strings ./output_arrays/label_strings_cosface_1.npy \
+--labels ./output_arrays/labels_cosface_1.npy \
 --distance_metric 1
 
 
@@ -76,8 +76,8 @@ python3 app/compare_embeddings_with_image.py \
 --model ./pth/IR_50_MODEL_cosface_casia_epoch66_lfw9858.pth \
 --image_path ./data/test_images/david1.jpg \
 --embeddings_premade ./output_arrays/embeddings_cosface_1.npy \
---label_string_center ./output_arrays/label_strings_cosface_1.npy \
---labels_center ./output_arrays/labels_cosface_1.npy \
+--label_strings ./output_arrays/label_strings_cosface_1.npy \
+--labels ./output_arrays/labels_cosface_1.npy \
 --distance_metric 1
 
 # Alex Image
@@ -85,8 +85,8 @@ python3 app/compare_embeddings_with_image.py \
 --model ./pth/IR_50_MODEL_cosface_casia_epoch66_lfw9858.pth \
 --image_path ./data/test_images/alex3.jpg \
 --embeddings_premade ./output_arrays/embeddings_cosface_1.npy \
---label_string_center ./output_arrays/label_strings_cosface_1.npy \
---labels_center ./output_arrays/labels_cosface_1.npy \
+--label_strings ./output_arrays/label_strings_cosface_1.npy \
+--labels ./output_arrays/labels_cosface_1.npy \
 --distance_metric 1
 
 
@@ -132,8 +132,8 @@ def main(ARGS):
 
     ###### EMBEDDINGS
     embeddings_premade = np.load(ARGS.embeddings_premade, allow_pickle=True)
-    label_string_center = np.load(ARGS.label_string_center, allow_pickle=True)
-    labels_center = np.load(ARGS.labels_center, allow_pickle=True)
+    label_strings = np.load(ARGS.label_strings, allow_pickle=True)
+    labels = np.load(ARGS.labels, allow_pickle=True)
 
     
     ####### Model setup
@@ -159,15 +159,15 @@ def main(ARGS):
         dist = distance(feats, embeddings_premade[j,:], ARGS.distance_metric)
         # dist = spatial.distance.cosine(feats, embeddings_premade[j,:])
 
-        print("Distance with {}: {}".format(label_string_center[j], dist))
+        print("Distance with {}: {}".format(label_strings[j], dist))
 
-        label = label_string_center[j]
+        label = label_strings[j]
         if label in all_results_dict: # if label value in dictionary
             arr = all_results_dict.get(label)
             arr.append(dist)
         else:
             all_results_dict[label] = [dist]
-        # print("candidate: " + str(i) + " distance: " + str(dist) + " with " + label_string_center[j])
+        # print("candidate: " + str(i) + " distance: " + str(dist) + " with " + label_strings[j])
 
 
 
@@ -182,8 +182,8 @@ def parse_arguments(argv):
     parser.add_argument('--model', type=str, help='pth model file')
     parser.add_argument('--image_path', type=str, help='image to compare')
     parser.add_argument('--embeddings_premade', type=str, help='Premade embeddings array .npy format')
-    parser.add_argument('--label_string_center', type=str, help='Premade label strings array .npy format')
-    parser.add_argument('--labels_center', type=str, help='Premade labels integers array .npy format')
+    parser.add_argument('--label_strings', type=str, help='Premade label strings array .npy format')
+    parser.add_argument('--labels', type=str, help='Premade labels integers array .npy format')
     parser.add_argument('--distance_metric', type=int, help='Type of distance metric to use. 0: Euclidian, 1:Cosine similarity distance.', default=0)
     return parser.parse_args(argv)
 
