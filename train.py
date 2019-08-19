@@ -94,12 +94,12 @@ def train(ARGS, model, device, train_loader, loss_softmax, loss_criterion, optim
         time_for_current_epoch = int(time.time() - t)
         percent = 100. * batch_idx / len(train_loader)
 
-        if ARGS.model_save_interval_percent != 0 and round(percent) != 0 and round(percent) not in saved_percents_in_epochs:
-            if round(percent) % ARGS.model_save_interval_percent == 0:
-                suffix = str(epoch) + "_" + str(round(percent)) + ARGS.model_save_interval_percent_tag
-                saved_percents_in_epochs.append(round(percent))
-                save_model(ARGS, ARGS.model_type, model_dir, model, log_file_path, suffix)
-                save_model(ARGS, ARGS.criterion_type, model_dir, loss_criterion, log_file_path, suffix)
+        # if ARGS.model_save_interval_percent != 0 and round(percent) != 0 and round(percent) not in saved_percents_in_epochs:
+        #     if round(percent) % ARGS.model_save_interval_percent == 0:
+        #         suffix = str(epoch) + "_" + str(round(percent)) + ARGS.model_save_interval_percent_tag
+        #         saved_percents_in_epochs.append(round(percent))
+        #         save_model(ARGS, ARGS.model_type, model_dir, model, log_file_path, suffix)
+        #         save_model(ARGS, ARGS.criterion_type, model_dir, loss_criterion, log_file_path, suffix)
 
         log = 'Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f} \tbatch_time: {}   Total time for epoch: {}'.format(
             epoch, batch_idx * len(data), len(train_loader.dataset),
@@ -119,7 +119,7 @@ def train(ARGS, model, device, train_loader, loss_softmax, loss_criterion, optim
     if epoch % ARGS.model_save_interval == 0 or epoch == ARGS.epochs:
         save_model(ARGS, ARGS.model_type, model_dir, model, log_file_path, epoch)
         save_model(ARGS, ARGS.criterion_type, model_dir, loss_criterion, log_file_path, epoch)
-        removePercentTaggedFile(ARGS.model_save_interval_percent_tag, model_dir)
+        # removePercentTaggedFile(ARGS.model_save_interval_percent_tag, model_dir)
 
 def test(ARGS, model, device, test_loader, loss_softmax, loss_criterion, log_file_path, logger, epoch):
 
@@ -413,8 +413,8 @@ def parse_arguments(argv):
     parser.add_argument('--margin_m', type=float, help='margin for loss.', default=0.5)    
     # Intervals
     parser.add_argument('--model_save_interval', type=int, help='Save model with every interval epochs.', default=1)
-    parser.add_argument('--model_save_interval_percent', type=int, help='Save model with every percent in epoch. Useful with large datasets', default=0)
-    parser.add_argument('--model_save_interval_percent_tag', type=str, help='Percented model saves will be saved and deleted based on tag.', default='_percent')
+    # parser.add_argument('--model_save_interval_percent', type=int, help='Save model with every percent in epoch. Useful with large datasets', default=0)
+    # parser.add_argument('--model_save_interval_percent_tag', type=str, help='Percented model saves will be saved and deleted based on tag.', default='_percent')
     parser.add_argument('--model_save_latest_path', type=str, help='Save latest saved model path.', default=None)
     parser.add_argument('--test_interval', type=int, help='Perform test with every interval epochs.', default=1)
     parser.add_argument('--validate_interval', type=int, help='Perform validation test with every interval epochs.', default=1)    
