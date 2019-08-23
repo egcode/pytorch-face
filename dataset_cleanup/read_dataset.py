@@ -88,5 +88,6 @@ with h5py.File('data/dataset.h5', 'r') as f:
                                             distance_threshold=0.8)
         pred = cluster.fit_predict(embeddings_array)
         print("\nPRED: " + str(pred))
+        print("LABELS: " + str(np.array(label_strings_array)))
         print("labels count: " + str(len(label_strings_array)))
         print("Cluster labels count: " + str(len(cluster.labels_)))
