@@ -31,6 +31,7 @@ import os
 import h5py
 import numpy as np
 
+from pdb import set_trace as bp
 ## Reading From File
 # with h5py.File('data/dataset.h5', 'r') as f:
 #     for person in f.keys():
@@ -51,7 +52,7 @@ from sklearn.cluster import AgglomerativeClustering
 # Data for each person
 with h5py.File('data/dataset.h5', 'r') as f:
     for person in f.keys():
-        print("personName: " + str(person))
+        print("\npersonName: " + str(person))
 #         print("personLabel: " + str(f[person].attrs['label']))
 
         nrof_images = len(f[person].keys())
@@ -87,7 +88,10 @@ with h5py.File('data/dataset.h5', 'r') as f:
                                             compute_full_tree=True,
                                             distance_threshold=0.8)
         pred = cluster.fit_predict(embeddings_array)
-        print("\nPRED: " + str(pred))
+        print("PRED: " + str(pred))
+        uniq_labels, uniq_count = np.unique(pred, return_counts=True)
+        # print("unique labels: " + str(uniq_labels) + "    " + "unique count: " + str(uniq_count))
+        print("most often unique label: " + str(uniq_labels[0]) + "  we will only save this label from cluster")
+
+
         print("LABELS: " + str(np.array(label_strings_array)))
-        print("labels count: " + str(len(label_strings_array)))
-        print("Cluster labels count: " + str(len(cluster.labels_)))
