@@ -76,5 +76,5 @@ with h5py.File('data/dataset.h5', 'r') as f:
 
         plt.figure(figsize=(10, 7))
         plt.title(str(person))
-        dend = shc.dendrogram(shc.linkage(embeddings_array, method='ward'),labels=label_strings_array)
+        dend = shc.dendrogram(shc.linkage(embeddings_array, method='ward'),labels=label_strings_array,color_threshold=1.0)
         plt.show()
