@@ -110,16 +110,20 @@ def writePerson(h5_filename, person_name, person_label, image_name, image_path, 
         image_path=/path/to/Alex/a1.jpg'
         embedding=[-1.40146054e-02,  2.31648367e-02, -8.39150697e-02......]
     '''
-    bp()
     with h5py.File(h5_filename, 'a') as f:
         
-        #### Person1 Folder
-        person_grp = f.create_group(person_name)
-        person_grp.attrs['label'] = person_label
+        if person_name in f.keys():
+            person_subgroup = f[person_name].create_group(image_name)
+            person_subgroup.create_dataset('embedding',  data=embedding)  
+            person_subgroup.attrs["file_path"] = np.string_(image_path)
 
-        person_subgroup = person_grp.create_group(image_name)
-        person_subgroup.create_dataset('embedding',  data=embedding)  
-        person_subgroup.attrs["file_path"] = np.string_(image_path)
+        else:
+            person_grp = f.create_group(person_name)
+            person_grp.attrs['label'] = person_label
+
+            person_subgroup = person_grp.create_group(image_name)
+            person_subgroup.create_dataset('embedding',  data=embedding)  
+            person_subgroup.attrs["file_path"] = np.string_(image_path)
 
 
 def main(ARGS):
@@ -199,7 +203,7 @@ def parse_arguments(argv):
     parser = argparse.ArgumentParser()
     parser.add_argument('model', type=str, help='pth model file')
     parser.add_argument('data_dir', type=str, help='Directory containing images.')
-    parser.add_argument('--output_dir', type=str, help='Dir where to save dataset', default='output_dataset/')
+    parser.add_argument('--output_dir', type=str, help='Dir where to save dataset', default='data/')
     parser.add_argument('--image_size', type=int, help='Image size (height, width) in pixels.', default=112)
     parser.add_argument('--image_batch', type=int, help='Number of images stored in memory at a time. Default 64.', default=64)
     parser.add_argument('--num_workers', type=int, help='Number of threads to use for data pipeline.', default=8)
