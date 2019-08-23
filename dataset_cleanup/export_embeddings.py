@@ -101,20 +101,25 @@ class FacesDataset(data.Dataset):
         return len(self.image_list)
 
 def writePerson(h5_filename, person_name, person_label, image_name, image_path, embedding):
+    '''
+    Example;
+        h5_filename='output_dataset/dataset.h5'
+        person_name='Alex'
+        person_label=0
+        image_name='a1.jpg'
+        image_path=/path/to/Alex/a1.jpg'
+        embedding=[-1.40146054e-02,  2.31648367e-02, -8.39150697e-02......]
+    '''
     bp()
     with h5py.File(h5_filename, 'a') as f:
         
         #### Person1 Folder
-        person1_grp = f.create_group('person1_name')
-        person1_grp.attrs['label'] = 0
+        person_grp = f.create_group(person_name)
+        person_grp.attrs['label'] = person_label
 
-        person1_subgroup_1 = person1_grp.create_group('person1_subgroup_1')
-        person1_subgroup_1.create_dataset('embedding',  data=[4.5, 2.1, 9.9])  
-        person1_subgroup_1.attrs["file_path"] = np.string_('/path/to/file1')
-
-        person1_subgroup_2 = person1_grp.create_group('person1_subgroup_2')
-        person1_subgroup_2.create_dataset('embedding',  data=[84.5, 32.32, 10.1])  
-        person1_subgroup_2.attrs["file_path"] = np.string_('/path/to/file123')
+        person_subgroup = person_grp.create_group(image_name)
+        person_subgroup.create_dataset('embedding',  data=embedding)  
+        person_subgroup.attrs["file_path"] = np.string_(image_path)
 
 
 def main(ARGS):
@@ -179,7 +184,7 @@ def main(ARGS):
                 person_name = name[j]
                 image_path = absolute_paths[j]
                 image_name = os.path.basename(absolute_paths[j])
-                writePerson(ARGS.h5_name, person_name, person_label, image_name, image_path, person_embedding)
+                writePerson(out_dir+ARGS.h5_name, person_name, person_label, image_name, image_path, person_embedding)
             
             if i % 10 == 9:
                 print('.', end='')
@@ -194,11 +199,10 @@ def parse_arguments(argv):
     parser = argparse.ArgumentParser()
     parser.add_argument('model', type=str, help='pth model file')
     parser.add_argument('data_dir', type=str, help='Directory containing images.')
-    parser.add_argument('--output_dir', type=str, help='Dir where to save all embeddings and demo images', default='output_arrays/')
+    parser.add_argument('--output_dir', type=str, help='Dir where to save dataset', default='output_dataset/')
     parser.add_argument('--image_size', type=int, help='Image size (height, width) in pixels.', default=112)
     parser.add_argument('--image_batch', type=int, help='Number of images stored in memory at a time. Default 64.', default=64)
     parser.add_argument('--num_workers', type=int, help='Number of threads to use for data pipeline.', default=8)
-
     parser.add_argument('--h5_name', type=str, help='h5 file name', default='dataset.h5')
     return parser.parse_args(argv)
 
