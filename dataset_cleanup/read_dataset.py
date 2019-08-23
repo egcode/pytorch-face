@@ -75,11 +75,16 @@ with h5py.File('data/dataset.h5', 'r') as f:
             print("\t\tembedding data: " + str(f[person][subgroup]['embedding'][:4]))
             print("\t\tpath data: " + str(f[person][subgroup].attrs['file_path']))
 
-        plt.figure(figsize=(10, 7))
-        plt.title(str(person))
-        dend = shc.dendrogram(shc.linkage(embeddings_array, method='single'),labels=label_strings_array,color_threshold=1.0)
-        plt.show()
+        # plt.figure(figsize=(10, 7))
+        # plt.title(str(person))
+        # dend = shc.dendrogram(shc.linkage(embeddings_array, method='single'),labels=label_strings_array,color_threshold=1.0)
+        # plt.show()
 
 
-        # cluster = AgglomerativeClustering(n_clusters=5, affinity='euclidean', linkage='single')
-        # cluster.fit_predict(data)
+        cluster = AgglomerativeClustering(n_clusters=None, 
+                                            affinity='euclidean', 
+                                            linkage='single',
+                                            compute_full_tree=True,
+                                            distance_threshold=1.0)
+        pred = cluster.fit_predict(embeddings_array)
+        print("\n\nPRED: " + str(pred))
