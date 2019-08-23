@@ -57,7 +57,7 @@ with h5py.File('data/dataset.h5', 'r') as f:
         embedding_size = 512
         embeddings_array = np.zeros((nrof_images, embedding_size))
         label_array = np.zeros((0,0))
-        label_strings_array = np.zeros((0,0))
+        label_strings_array = []
 
         print("\tembedding array shape: " + str(embeddings_array.shape))
         print("\tnumber of images: " + str(nrof_images) + "  embedding size: " + str(embedding_size))
@@ -66,7 +66,7 @@ with h5py.File('data/dataset.h5', 'r') as f:
             print("\tlabel: " + str(i))
             embeddings_array[i, :] = f[person][subgroup]['embedding'][:]
             label_array = np.append(label_array, i)
-            
+            label_strings_array.append(str(subgroup))
             
             print("\tsubgroup: " + str(subgroup))
             print("\t\tembedding data shape: " + str(f[person][subgroup]['embedding'][:].shape))
@@ -76,5 +76,5 @@ with h5py.File('data/dataset.h5', 'r') as f:
 
         plt.figure(figsize=(10, 7))
         plt.title(str(person))
-        dend = shc.dendrogram(shc.linkage(embeddings_array, method='ward'))
+        dend = shc.dendrogram(shc.linkage(embeddings_array, method='ward'),labels=label_strings_array)
         plt.show()
