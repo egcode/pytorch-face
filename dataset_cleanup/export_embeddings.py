@@ -96,6 +96,21 @@ class FacesDataset(data.Dataset):
     def __len__(self):
         return len(self.image_list)
 
+def writePerson(h5_filename, person_name, image_name, image_path, embedding):
+    with h5py.File(h5_filename, 'a') as f:
+
+        #### Person1 Folder
+        person1_grp = f.create_group('person1_name')
+
+        person1_subgroup_1 = person1_grp.create_group('person1_subgroup_1')
+        person1_subgroup_1.create_dataset('embedding',  data=[4.5, 2.1, 9.9])  
+        person1_subgroup_1.attrs["file_path"] = np.string_('/path/to/file1')
+
+        person1_subgroup_2 = person1_grp.create_group('person1_subgroup_2')
+        person1_subgroup_2.create_dataset('embedding',  data=[84.5, 32.32, 10.1])  
+        person1_subgroup_2.attrs["file_path"] = np.string_('/path/to/file123')
+
+
 def main(ARGS):
     
     np.set_printoptions(threshold=sys.maxsize)
@@ -165,7 +180,10 @@ def main(ARGS):
 
             for j in range(len(ccropped)):
                 emb_array[j+batch_ind, :] = emb[j, :]
-            
+
+                bp()
+                writePerson(ARGS.h5_name, person_name, image_name, image_path, embedding)
+
             lab_array = np.append(lab_array,lab)
             
             # print("\n")
