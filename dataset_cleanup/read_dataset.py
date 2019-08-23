@@ -81,10 +81,12 @@ with h5py.File('data/dataset.h5', 'r') as f:
         # plt.show()
 
 
-        cluster = AgglomerativeClustering(n_clusters=None, 
-                                            affinity='euclidean', 
+        cluster = AgglomerativeClustering(n_clusters=None,
+                                            affinity='cosine', 
                                             linkage='single',
                                             compute_full_tree=True,
-                                            distance_threshold=1.0)
+                                            distance_threshold=0.5)
         pred = cluster.fit_predict(embeddings_array)
         print("\n\nPRED: " + str(pred))
+        print("labels count: " + str(len(label_strings_array)))
+        print("Cluster labels count: " + str(len(cluster.labels_)))
