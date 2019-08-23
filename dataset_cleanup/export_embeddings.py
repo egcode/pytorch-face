@@ -35,6 +35,7 @@ import h5py
 
 '''
 person1_name
+    label    0
     person1_subgroup_1
         file_path    '/path/to/file1'
         embedding    [4.5, 2.1, 9.9]
@@ -43,6 +44,7 @@ person1_name
         embedding    [84.5, 32.32, 10.1]
 
 person2_name
+    label    1
     person2_subgroup_1
         file_path    '/path/to/file4444'
         embedding    [1.1, 2.1, 2.9]
@@ -96,11 +98,13 @@ class FacesDataset(data.Dataset):
     def __len__(self):
         return len(self.image_list)
 
-def writePerson(h5_filename, person_name, image_name, image_path, embedding):
+def writePerson(h5_filename, person_name, person_label, image_name, image_path, embedding):
+    bp()
     with h5py.File(h5_filename, 'a') as f:
-
+        
         #### Person1 Folder
         person1_grp = f.create_group('person1_name')
+        person1_grp.attrs['label'] = 0
 
         person1_subgroup_1 = person1_grp.create_group('person1_subgroup_1')
         person1_subgroup_1.create_dataset('embedding',  data=[4.5, 2.1, 9.9])  
@@ -154,48 +158,27 @@ def main(ARGS):
 ########################################
     nrof_images = len(image_list)
 
-    emb_array = np.zeros((nrof_images, embedding_size))
-    lab_array = np.zeros((0,0))
-
     batch_ind = 0
     with torch.no_grad():
-        for i, (ccropped, flipped, label, name, apsolute_path) in enumerate(loader):
+        for i, (ccropped, flipped, label, name, absolute_paths) in enumerate(loader):
 
             ccropped, flipped, label = ccropped.to(device), flipped.to(device), label.to(device)
 
-            # feats = model(data)
             feats = extract_norm_features(ccropped, flipped, model, device, tta = True)
             
-            # for j in range(len(ccropped)):
-            #     # bp()
-            #     dist = distance(feats_im.cpu().numpy(), feats[j].view(1,-1).cpu().numpy())
-            #     # dist = distance(feats_im, feats[j])
-            #     print("11111 Distance Eugene with {}  is  {}:".format(name[j], dist))
-
             emb = feats.cpu().numpy()
             lab = label.detach().cpu().numpy()
 
-            # nam_array[lab] = name
-            # lab_array[lab] = lab
-
             for j in range(len(ccropped)):
-                emb_array[j+batch_ind, :] = emb[j, :]
 
-                bp()
-                writePerson(ARGS.h5_name, person_name, image_name, image_path, embedding)
-
-            lab_array = np.append(lab_array,lab)
+                #params
+                person_embedding = emb[j, :]
+                person_label = lab[j]
+                person_name = name[j]
+                image_path = absolute_paths[j]
+                image_name = os.path.basename(absolute_paths[j])
+                writePerson(ARGS.h5_name, person_name, person_label, image_name, image_path, person_embedding)
             
-            # print("\n")
-            # for j in range(len(ccropped)):
-            #     dist = distance(feats_im.cpu().numpy(), np.expand_dims(emb_array[j+batch_ind], axis=0))
-            #     # dist = distance(feats_im, feats[j])
-            #     print("22222 Distance Eugene with {}  is  {}:".format(name[j], dist))
-            # print("\n")
-
-            bp()
-            batch_ind += len(ccropped)
-
             if i % 10 == 9:
                 print('.', end='')
                 sys.stdout.flush()
@@ -203,15 +186,6 @@ def main(ARGS):
 
     run_time = time.time() - start_time
     print('Run time: ', run_time)
-
-    print("Exporting All embeddings")
-    #   export emedings and labels
-    # np.save(out_dir + ARGS.embeddings_name, emb_array)
-    # np.save(out_dir + ARGS.labels, lab_array)
-
-    # label_strings = np.array(label_strings)
-    # np.save(out_dir + ARGS.labels_strings, label_strings[label_list])
-
 
 
 def parse_arguments(argv):
