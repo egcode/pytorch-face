@@ -46,6 +46,7 @@ import numpy as np
 
 import scipy.cluster.hierarchy as shc
 import matplotlib.pyplot as plt
+from sklearn.cluster import AgglomerativeClustering
 
 # Data for each person
 with h5py.File('data/dataset.h5', 'r') as f:
@@ -76,5 +77,9 @@ with h5py.File('data/dataset.h5', 'r') as f:
 
         plt.figure(figsize=(10, 7))
         plt.title(str(person))
-        dend = shc.dendrogram(shc.linkage(embeddings_array, method='ward'),labels=label_strings_array,color_threshold=1.0)
+        dend = shc.dendrogram(shc.linkage(embeddings_array, method='single'),labels=label_strings_array,color_threshold=1.0)
         plt.show()
+
+
+        # cluster = AgglomerativeClustering(n_clusters=5, affinity='euclidean', linkage='single')
+        # cluster.fit_predict(data)
