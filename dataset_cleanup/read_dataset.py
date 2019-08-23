@@ -60,33 +60,33 @@ with h5py.File('data/dataset.h5', 'r') as f:
         label_array = np.zeros((0,0))
         label_strings_array = []
 
-        print("\tembedding array shape: " + str(embeddings_array.shape))
-        print("\tnumber of images: " + str(nrof_images) + "  embedding size: " + str(embedding_size))
+        # print("\tembedding array shape: " + str(embeddings_array.shape))
+        # print("\tnumber of images: " + str(nrof_images) + "  embedding size: " + str(embedding_size))
 
         for i, subgroup in enumerate(f[person].keys()):
-            print("\tlabel: " + str(i))
+            # print("\tlabel: " + str(i))
             embeddings_array[i, :] = f[person][subgroup]['embedding'][:]
             label_array = np.append(label_array, i)
             label_strings_array.append(str(subgroup))
             
-            print("\tsubgroup: " + str(subgroup))
-            print("\t\tembedding data shape: " + str(f[person][subgroup]['embedding'][:].shape))
+            # print("\tsubgroup: " + str(subgroup))
+            # print("\t\tembedding data shape: " + str(f[person][subgroup]['embedding'][:].shape))
 
-            print("\t\tembedding data: " + str(f[person][subgroup]['embedding'][:4]))
-            print("\t\tpath data: " + str(f[person][subgroup].attrs['file_path']))
+            # print("\t\tembedding data: " + str(f[person][subgroup]['embedding'][:4]))
+            # print("\t\tpath data: " + str(f[person][subgroup].attrs['file_path']))
 
         # plt.figure(figsize=(10, 7))
         # plt.title(str(person))
-        # dend = shc.dendrogram(shc.linkage(embeddings_array, method='single'),labels=label_strings_array,color_threshold=1.0)
+        # dend = shc.dendrogram(shc.linkage(embeddings_array, method='average'),labels=label_strings_array,color_threshold=1.0)
         # plt.show()
 
 
         cluster = AgglomerativeClustering(n_clusters=None,
                                             affinity='cosine', 
-                                            linkage='single',
+                                            linkage='average',
                                             compute_full_tree=True,
-                                            distance_threshold=0.5)
+                                            distance_threshold=0.8)
         pred = cluster.fit_predict(embeddings_array)
-        print("\n\nPRED: " + str(pred))
+        print("\nPRED: " + str(pred))
         print("labels count: " + str(len(label_strings_array)))
         print("Cluster labels count: " + str(len(cluster.labels_)))
