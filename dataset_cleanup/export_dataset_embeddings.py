@@ -134,6 +134,9 @@ def main(ARGS):
     if not os.path.isdir(out_dir):  # Create the out directory if it doesn't exist
         os.makedirs(out_dir)
 
+    if os.path.isfile(out_dir+ARGS.h5_name): # remove previous file if exists
+        os.remove(out_dir+ARGS.h5_name)
+
     train_set = get_dataset(ARGS.data_dir)
     image_list, label_list, names_list = get_image_paths_and_labels(train_set)
     faces_dataset = FacesDataset(image_list=image_list, 
@@ -169,7 +172,6 @@ def main(ARGS):
 ########################################
     nrof_images = len(image_list)
 
-    batch_ind = 0
     with torch.no_grad():
         for i, (ccropped, flipped, label, name, absolute_paths) in enumerate(loader):
 
@@ -190,10 +192,11 @@ def main(ARGS):
                 image_name = os.path.basename(absolute_paths[j])
                 writePerson(out_dir+ARGS.h5_name, person_name, person_label, image_name, image_path, person_embedding)
             
-            if i % 10 == 9:
-                print('.', end='')
-                sys.stdout.flush()
-        print('')
+            percent = round(100. * i / len(loader))
+
+            print('.completed {}% '.format(percent), end='\r')
+
+        print('', end='\r')
 
     run_time = time.time() - start_time
     print('Run time: ', run_time)
