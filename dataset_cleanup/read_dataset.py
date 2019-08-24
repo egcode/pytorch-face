@@ -88,10 +88,21 @@ with h5py.File('data/dataset.h5', 'r') as f:
                                             compute_full_tree=True,
                                             distance_threshold=0.8)
         pred = cluster.fit_predict(embeddings_array)
-        print("PRED: " + str(pred))
+        print("CLUSTER PRED: " + str(pred))
+        print("cluster pred shape: " + str(pred.shape))
+        print("LABELS: " + str(np.array(label_strings_array)))
+        print("label shape: " + str(len(label_strings_array)))
+
+
         uniq_labels, uniq_count = np.unique(pred, return_counts=True)
         # print("unique labels: " + str(uniq_labels) + "    " + "unique count: " + str(uniq_count))
         print("most often unique label: " + str(uniq_labels[0]) + "  we will only save this label from cluster")
 
+        good_values = np.isin(pred, uniq_labels[0])
+        print("values to export: " + str(good_values))
 
-        print("LABELS: " + str(np.array(label_strings_array)))
+        for i, image in enumerate(label_strings_array):
+            if good_values[i] == True:
+                print("Exporting image: " + str(image))
+            else:
+                print("Not exporting image: " + str(image))
