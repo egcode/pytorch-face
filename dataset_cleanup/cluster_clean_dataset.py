@@ -38,6 +38,8 @@ import scipy.cluster.hierarchy as shc
 import matplotlib.pyplot as plt
 from sklearn.cluster import AgglomerativeClustering
 
+from shutil import copyfile
+
 from pdb import set_trace as bp
 
 def main(ARGS):
@@ -111,6 +113,7 @@ def main(ARGS):
                     if not os.path.isdir(image_dir):  # Create the out directory if it doesn't exist
                         os.makedirs(image_dir)
                     image_out = os.path.join(image_dir, label_strings_array[i])
+                    copyfile(image_paths_array[i], image_out)
                     print("\tto Path image_out: " + str(image_out))
                     # ################################################
                     # ### SAVE Images
