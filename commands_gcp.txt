@@ -320,31 +320,24 @@ python3 train.py \
 --lr_schedule_steps 20 40 60 \
 --lr_gamma 0.1
 
+# ARCFACE MS_Celeb_1M_112 Epoch- 
+# LFW-  
+# CALFW-  
+# CPLFW- 
+# CFP_FF-   
+# CFP_FP-  
+# LOSS-
 python3 train.py \
---model_path ./pth/IR_50_MODEL_arcface.pth \
---loss_path ./pth/LOSS_arcface.pth \
---data_dir ./data/Vggface2_160 \
---batch_size 64 \
---batch_size_test 64 \
---validate_batch_size 64 \
---validation_set_split_ratio 0.0 \
---model_save_interval_percent 10 \
+--data_dir ./data/MS_Celeb_1M_112 \
+--batch_size 512 \
+--batch_size_test 512 \
+--validate_batch_size 512 \
 --criterion_type arcface \
---lr 0.001 \
---lr_schedule_steps 15 24 35 \
---lr_gamma 0.1
-
-#####deepglint
-python3 train.py \
---data_dir ./data/Deepglint \
---batch_size 64 \
---batch_size_test 64 \
---validate_batch_size 64 \
+--margin_s 64.0 \
+--margin_m 0.5 \
 --validation_set_split_ratio 0.0 \
---model_save_interval_percent 10 \
---criterion_type arcface \
 --lr 0.1 \
---lr_schedule_steps 15 24 35 \
+--lr_schedule_steps 25 40 60 \
 --lr_gamma 0.1
 
 ===================================================
