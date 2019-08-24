@@ -23,88 +23,97 @@ person2_name
 
 
 
-python3 dataset_cleanup/read_dataset.py
+python3 dataset_cleanup/read_dataset.py \
+--h5_name data/dataset.h5 \
+--output_dir data/dataset_from_h5
 
 '''
 
 import os
+import sys
 import h5py
 import numpy as np
-
-from pdb import set_trace as bp
-## Reading From File
-# with h5py.File('data/dataset.h5', 'r') as f:
-#     for person in f.keys():
-#         print("personName: " + str(person))
-#         print("personLabel: " + str(f[person].attrs['label']))
-
-#         for subgroup in f[person].keys() :
-#             print("\tsubgroup: " + str(subgroup))
-
-#             print("\t\tembedding data: " + str(f[person][subgroup]['embedding'][:4]))
-#             print("\t\tpath data: " + str(f[person][subgroup].attrs['file_path']))
-
-
+import argparse
 import scipy.cluster.hierarchy as shc
 import matplotlib.pyplot as plt
 from sklearn.cluster import AgglomerativeClustering
 
-# Data for each person
-with h5py.File('data/dataset.h5', 'r') as f:
-    for person in f.keys():
-        print("\npersonName: " + str(person))
-#         print("personLabel: " + str(f[person].attrs['label']))
+from pdb import set_trace as bp
 
-        nrof_images = len(f[person].keys())
-        embedding_size = 512
-        embeddings_array = np.zeros((nrof_images, embedding_size))
-        label_array = np.zeros((0,0))
-        label_strings_array = []
-        image_paths_array = []
+def main(ARGS):
 
-        # print("\tembedding array shape: " + str(embeddings_array.shape))
-        # print("\tnumber of images: " + str(nrof_images) + "  embedding size: " + str(embedding_size))
+    if not os.path.isfile(ARGS.h5_name):
+        assert "h5 file is not exist"
 
-        for i, subgroup in enumerate(f[person].keys()):
-            # print("\tlabel: " + str(i))
-            embeddings_array[i, :] = f[person][subgroup]['embedding'][:]
-            label_array = np.append(label_array, i)
-            label_strings_array.append(str(subgroup))
-            image_paths_array.append(f[person][subgroup].attrs['file_path'])
+    out_dir = ARGS.output_dir
+    if not os.path.isdir(out_dir):  # Create the out directory if it doesn't exist
+        os.makedirs(out_dir)
 
-            # print("\tsubgroup: " + str(subgroup))
-            # print("\t\tembedding data shape: " + str(f[person][subgroup]['embedding'][:].shape))
+    # Data for each person
+    with h5py.File(ARGS.h5_name, 'r') as f:
+        for person in f.keys():
+            print("\npersonName: " + str(person))
+    #         print("personLabel: " + str(f[person].attrs['label']))
 
-            # print("\t\tembedding data: " + str(f[person][subgroup]['embedding'][:4]))
-            # print("\t\tpath data: " + str(f[person][subgroup].attrs['file_path']))
+            nrof_images = len(f[person].keys())
+            embedding_size = 512
+            embeddings_array = np.zeros((nrof_images, embedding_size))
+            label_array = np.zeros((0,0))
+            label_strings_array = []
+            image_paths_array = []
 
-        # plt.figure(figsize=(10, 7))
-        # plt.title(str(person))
-        # dend = shc.dendrogram(shc.linkage(embeddings_array, method='average'),labels=label_strings_array,color_threshold=1.0)
-        # plt.show()
+            # print("\tembedding array shape: " + str(embeddings_array.shape))
+            # print("\tnumber of images: " + str(nrof_images) + "  embedding size: " + str(embedding_size))
+
+            for i, subgroup in enumerate(f[person].keys()):
+                # print("\tlabel: " + str(i))
+                embeddings_array[i, :] = f[person][subgroup]['embedding'][:]
+                label_array = np.append(label_array, i)
+                label_strings_array.append(str(subgroup))
+                image_paths_array.append(f[person][subgroup].attrs['file_path'])
+
+                # print("\tsubgroup: " + str(subgroup))
+                # print("\t\tembedding data shape: " + str(f[person][subgroup]['embedding'][:].shape))
+
+                # print("\t\tembedding data: " + str(f[person][subgroup]['embedding'][:4]))
+                # print("\t\tpath data: " + str(f[person][subgroup].attrs['file_path']))
+
+            # plt.figure(figsize=(10, 7))
+            # plt.title(str(person))
+            # dend = shc.dendrogram(shc.linkage(embeddings_array, method='average'),labels=label_strings_array,color_threshold=1.0)
+            # plt.show()
 
 
-        cluster = AgglomerativeClustering(n_clusters=None,
-                                            affinity='cosine', 
-                                            linkage='average',
-                                            compute_full_tree=True,
-                                            distance_threshold=0.7)
-        pred = cluster.fit_predict(embeddings_array)
-        print("CLUSTER PRED: " + str(pred))
-        print("cluster pred shape: " + str(pred.shape))
-        print("LABELS: " + str(np.array(label_strings_array)))
-        print("label shape: " + str(len(label_strings_array)))
+            cluster = AgglomerativeClustering(n_clusters=None,
+                                                affinity='cosine', 
+                                                linkage='average',
+                                                compute_full_tree=True,
+                                                distance_threshold=0.7)
+            pred = cluster.fit_predict(embeddings_array)
+            print("CLUSTER PRED: " + str(pred))
+            print("cluster pred shape: " + str(pred.shape))
+            print("LABELS: " + str(np.array(label_strings_array)))
+            print("label shape: " + str(len(label_strings_array)))
 
 
-        uniq_labels, uniq_count = np.unique(pred, return_counts=True)
-        # print("unique labels: " + str(uniq_labels) + "    " + "unique count: " + str(uniq_count))
-        print("most often unique label: " + str(uniq_labels[0]) + "  we will only save this label from cluster")
+            uniq_labels, uniq_count = np.unique(pred, return_counts=True)
+            # print("unique labels: " + str(uniq_labels) + "    " + "unique count: " + str(uniq_count))
+            print("most often unique label: " + str(uniq_labels[0]) + "  we will only save this label from cluster")
 
-        good_values = np.isin(pred, uniq_labels[0])
-        print("values to export: " + str(good_values))
+            good_values = np.isin(pred, uniq_labels[0])
+            print("values to export: " + str(good_values))
 
-        for i, image_path in enumerate(image_paths_array):
-            if good_values[i] == True:
-                print("Exporting image: " + str(image_path))
-            else:
-                print("Not exporting image: " + str(image_path))
+            for i, image_path in enumerate(image_paths_array):
+                if good_values[i] == True:
+                    print("Exporting image: " + str(image_path))
+                else:
+                    print("Not exporting image: " + str(image_path))
+
+def parse_arguments(argv):
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--h5_name', type=str, help='h5 file name', default='data/dataset.h5')
+    parser.add_argument('--output_dir', type=str, help='Dir where to save dataset', default='data/dataset_from_h5')
+    return parser.parse_args(argv)
+
+if __name__ == '__main__':
+    main(parse_arguments(sys.argv[1:]))
