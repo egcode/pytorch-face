@@ -115,17 +115,6 @@ def main(ARGS):
                     image_out = os.path.join(image_dir, label_strings_array[i])
                     copyfile(image_paths_array[i], image_out)
                     print("\tCopy image to path: " + str(image_out))
-                    # ################################################
-                    # ### SAVE Images
-                    # prefix = str(self.static)+ '_' + str(self.names_list[index]) 
-
-                    # ## Save Matplotlib
-                    # im_da = np.asarray(image_data_rgb)
-                    # plt.imsave(self.demo_images_path + prefix + '.jpg', im_da)
-
-                    # self.static += 1
-                    # ################################################
-                    # bp()
                 else:
                     if ARGS.output_failed_images != None:
                         failed_dir = os.path.join(os.path.expanduser(ARGS.output_failed_images))
