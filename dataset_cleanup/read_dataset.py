@@ -103,8 +103,8 @@ with h5py.File('data/dataset.h5', 'r') as f:
         good_values = np.isin(pred, uniq_labels[0])
         print("values to export: " + str(good_values))
 
-        for i, image in enumerate(image_paths_array):
+        for i, image_path in enumerate(image_paths_array):
             if good_values[i] == True:
-                print("Exporting image: " + str(image))
+                print("Exporting image: " + str(image_path))
             else:
-                print("Not exporting image: " + str(image))
+                print("Not exporting image: " + str(image_path))
