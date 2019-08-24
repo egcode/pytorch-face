@@ -60,6 +60,7 @@ with h5py.File('data/dataset.h5', 'r') as f:
         embeddings_array = np.zeros((nrof_images, embedding_size))
         label_array = np.zeros((0,0))
         label_strings_array = []
+        image_paths_array = []
 
         # print("\tembedding array shape: " + str(embeddings_array.shape))
         # print("\tnumber of images: " + str(nrof_images) + "  embedding size: " + str(embedding_size))
@@ -69,7 +70,8 @@ with h5py.File('data/dataset.h5', 'r') as f:
             embeddings_array[i, :] = f[person][subgroup]['embedding'][:]
             label_array = np.append(label_array, i)
             label_strings_array.append(str(subgroup))
-            
+            image_paths_array.append(f[person][subgroup].attrs['file_path'])
+
             # print("\tsubgroup: " + str(subgroup))
             # print("\t\tembedding data shape: " + str(f[person][subgroup]['embedding'][:].shape))
 
@@ -101,7 +103,7 @@ with h5py.File('data/dataset.h5', 'r') as f:
         good_values = np.isin(pred, uniq_labels[0])
         print("values to export: " + str(good_values))
 
-        for i, image in enumerate(label_strings_array):
+        for i, image in enumerate(image_paths_array):
             if good_values[i] == True:
                 print("Exporting image: " + str(image))
             else:
