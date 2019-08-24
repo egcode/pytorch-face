@@ -232,10 +232,10 @@ def main(ARGS):
 
             batch_ind += len(ccropped)
 
-            if i % 10 == 9:
-                print('.', end='')
-                sys.stdout.flush()
-        print('')
+            percent = round(100. * i / len(loader))
+            print('.completed {}% '.format(percent), end='\r')
+
+        print('', end='\r')
 
     run_time = time.time() - start_time
     print('Run time: ', run_time)
