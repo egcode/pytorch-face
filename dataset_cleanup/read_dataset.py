@@ -88,7 +88,7 @@ with h5py.File('data/dataset.h5', 'r') as f:
                                             affinity='cosine', 
                                             linkage='average',
                                             compute_full_tree=True,
-                                            distance_threshold=0.8)
+                                            distance_threshold=0.7)
         pred = cluster.fit_predict(embeddings_array)
         print("CLUSTER PRED: " + str(pred))
         print("cluster pred shape: " + str(pred.shape))
