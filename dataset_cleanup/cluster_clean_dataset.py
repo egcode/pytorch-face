@@ -70,7 +70,7 @@ def main(ARGS):
                 embeddings_array[i, :] = f[person][subgroup]['embedding'][:]
                 label_array = np.append(label_array, i)
                 label_strings_array.append(str(subgroup))
-                image_paths_array.append(f[person][subgroup].attrs['file_path'])
+                image_paths_array.append(f[person][subgroup].attrs['file_path'].decode('UTF-8'))
 
                 # print("\tsubgroup: " + str(subgroup))
                 # print("\t\tembedding data shape: " + str(f[person][subgroup]['embedding'][:].shape))
