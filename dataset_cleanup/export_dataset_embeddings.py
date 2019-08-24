@@ -63,7 +63,7 @@ person2_name
 COSFACE LOSS-Eugene Casia
 #################################################################################
 
-python3 dataset_cleanup/export_embeddings.py \
+python3 dataset_cleanup/export_dataset_embeddings.py \
 ./pth/IR_50_MODEL_cosface_casia_epoch26_lfw9895.pth \
 ./data/embedding_test/ \
 --image_size 112 \

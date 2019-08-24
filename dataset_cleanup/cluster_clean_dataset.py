@@ -23,9 +23,9 @@ person2_name
 
 
 
-python3 dataset_cleanup/read_dataset.py \
+python3 dataset_cleanup/cluster_clean_dataset.py \
 --h5_name data/dataset.h5 \
---output_dir data/dataset_from_h5
+--output_clean_dataset data/clean_dataset
 
 '''
 
@@ -45,9 +45,9 @@ def main(ARGS):
     if not os.path.isfile(ARGS.h5_name):
         assert "h5 file is not exist"
 
-    out_dir = ARGS.output_dir
-    if not os.path.isdir(out_dir):  # Create the out directory if it doesn't exist
-        os.makedirs(out_dir)
+    output_clean_dataset = ARGS.output_clean_dataset
+    if not os.path.isdir(output_clean_dataset):  # Create the out directory if it doesn't exist
+        os.makedirs(output_clean_dataset)
 
     # Data for each person
     with h5py.File(ARGS.h5_name, 'r') as f:
@@ -112,7 +112,7 @@ def main(ARGS):
 def parse_arguments(argv):
     parser = argparse.ArgumentParser()
     parser.add_argument('--h5_name', type=str, help='h5 file name', default='data/dataset.h5')
-    parser.add_argument('--output_dir', type=str, help='Dir where to save dataset', default='data/dataset_from_h5')
+    parser.add_argument('--output_clean_dataset', type=str, help='Dir where to save clean dataset', default='data/clean_dataset')
     return parser.parse_args(argv)
 
 if __name__ == '__main__':
