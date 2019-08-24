@@ -114,7 +114,7 @@ def main(ARGS):
                         os.makedirs(image_dir)
                     image_out = os.path.join(image_dir, label_strings_array[i])
                     copyfile(image_paths_array[i], image_out)
-                    print("\tto Path image_out: " + str(image_out))
+                    print("\tCopy image to path: " + str(image_out))
                     # ################################################
                     # ### SAVE Images
                     # prefix = str(self.static)+ '_' + str(self.names_list[index]) 
