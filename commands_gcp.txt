@@ -340,6 +340,22 @@ python3 train.py \
 --lr_schedule_steps 25 40 60 \
 --lr_gamma 0.1
 
+# RESTORE MS_Celeb_1M_112
+python3 train.py \
+--model_path ./pth_latest/IR_50_latest.pth \
+--loss_path ./pth_latest/arcface_latest.pth \
+--data_dir ./data/MS_Celeb_1M_112 \
+--batch_size 512 \
+--batch_size_test 512 \
+--validate_batch_size 512 \
+--criterion_type arcface \
+--margin_s 64.0 \
+--margin_m 0.5 \
+--validation_set_split_ratio 0.0 \
+--lr 0.1 \
+--lr_schedule_steps 25 40 60 \
+--lr_gamma 0.1
+
 ===================================================
 EXAMPLES COSFACE:
 
