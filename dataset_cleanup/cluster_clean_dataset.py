@@ -25,8 +25,8 @@ person2_name
 
 python3 dataset_cleanup/cluster_clean_dataset.py \
 --h5_name data/dataset.h5 \
---output_clean_dataset data/clean_dataset
-
+--output_clean_dataset data/dataset_clean \
+--output_failed_images data/dataset_failed
 '''
 
 import os
@@ -127,12 +127,23 @@ def main(ARGS):
                     # ################################################
                     # bp()
                 else:
-                    print("Ignoring image: " + str(image_path))
+                    if ARGS.output_failed_images != None:
+                        failed_dir = os.path.join(os.path.expanduser(ARGS.output_failed_images))
+                        if not os.path.isdir(failed_dir):  # Create the out directory if it doesn't exist
+                            os.makedirs(failed_dir)
+
+                        image_dir = os.path.join(failed_dir, person)
+                        if not os.path.isdir(image_dir):  # Create the out directory if it doesn't exist
+                            os.makedirs(image_dir)
+                        image_out = os.path.join(image_dir, label_strings_array[i])
+                        copyfile(image_paths_array[i], image_out)
+                        print("\tCopy Failed image to path: " + str(image_out))
 
 def parse_arguments(argv):
     parser = argparse.ArgumentParser()
     parser.add_argument('--h5_name', type=str, help='h5 file name', default='data/dataset.h5')
-    parser.add_argument('--output_clean_dataset', type=str, help='Dir where to save clean dataset', default='data/clean_dataset')
+    parser.add_argument('--output_clean_dataset', type=str, help='Dir where to save clean dataset', default='data/dataset_clean')
+    parser.add_argument('--output_failed_images', type=str, help='Dir where to save clean dataset', default=None)
     return parser.parse_args(argv)
 
 if __name__ == '__main__':
