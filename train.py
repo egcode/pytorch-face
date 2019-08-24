@@ -238,7 +238,8 @@ def main(ARGS):
     print_and_log(log_file_path, "Cuda Version:  " + str(torch.version.cuda))
     print_and_log(log_file_path, "cudnn enabled:  " + str(torch.backends.cudnn.enabled))
     print_and_log(log_file_path, "Use APEX: " + str(APEX_AVAILABLE))
-
+    if APEX_AVAILABLE:
+            print_and_log(log_file_path, "APEX level: " + str(ARGS.apex_opt_level))
     device = torch.device("cuda" if use_cuda else "cpu")
 
     ####### Data setup
@@ -356,17 +357,20 @@ def main(ARGS):
     #                                     lr=ARGS.lr, momentum=ARGS.momentum, weight_decay=ARGS.weight_decay)
 
     if APEX_AVAILABLE:
-        # model, optimizer = amp.initialize(
-        #     model, optimizer, opt_level="O2", 
-        #     keep_batchnorm_fp32=True, loss_scale="dynamic"
-        # )
+        if ARGS.apex_opt_level==0:
+            model, optimizer = amp.initialize(
+                model, optimizer, opt_level="O0", loss_scale=1.0
+            )
+        elif ARGS.apex_opt_level==1:
+            model, optimizer = amp.initialize(
+                model, optimizer, opt_level="O1", loss_scale="dynamic"
+            )
+        elif ARGS.apex_opt_level==2:
+            model, optimizer = amp.initialize(
+                model, optimizer, opt_level="O2", 
+                keep_batchnorm_fp32=True, loss_scale="dynamic"
+            )
 
-        # model, optimizer = amp.initialize(
-        #     model, optimizer, opt_level="O1", loss_scale="dynamic"
-        # )
-        model, optimizer = amp.initialize(
-            model, optimizer, opt_level="O0", loss_scale=1.0
-        )
 
     #### Since StepLR and MultiStepLR are both buggy, use custom schedule_lr method
     # sheduler = lr_scheduler.StepLR(optimizer, ARGS.lr_step, gamma=ARGS.lr_gamma)
@@ -410,7 +414,8 @@ def parse_arguments(argv):
     parser.add_argument('--criterion_type', type=str, help='type of loss cosface or centerloss.', default='centerloss') # support ['arcface', 'cosface', 'centerloss']
     parser.add_argument('--loss_path', type=str, help='Loss weights if needed.', default=None)
     parser.add_argument('--margin_s', type=float, help='scale for feature.', default=64.0)
-    parser.add_argument('--margin_m', type=float, help='margin for loss.', default=0.5)    
+    parser.add_argument('--margin_m', type=float, help='margin for loss.', default=0.5)
+    parser.add_argument('--apex_opt_level', type=int, help='Apex opt level, 0=None,1=half,2=full.', default=0)    
     # Intervals
     parser.add_argument('--model_save_interval', type=int, help='Save model with every interval epochs.', default=1)
     # parser.add_argument('--model_save_interval_percent', type=int, help='Save model with every percent in epoch. Useful with large datasets', default=0)
