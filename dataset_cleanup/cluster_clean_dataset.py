@@ -45,9 +45,9 @@ def main(ARGS):
     if not os.path.isfile(ARGS.h5_name):
         assert "h5 file is not exist"
 
-    output_clean_dataset = ARGS.output_clean_dataset
-    if not os.path.isdir(output_clean_dataset):  # Create the out directory if it doesn't exist
-        os.makedirs(output_clean_dataset)
+    out_dir = os.path.join(os.path.expanduser(ARGS.output_clean_dataset))
+    if not os.path.isdir(out_dir):  # Create the out directory if it doesn't exist
+        os.makedirs(out_dir)
 
     # Data for each person
     with h5py.File(ARGS.h5_name, 'r') as f:
@@ -105,9 +105,26 @@ def main(ARGS):
 
             for i, image_path in enumerate(image_paths_array):
                 if good_values[i] == True:
-                    print("Exporting image: " + str(image_path))
+                    # print("\tExporting image: " + str(image_path))
+
+                    image_dir = os.path.join(out_dir, person)
+                    if not os.path.isdir(image_dir):  # Create the out directory if it doesn't exist
+                        os.makedirs(image_dir)
+                    image_out = os.path.join(image_dir, label_strings_array[i])
+                    print("\tto Path image_out: " + str(image_out))
+                    # ################################################
+                    # ### SAVE Images
+                    # prefix = str(self.static)+ '_' + str(self.names_list[index]) 
+
+                    # ## Save Matplotlib
+                    # im_da = np.asarray(image_data_rgb)
+                    # plt.imsave(self.demo_images_path + prefix + '.jpg', im_da)
+
+                    # self.static += 1
+                    # ################################################
+                    # bp()
                 else:
-                    print("Not exporting image: " + str(image_path))
+                    print("Ignoring image: " + str(image_path))
 
 def parse_arguments(argv):
     parser = argparse.ArgumentParser()
