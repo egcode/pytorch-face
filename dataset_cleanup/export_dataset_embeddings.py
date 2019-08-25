@@ -194,7 +194,6 @@ def main(ARGS):
                 writePerson(out_dir+ARGS.h5_name, person_name, person_label, image_name, image_path, person_embedding)
             
             percent = round(100. * i / len(loader))
-
             print('.completed {}%  Run time: {}'.format(percent, timedelta(seconds=int(time.time() - start_time))), end='\r')
 
         print('', end='\r')

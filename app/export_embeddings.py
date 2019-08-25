@@ -24,6 +24,7 @@ from torchvision import transforms as T
 import torchvision
 from PIL import Image
 import matplotlib.pyplot as plt
+from datetime import datetime, timedelta
 
 from models.resnet import *
 from models.irse import *
@@ -233,12 +234,11 @@ def main(ARGS):
             batch_ind += len(ccropped)
 
             percent = round(100. * i / len(loader))
-            print('.completed {}% '.format(percent), end='\r')
+            print('.completed {}%  Run time: {}'.format(percent, timedelta(seconds=int(time.time() - start_time))), end='\r')
 
         print('', end='\r')
-
-    run_time = time.time() - start_time
-    print('Run time: ', run_time)
+    print(60*"=")
+    print("Done with embeddings... Exporting")
 
     if ARGS.mean_per_class==1:
         print("Exporting embeddings mean for class")
@@ -289,6 +289,10 @@ def main(ARGS):
 
         label_strings = np.array(label_strings)
         np.save(out_dir + ARGS.labels_strings, label_strings[label_list])
+
+    total_time = timedelta(seconds=int(time.time() - start_time))
+    print(60*"=")
+    print('All done. Total time: ' + str(total_time))
 
 
 def load_and_align_data(image_path, image_size, margin, gpu_memory_fraction):
