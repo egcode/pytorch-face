@@ -302,25 +302,7 @@ python3 train.py \
 ===================================================
 EXAMPLES ARFCACE LOSS:
 
-# ARCFACE Epoch-48 
-# LFW-0.9533  
-# CALFW-0.7218  
-# CPLFW-0.6925 
-# CFP_FF-0.8986   
-# CFP_FP-0.8264  
-# LOSS-18.09
-python3 train.py \
---data_dir ./data/CASIA_and_Golovan_160 \
---batch_size 64 \
---batch_size_test 64 \
---validate_batch_size 64 \
---criterion_type arcface \
---validation_set_split_ratio 0.0 \
---lr 0.1 \
---lr_schedule_steps 20 40 60 \
---lr_gamma 0.1
-
-# ARCFACE MS_Celeb_1M_112 Epoch- 
+# ARCFACE CASIA_and_Golovan_160 Epoch- 
 # LFW-  
 # CALFW-  
 # CPLFW- 
@@ -328,38 +310,36 @@ python3 train.py \
 # CFP_FP-  
 # LOSS-
 python3 train.py \
---data_dir ./data/MS_Celeb_1M_112 \
---batch_size 64 \
---batch_size_test 64 \
---validate_batch_size 64 \
+--model_type ResNet_50 \
+--data_dir ./data/CASIA_and_Golovan_160 \
+--batch_size 512 \
+--batch_size_test 512 \
+--validate_batch_size 512 \
 --criterion_type arcface \
 --margin_s 64.0 \
 --margin_m 0.5 \
---validation_set_split_ratio 0.0 \
+--validation_set_split_ratio 0.001 \
 --lr 0.1 \
---lr_schedule_steps 25 40 60 \
+--lr_schedule_steps 35 65 95 \
 --lr_gamma 0.1 \
---apex_opt_level 0 \
+--apex_opt_level 2 \
 --model_save_latest_path ./pth_latest
 
-# RESTORE MS_Celeb_1M_112
 python3 train.py \
---model_path ./pth_latest/IR_50_latest.pth \
---loss_path ./pth_latest/arcface_latest.pth \
---data_dir ./data/MS_Celeb_1M_112 \
---batch_size 64 \
---batch_size_test 64 \
---validate_batch_size 64 \
+--model_type IR_50 \
+--data_dir ./data/CASIA_and_Golovan_160 \
+--batch_size 128 \
+--batch_size_test 128 \
+--validate_batch_size 128 \
 --criterion_type arcface \
 --margin_s 64.0 \
 --margin_m 0.5 \
---validation_set_split_ratio 0.0 \
+--validation_set_split_ratio 0.001 \
 --lr 0.1 \
---lr_schedule_steps 25 40 60 \
+--lr_schedule_steps 35 65 95 \
 --lr_gamma 0.1 \
---apex_opt_level 0 \
+--apex_opt_level 2 \
 --model_save_latest_path ./pth_latest
-
 ===================================================
 EXAMPLES COSFACE:
 
