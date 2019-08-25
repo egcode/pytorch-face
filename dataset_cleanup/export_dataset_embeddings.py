@@ -30,6 +30,7 @@ from models.irse import *
 
 from helpers import *
 import h5py
+from datetime import datetime, timedelta
 
 ### Requirement: name, path, embedding
 
@@ -194,12 +195,12 @@ def main(ARGS):
             
             percent = round(100. * i / len(loader))
 
-            print('.completed {}% '.format(percent), end='\r')
+            print('.completed {}%  Run time: {}'.format(percent, timedelta(seconds=int(time.time() - start_time))), end='\r')
 
         print('', end='\r')
-
-    run_time = time.time() - start_time
-    print('Run time: ', run_time)
+    total_time = timedelta(seconds=int(time.time() - start_time))
+    print(60*"=")
+    print('All done. Total time: ' + str(total_time))
 
 
 def parse_arguments(argv):
