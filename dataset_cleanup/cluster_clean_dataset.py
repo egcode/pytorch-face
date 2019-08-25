@@ -133,8 +133,8 @@ def main(ARGS):
 
 def parse_arguments(argv):
     parser = argparse.ArgumentParser()
-    parser.add_argument('--affinity', type=str, help='Affinity type for clustering', default='cosine') # [cosine, ]
-    parser.add_argument('--linkage', type=str, help='Lingate method', default='average') # [average, ]
+    parser.add_argument('--affinity', type=str, help='Affinity type for clustering', default='cosine') # [cosine, euclidean]
+    parser.add_argument('--linkage', type=str, help='Lingate method', default='average') #  [ward, complete, average, single]
     parser.add_argument('--distance_threshold', type=float, help='Dustance to cutoff embeddings', default=0.7)
     parser.add_argument('--h5_name', type=str, help='h5 file name', default='data/dataset.h5')
     parser.add_argument('--output_clean_dataset', type=str, help='Dir where to save clean dataset', default='data/dataset_clean')
