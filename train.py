@@ -351,7 +351,7 @@ def main(ARGS):
 
 
     # optimizer = torch.optim.Adam([{'params': model.parameters()}, {'params': loss_criterion.parameters()}],
-                                         lr=ARGS.lr, betas=(ARGS.beta1, 0.999))
+    #                                      lr=ARGS.lr, betas=(ARGS.beta1, 0.999))
 
     # optimizer = torch.optim.SGD([{'params': model.parameters()}, {'params': loss_criterion.parameters()}],
     #                                     lr=ARGS.lr, momentum=ARGS.momentum, weight_decay=ARGS.weight_decay)
