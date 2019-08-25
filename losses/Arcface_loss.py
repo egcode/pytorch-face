@@ -28,8 +28,8 @@ class Arcface_loss(nn.Module):
     def forward(self, feat, label):
 
         eps = 1e-4
-        norms = torch.norm(feat_prelu, p=2, dim=-1, keepdim=True)
-        feat_l2norm = torch.div(feat_prelu, norms)
+        norms = torch.norm(feat, p=2, dim=-1, keepdim=True)
+        feat_l2norm = torch.div(feat, norms)
         feat_l2norm = feat_l2norm * self.s
 
         norms_w = torch.norm(self.weights, p=2, dim=-1, keepdim=True)
