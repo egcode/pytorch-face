@@ -25,15 +25,9 @@ class Arcface_loss(nn.Module):
         self.mm = math.sin(math.pi-m)*m
         self.threshold = math.cos(math.pi-m)
 
-        # For Softmax Feeding after model features
-        self.prelu = nn.PReLU().to(self.device)
-
     def forward(self, feat, label):
-        # For Softmax Feeding after model features    
-        feat_prelu = self.prelu(feat)
 
         eps = 1e-4
-        batch_size = feat_prelu.shape[0]
         norms = torch.norm(feat_prelu, p=2, dim=-1, keepdim=True)
         feat_l2norm = torch.div(feat_prelu, norms)
         feat_l2norm = feat_l2norm * self.s
