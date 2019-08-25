@@ -24,6 +24,9 @@ person2_name
 
 
 python3 dataset_cleanup/cluster_clean_dataset.py \
+--affinity cosine \
+--linkage average \
+--distance_threshold 0.7 \
 --h5_name data/dataset.h5 \
 --output_clean_dataset data/dataset_clean \
 --output_failed_images data/dataset_failed
@@ -87,10 +90,10 @@ def main(ARGS):
 
 
             cluster = AgglomerativeClustering(n_clusters=None,
-                                                affinity='cosine', 
-                                                linkage='average',
+                                                affinity=ARGS.affinity, 
+                                                linkage=ARGS.linkage,
                                                 compute_full_tree=True,
-                                                distance_threshold=0.7)
+                                                distance_threshold=ARGS.distance_threshold)
             pred = cluster.fit_predict(embeddings_array)
             print("CLUSTER PRED: " + str(pred))
             print("cluster pred shape: " + str(pred.shape))
@@ -130,6 +133,9 @@ def main(ARGS):
 
 def parse_arguments(argv):
     parser = argparse.ArgumentParser()
+    parser.add_argument('--affinity', type=str, help='Affinity type for clustering', default='cosine') # [cosine, ]
+    parser.add_argument('--linkage', type=str, help='Lingate method', default='average') # [average, ]
+    parser.add_argument('--distance_threshold', type=float, help='Dustance to cutoff embeddings', default=0.7)
     parser.add_argument('--h5_name', type=str, help='h5 file name', default='data/dataset.h5')
     parser.add_argument('--output_clean_dataset', type=str, help='Dir where to save clean dataset', default='data/dataset_clean')
     parser.add_argument('--output_failed_images', type=str, help='Dir where to save clean dataset', default=None)
