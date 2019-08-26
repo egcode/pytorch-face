@@ -67,6 +67,7 @@ import math
 #         return output.to(self.device)
   
 class Arcface_loss(nn.Module):
+    # def __init__(self, num_classes, feat_dim, device, s=64.0, m=0.50, easy_margin = False):
     def __init__(self, num_classes, feat_dim, device, s=32.0, m=0.50, easy_margin = False):
         super(Arcface_loss, self).__init__()
         self.in_features = feat_dim
