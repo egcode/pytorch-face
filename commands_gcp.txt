@@ -331,7 +331,7 @@ python3 train.py \
 --batch_size_test 128 \
 --validate_batch_size 128 \
 --criterion_type arcface \
---margin_s 64.0 \
+--margin_s 32.0 \
 --margin_m 0.5 \
 --validation_set_split_ratio 0.001 \
 --lr 0.1 \
