@@ -388,8 +388,6 @@ def parse_arguments(argv):
     parser.add_argument('--apex_opt_level', type=int, help='Apex opt level, 0=None,1=half,2=full.', default=0)    
     # Intervals
     parser.add_argument('--model_save_interval', type=int, help='Save model with every interval epochs.', default=1)
-    # parser.add_argument('--model_save_interval_percent', type=int, help='Save model with every percent in epoch. Useful with large datasets', default=0)
-    # parser.add_argument('--model_save_interval_percent_tag', type=str, help='Percented model saves will be saved and deleted based on tag.', default='_percent')
     parser.add_argument('--model_save_latest_path', type=str, help='Save latest saved model path.', default=None)
     parser.add_argument('--test_interval', type=int, help='Perform test with every interval epochs.', default=1)
     parser.add_argument('--validate_interval', type=int, help='Perform validation test with every interval epochs.', default=1)    
