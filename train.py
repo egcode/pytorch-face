@@ -307,16 +307,16 @@ def main(ARGS):
     if ARGS.optimizer_type == 'sgd_bn':
         ##################
         if ARGS.model_type.find("IR") >= 0:
-            backbone_paras_only_bn, backbone_paras_wo_bn = separate_irse_bn_paras(
+            model_params_only_bn, model_params_no_bn = separate_irse_bn_paras(
                 model)  # separate batch_norm parameters from others; do not do weight decay for batch_norm parameters to improve the generalizability
-            _, head_paras_wo_bn = separate_irse_bn_paras(loss_criterion)
+            _, loss_params_no_bn = separate_irse_bn_paras(loss_criterion)
         else:
-            backbone_paras_only_bn, backbone_paras_wo_bn = separate_resnet_bn_paras(
+            model_params_only_bn, model_params_no_bn = separate_resnet_bn_paras(
                 model)  # separate batch_norm parameters from others; do not do weight decay for batch_norm parameters to improve the generalizability
-            _, head_paras_wo_bn = separate_resnet_bn_paras(loss_criterion)
+            _, loss_params_no_bn = separate_resnet_bn_paras(loss_criterion)
 
-        optimizer = optim.SGD([{'params': backbone_paras_wo_bn + head_paras_wo_bn, 'weight_decay': ARGS.weight_decay}, 
-                            {'params': backbone_paras_only_bn}], lr = ARGS.lr, momentum = ARGS.momentum)
+        optimizer = optim.SGD([{'params': model_params_no_bn + loss_params_no_bn, 'weight_decay': ARGS.weight_decay}, 
+                            {'params': model_params_only_bn}], lr = ARGS.lr, momentum = ARGS.momentum)
 
     elif ARGS.optimizer_type == 'adam':
         optimizer = torch.optim.Adam([{'params': model.parameters()}, {'params': loss_criterion.parameters()}],
