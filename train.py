@@ -51,7 +51,6 @@ def train(ARGS, model, device, train_loader, loss_softmax, loss_criterion, optim
     model.train()
     t = time.time()
     log_loss = 0
-    saved_percents_in_epochs = []
     for batch_idx, (data, target) in enumerate(train_loader):
         tt = time.time()
 
@@ -93,13 +92,6 @@ def train(ARGS, model, device, train_loader, loss_softmax, loss_criterion, optim
         time_for_batch = int(time.time() - tt)
         time_for_current_epoch = int(time.time() - t)
         percent = 100. * batch_idx / len(train_loader)
-
-        # if ARGS.model_save_interval_percent != 0 and round(percent) != 0 and round(percent) not in saved_percents_in_epochs:
-        #     if round(percent) % ARGS.model_save_interval_percent == 0:
-        #         suffix = str(epoch) + "_" + str(round(percent)) + ARGS.model_save_interval_percent_tag
-        #         saved_percents_in_epochs.append(round(percent))
-        #         save_model(ARGS, ARGS.model_type, model_dir, model, log_file_path, suffix)
-        #         save_model(ARGS, ARGS.criterion_type, model_dir, loss_criterion, log_file_path, suffix)
 
         log = 'Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f} \tbatch_time: {}   Total time for epoch: {}'.format(
             epoch, batch_idx * len(data), len(train_loader.dataset),
@@ -342,8 +334,6 @@ def main(ARGS):
 
         optimizer = optim.SGD([{'params': backbone_paras_wo_bn + head_paras_wo_bn, 'weight_decay': ARGS.weight_decay}, 
                             {'params': backbone_paras_only_bn}], lr = ARGS.lr, momentum = ARGS.momentum)
-        # optimizer = torch.optim.Adam([{'params': backbone_paras_wo_bn + head_paras_wo_bn, 'weight_decay': ARGS.weight_decay}, {'params': backbone_paras_only_bn}],
-        #                                  lr=ARGS.lr, betas=(ARGS.beta1, 0.999))
 
     else:
         optimizer = torch.optim.Adam([{'params': model.parameters()}, {'params': loss_criterion.parameters()}],
