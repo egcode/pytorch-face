@@ -174,15 +174,11 @@ def validate(ARGS, validation_data_dic, model, device, log_file_path, logger, di
                                                                         subtract_mean=ARGS.validate_subtract_mean)
 
 
-            # print('\nEpoch: '+str(epoch))
-            # print('Accuracy: %2.5f+-%2.5f' % (np.mean(accuracy), np.std(accuracy)))
-            # print('Validation rate: %2.5f+-%2.5f @ FAR=%2.5f' % (val, val_std, far))
             print_and_log(log_file_path, '\nEpoch: '+str(epoch))
             print_and_log(log_file_path, 'Accuracy: %2.5f+-%2.5f' % (np.mean(accuracy), np.std(accuracy)))
             print_and_log(log_file_path, 'Validation rate: %2.5f+-%2.5f @ FAR=%2.5f' % (val, val_std, far))
 
             auc = metrics.auc(fpr, tpr)
-            # print('Area Under Curve (AUC): %1.3f' % auc)
             print_and_log(log_file_path, 'Area Under Curve (AUC): %1.3f' % auc)
 
             # eer = brentq(lambda x: 1. - x - interpolate.interp1d(fpr, tpr)(x), 0., 1.)
@@ -210,8 +206,6 @@ def main(ARGS):
     tensorboard_dir = os.path.join(os.path.expanduser(out_dir), 'tensorboard')
     if not os.path.isdir(tensorboard_dir):  # Create the tensorboard directory if it doesn't exist
         os.makedirs(tensorboard_dir)
-
-    # stat_file_name = os.path.join(out_dir, 'stat.h5')
 
     # Write arguments to a text file
     write_arguments_to_file(ARGS, os.path.join(out_dir, 'arguments.txt'))
@@ -309,19 +303,8 @@ def main(ARGS):
         else:
             loss_criterion.load_state_dict(torch.load(ARGS.loss_path, map_location='cpu'))
 
-    # if ARGS.optimizer_type == 'adam':
-    # optimizer_nn = torch.optim.Adam(model.parameters(), lr=ARGS.lr, betas=(ARGS.beta1, 0.999), weight_decay=ARGS.weight_decay)
-    # optimzer_criterion = torch.optim.Adam(loss_criterion.parameters(), lr=ARGS.lr, betas=(ARGS.beta1, 0.999), weight_decay=ARGS.weight_decay)
-    # else:
 
-    # optimizer_nn = optim.SGD(model.parameters(), lr=ARGS.lr, momentum=ARGS.momentum, weight_decay=ARGS.weight_decay)
-    # optimzer_criterion = optim.SGD(loss_criterion.parameters(), lr=ARGS.lr, momentum=ARGS.momentum, weight_decay=ARGS.weight_decay)
-    # sheduler_nn = lr_scheduler.StepLR(optimizer_nn, ARGS.lr_step, gamma=ARGS.lr_gamma)
-    # sheduler_criterion = lr_scheduler.StepLR(optimzer_criterion, ARGS.lr_step, gamma=ARGS.lr_gamma)
-
-    
-    
-    if ARGS.criterion_type == 'arcface':
+    if ARGS.optimizer_type == 'sgd_bn':
         ##################
         if ARGS.model_type.find("IR") >= 0:
             backbone_paras_only_bn, backbone_paras_wo_bn = separate_irse_bn_paras(
@@ -335,16 +318,13 @@ def main(ARGS):
         optimizer = optim.SGD([{'params': backbone_paras_wo_bn + head_paras_wo_bn, 'weight_decay': ARGS.weight_decay}, 
                             {'params': backbone_paras_only_bn}], lr = ARGS.lr, momentum = ARGS.momentum)
 
-    else:
+    elif ARGS.optimizer_type == 'adam':
         optimizer = torch.optim.Adam([{'params': model.parameters()}, {'params': loss_criterion.parameters()}],
                                          lr=ARGS.lr, betas=(ARGS.beta1, 0.999))
+    elif ARGS.optimizer_type == 'sgd':
+        optimizer = torch.optim.SGD([{'params': model.parameters()}, {'params': loss_criterion.parameters()}],
+                                        lr=ARGS.lr, momentum=ARGS.momentum, weight_decay=ARGS.weight_decay)
 
-
-    # optimizer = torch.optim.Adam([{'params': model.parameters()}, {'params': loss_criterion.parameters()}],
-    #                                      lr=ARGS.lr, betas=(ARGS.beta1, 0.999))
-
-    # optimizer = torch.optim.SGD([{'params': model.parameters()}, {'params': loss_criterion.parameters()}],
-    #                                     lr=ARGS.lr, momentum=ARGS.momentum, weight_decay=ARGS.weight_decay)
 
     if APEX_AVAILABLE:
         if ARGS.apex_opt_level==0:
@@ -393,7 +373,7 @@ def parse_arguments(argv):
     parser.add_argument('--model_type', type=str, help='Model type to use for training.', default='IR_50')# support: ['ResNet_50', 'ResNet_101', 'ResNet_152', 'IR_50', 'IR_101', 'IR_152', 'IR_SE_50', 'IR_SE_101', 'IR_SE_152']
     parser.add_argument('--features_dim', type=int, help='Number of features for loss.', default=512)
     # Optimizer
-    # parser.add_argument('--optimizer_type', type=str, help='Optimizer Type.', default='adam') # support: ['adam','sgd']
+    parser.add_argument('--optimizer_type', type=str, help='Optimizer Type.', default='sgd_bn') # support: ['sgd_bn','adam','sgd']
     parser.add_argument('--lr', type=float, help='learning rate', default=0.1)
     parser.add_argument('--lr_schedule_steps', nargs='+', type=int, help='Steps when to multiply lr by lr_gamma.', default=[25, 40, 60])
     parser.add_argument('--lr_gamma', type=float, help='Every step lr will be multiplied by this value.', default=0.1)
