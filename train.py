@@ -289,7 +289,10 @@ def main(ARGS):
 
     model = model.to(device)
 
-    loss_softmax = nn.CrossEntropyLoss().to(device)
+    if ARGS.total_loss_type == 'softmax':
+        loss_softmax = nn.CrossEntropyLoss().to(device)
+    elif ARGS.total_loss_type == 'focal':
+        loss_softmax = FocalLoss().to(device)
 
     ####### Criterion setup
     print('Criterion type: %s' % ARGS.criterion_type)
