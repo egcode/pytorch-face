@@ -8,11 +8,11 @@ import math
 
 # from pdb import set_trace as bp
 
-# class Arcface_loss(nn.Module):
+# class ArcFaceLossMargin(nn.Module):
 #     # def __init__(self, num_classes, feat_dim, device, s=7.0, m=0.2):
 #     def __init__(self, num_classes, feat_dim, device, s=64.0, m=0.5):
     
-#         super(Arcface_loss, self).__init__()
+#         super(ArcFaceLossMargin, self).__init__()
 #         self.feat_dim = feat_dim
 #         self.num_classes = num_classes
 #         self.s = s
@@ -66,10 +66,10 @@ import math
 
 #         return output.to(self.device)
   
-class Arcface_loss(nn.Module):
+class ArcFaceLossMargin(nn.Module):
     # def __init__(self, num_classes, feat_dim, device, s=64.0, m=0.50, easy_margin = False):
     def __init__(self, num_classes, feat_dim, device, s=32.0, m=0.50, easy_margin = False):
-        super(Arcface_loss, self).__init__()
+        super(ArcFaceLossMargin, self).__init__()
         self.in_features = feat_dim
         self.out_features = num_classes
 

@@ -6,9 +6,9 @@ import torch.nn as nn
 import math
 # from pdb import set_trace as bp
 
-class Center_loss(nn.Module):
+class CenterLoss(nn.Module):
     def __init__(self, device, num_classes, feat_dim, use_gpu=True):
-        super(Center_loss, self).__init__()
+        super(CenterLoss, self).__init__()
         self.num_classes = num_classes
         self.feat_dim = feat_dim
         self.use_gpu = use_gpu
