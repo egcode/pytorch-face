@@ -374,7 +374,7 @@ def parse_arguments(argv):
     parser.add_argument('--optimizer_type', type=str, help='Optimizer Type.', default='sgd_bn') # support: ['sgd_bn','adam','sgd']
     parser.add_argument('--lr', type=float, help='learning rate', default=0.1)
     parser.add_argument('--lr_schedule_steps', nargs='+', type=int, help='Steps when to multiply lr by lr_gamma.', default=[25, 40, 60])
-    # parser.add_argument('--lr_gamma', type=float, help='Every step lr will be multiplied by this value.', default=0.1)
+    parser.add_argument('--lr_gamma', type=float, help='Every step lr will be multiplied by this value.', default=0.1)
     parser.add_argument('--beta1', type=float, default=0.5, help='beta1 for adam. default=0.5')
     parser.add_argument('--weight_decay', type=float, default=0.0005, help='weight decay')
     parser.add_argument('--momentum', type=float, default=0.9, help='momentum')
