@@ -263,23 +263,24 @@ def main(ARGS):
     print('Model type: %s' % ARGS.model_type)
     if ARGS.model_type == 'ResNet_50':
         model = ResNet_50(ARGS.input_size)
-    if ARGS.model_type == 'ResNet_101':
+    elif ARGS.model_type == 'ResNet_101':
         model = ResNet_101(ARGS.input_size)
-    if ARGS.model_type == 'ResNet_152':
+    elif ARGS.model_type == 'ResNet_152':
         model = ResNet_152(ARGS.input_size)
-    if ARGS.model_type == 'IR_50':
+    elif ARGS.model_type == 'IR_50':
         model = IR_50(ARGS.input_size)
-    if ARGS.model_type == 'IR_101':
+    elif ARGS.model_type == 'IR_101':
         model = IR_101(ARGS.input_size)
-    if ARGS.model_type == 'IR_152':
+    elif ARGS.model_type == 'IR_152':
         model = IR_152(ARGS.input_size)
-    if ARGS.model_type == 'IR_SE_50':
+    elif ARGS.model_type == 'IR_SE_50':
         model = IR_SE_50(ARGS.input_size)
-    if ARGS.model_type == 'IR_SE_101':
+    elif ARGS.model_type == 'IR_SE_101':
         model = IR_SE_101(ARGS.input_size)
-    if ARGS.model_type == 'IR_SE_152':
+    elif ARGS.model_type == 'IR_SE_152':
         model = IR_SE_152(ARGS.input_size)
-
+    else:
+        raise AssertionError('Unsuported model_type {}. We only support: [\'ResNet_50\', \'ResNet_101\', \'ResNet_152\', \'IR_50\', \'IR_101\', \'IR_152\', \'IR_SE_50\', \'IR_SE_101\', \'IR_SE_152\']'.format(ARGS.model_type))
 
     if ARGS.model_path != None:
         if use_cuda:
@@ -293,6 +294,8 @@ def main(ARGS):
         total_loss = nn.CrossEntropyLoss().to(device)
     elif ARGS.total_loss_type == 'focal':
         total_loss = FocalLoss().to(device)
+    else:
+        raise AssertionError('Unsuported total_loss_type {}. We only support:  [\'softmax\', \'focal\']'.format(ARGS.total_loss_type))
 
     ####### Criterion setup
     print('Criterion type: %s' % ARGS.criterion_type)
@@ -308,6 +311,8 @@ def main(ARGS):
     elif ARGS.criterion_type == 'centerloss':
         distance_metric = 0
         loss_criterion = CenterLoss(device=device, num_classes=train_loader.dataset.num_classes, feat_dim=ARGS.features_dim, use_gpu=use_cuda)
+    else:
+        raise AssertionError('Unsuported criterion_type {}. We only support:  [\'arcface\', \'cosface\', \'combined\', \'centerloss\']'.format(ARGS.criterion_type))
 
     if ARGS.loss_path != None:
         if use_cuda:
@@ -336,6 +341,8 @@ def main(ARGS):
     elif ARGS.optimizer_type == 'sgd':
         optimizer = torch.optim.SGD([{'params': model.parameters()}, {'params': loss_criterion.parameters()}],
                                         lr=ARGS.lr, momentum=ARGS.momentum, weight_decay=ARGS.weight_decay)
+    else:
+        raise AssertionError('Unsuported optimizer_type {}. We only support:  [\'sgd_bn\',\'adam\',\'sgd\']'.format(ARGS.optimizer_type))
 
 
     if APEX_AVAILABLE:
@@ -352,6 +359,8 @@ def main(ARGS):
                 model, optimizer, opt_level="O2", 
                 keep_batchnorm_fp32=True, loss_scale="dynamic"
             )
+        else:
+            raise AssertionError('Unsuported apex_opt_level {}. We only support:  [0, 1, 2]'.format(ARGS.apex_opt_level))
 
 
     #### Since StepLR and MultiStepLR are both buggy, use custom schedule_lr method
