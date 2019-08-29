@@ -47,7 +47,7 @@ python3 train.py \
 '''
 
 
-def train(ARGS, model, device, train_loader, loss_softmax, loss_criterion, optimizer, log_file_path, model_dir, logger, epoch):
+def train(ARGS, model, device, train_loader, total_loss, loss_criterion, optimizer, log_file_path, model_dir, logger, epoch):
     model.train()
     t = time.time()
     log_loss = 0
@@ -61,18 +61,18 @@ def train(ARGS, model, device, train_loader, loss_softmax, loss_criterion, optim
 
         if ARGS.criterion_type == 'arcface':
             logits = loss_criterion(features, target)
-            loss = loss_softmax(logits, target)
+            loss = total_loss(logits, target)
         elif ARGS.criterion_type == 'cosface':
             logits, mlogits = loss_criterion(features, target)
-            loss = loss_softmax(mlogits, target)
+            loss = total_loss(mlogits, target)
         if ARGS.criterion_type == 'combined':
             logits = loss_criterion(features, target)
-            loss = loss_softmax(logits, target)
+            loss = total_loss(logits, target)
         elif ARGS.criterion_type == 'centerloss':
             weight_cent = 1.
             loss_cent, outputs = loss_criterion(features, target)
             loss_cent *= weight_cent
-            los_softm = loss_softmax(outputs, target)
+            los_softm = total_loss(outputs, target)
             loss = los_softm + loss_cent
 
         # Back prop.
@@ -116,7 +116,7 @@ def train(ARGS, model, device, train_loader, loss_softmax, loss_criterion, optim
         save_model(ARGS, ARGS.criterion_type, model_dir, loss_criterion, log_file_path, epoch)
         # removePercentTaggedFile(ARGS.model_save_interval_percent_tag, model_dir)
 
-def test(ARGS, model, device, test_loader, loss_softmax, loss_criterion, log_file_path, logger, epoch):
+def test(ARGS, model, device, test_loader, total_loss, loss_criterion, log_file_path, logger, epoch):
 
     model.eval()
     correct = 0
@@ -290,9 +290,9 @@ def main(ARGS):
     model = model.to(device)
 
     if ARGS.total_loss_type == 'softmax':
-        loss_softmax = nn.CrossEntropyLoss().to(device)
+        total_loss = nn.CrossEntropyLoss().to(device)
     elif ARGS.total_loss_type == 'focal':
-        loss_softmax = FocalLoss().to(device)
+        total_loss = FocalLoss().to(device)
 
     ####### Criterion setup
     print('Criterion type: %s' % ARGS.criterion_type)
@@ -362,8 +362,8 @@ def main(ARGS):
         schedule_lr(ARGS, log_file_path, optimizer, epoch)
         logger.scalar_summary("lr", optimizer.param_groups[0]['lr'], epoch)
 
-        train(ARGS, model, device, train_loader, loss_softmax, loss_criterion, optimizer, log_file_path, model_dir, logger, epoch)
-        # test(ARGS, model, device, test_loader, loss_softmax, loss_criterion, log_file_path, logger, epoch)
+        train(ARGS, model, device, train_loader, total_loss, loss_criterion, optimizer, log_file_path, model_dir, logger, epoch)
+        # test(ARGS, model, device, test_loader, total_loss, loss_criterion, log_file_path, logger, epoch)
         validate(ARGS, validation_data_dic, model, device, log_file_path, logger, distance_metric, epoch)
 
 def parse_arguments(argv):
