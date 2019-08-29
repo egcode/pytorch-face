@@ -75,7 +75,6 @@ def train(ARGS, model, device, train_loader, total_loss, loss_criterion, optimiz
             los_softm = total_loss(outputs, target)
             loss = los_softm + loss_cent
 
-        # Back prop.
         optimizer.zero_grad()
 
         if APEX_AVAILABLE:
@@ -114,7 +113,6 @@ def train(ARGS, model, device, train_loader, total_loss, loss_criterion, optimiz
     if epoch % ARGS.model_save_interval == 0 or epoch == ARGS.epochs:
         save_model(ARGS, ARGS.model_type, model_dir, model, log_file_path, epoch)
         save_model(ARGS, ARGS.criterion_type, model_dir, loss_criterion, log_file_path, epoch)
-        # removePercentTaggedFile(ARGS.model_save_interval_percent_tag, model_dir)
 
 def test(ARGS, model, device, test_loader, total_loss, loss_criterion, log_file_path, logger, epoch):
 
@@ -194,9 +192,6 @@ def validate(ARGS, validation_data_dic, model, device, log_file_path, logger, di
             print("\n")
                 
             logger.scalar_summary(val_type +"_accuracy", np.mean(accuracy), epoch)
-            # logger.scalar_summary("Validation_rate", val, epoch)
-            # logger.scalar_summary("FAR", far, epoch)
-            # logger.scalar_summary("Area_under_curve", auc, epoch)
 
 
 def main(ARGS):
