@@ -16,6 +16,7 @@ from losses.ArcFaceLossMargin import ArcFaceLossMargin
 from losses.CosFaceLossMargin import CosFaceLossMargin
 from losses.CombinedLossMargin import CombinedLossMargin
 from losses.CenterLoss import CenterLoss
+from losses.FocalLoss import FocalLoss
 from dataset.get_data import get_data
 from models.resnet import *
 from models.irse import *
@@ -389,6 +390,7 @@ def parse_arguments(argv):
     parser.add_argument('--weight_decay', type=float, default=0.0005, help='weight decay')
     parser.add_argument('--momentum', type=float, default=0.9, help='momentum')
     # Loss 
+    parser.add_argument('--total_loss_type', type=str, help='type of loss cosface or centerloss.', default='softmax') # support ['softmax', 'focal']
     parser.add_argument('--criterion_type', type=str, help='type of loss cosface or centerloss.', default='centerloss') # support ['arcface', 'cosface', 'combined', 'centerloss']
     parser.add_argument('--loss_path', type=str, help='Loss weights if needed.', default=None)
     parser.add_argument('--margin_s', type=float, help='scale for feature.', default=64.0)
