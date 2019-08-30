@@ -236,7 +236,7 @@ def get_validate_dataset_and_loader(root_dir, type='LFW', num_workers=2, input_s
     return dataset, loader
 
 
-def print_validate_result(tpr, fpr, accuracy, val, val_std, far):
+def print_validate_result(type, tpr, fpr, accuracy, val, val_std, far):
     print("=" * 60)
     print("Validation TYPE: {}".format(type))
     print('Accuracy: %2.5f+-%2.5f' % (np.mean(accuracy), np.std(accuracy)))
@@ -290,7 +290,7 @@ def main(ARGS):
                                                                 distance_metric=1, 
                                                                 subtract_mean=False)
 
-    print_validate_result(tpr, fpr, accuracy, val, val_std, far)
+    print_validate_result(type, tpr, fpr, accuracy, val, val_std, far)
     #### End of Validate LFW Example
     ##########################################################################################
 
@@ -316,7 +316,7 @@ def main(ARGS):
                                                                 distance_metric=1, 
                                                                 subtract_mean=False)
 
-    print_validate_result(tpr, fpr, accuracy, val, val_std, far)
+    print_validate_result(type, tpr, fpr, accuracy, val, val_std, far)
     #### End of Validate CALFW Example
     ##########################################################################################
 
@@ -341,7 +341,7 @@ def main(ARGS):
                                                                 distance_metric=1, 
                                                                 subtract_mean=False)
 
-    print_validate_result(tpr, fpr, accuracy, val, val_std, far)
+    print_validate_result(type, tpr, fpr, accuracy, val, val_std, far)
     #### End of Validate CPLFW Example
     ##########################################################################################
 
@@ -367,7 +367,7 @@ def main(ARGS):
                                                                 distance_metric=1, 
                                                                 subtract_mean=False)
 
-    print_validate_result(tpr, fpr, accuracy, val, val_std, far)
+    print_validate_result(type, tpr, fpr, accuracy, val, val_std, far)
     #### End of Validate CFP_FF Example
     ##########################################################################################
 
@@ -393,7 +393,7 @@ def main(ARGS):
                                                                 distance_metric=1, 
                                                                 subtract_mean=False)
 
-    print_validate_result(tpr, fpr, accuracy, val, val_std, far)
+    print_validate_result(type, tpr, fpr, accuracy, val, val_std, far)
     #### End of Validate CFP_FP Example
     ##########################################################################################
 
