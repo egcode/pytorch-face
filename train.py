@@ -391,18 +391,18 @@ def parse_arguments(argv):
     # Optimizer
     parser.add_argument('--optimizer_type', type=str, help='Optimizer Type.', default='sgd_bn') # support: ['sgd_bn','adam','sgd']
     parser.add_argument('--lr', type=float, help='learning rate', default=0.1)
-    parser.add_argument('--lr_schedule_steps', nargs='+', type=int, help='Steps when to multiply lr by lr_gamma.', default=[25, 40, 60])
+    parser.add_argument('--lr_schedule_steps', nargs='+', type=int, help='Steps when to multiply lr by lr_gamma.', default=[35, 65, 85])
     parser.add_argument('--lr_gamma', type=float, help='Every step lr will be multiplied by this value.', default=0.1)
     parser.add_argument('--beta1', type=float, default=0.5, help='beta1 for adam. default=0.5')
     parser.add_argument('--weight_decay', type=float, default=0.0005, help='weight decay')
     parser.add_argument('--momentum', type=float, default=0.9, help='momentum')
     # Loss 
     parser.add_argument('--total_loss_type', type=str, help='type of loss cosface or centerloss.', default='softmax') # support ['softmax', 'focal']
-    parser.add_argument('--criterion_type', type=str, help='type of loss cosface or centerloss.', default='centerloss') # support ['arcface', 'cosface', 'combined', 'centerloss']
+    parser.add_argument('--criterion_type', type=str, help='type of loss cosface or centerloss.', default='arcface') # support ['arcface', 'cosface', 'combined', 'centerloss']
     parser.add_argument('--loss_path', type=str, help='Loss weights if needed.', default=None)
-    parser.add_argument('--margin_s', type=float, help='scale for feature.', default=64.0)
+    parser.add_argument('--margin_s', type=float, help='scale for feature.', default=32.0)
     parser.add_argument('--margin_m', type=float, help='margin for loss.', default=0.5)
-    parser.add_argument('--apex_opt_level', type=int, help='Apex opt level, 0=None,1=half,2=full.', default=0)    
+    parser.add_argument('--apex_opt_level', type=int, help='Apex opt level, 0=None,1=half,2=full.', default=2)    
     # Intervals
     parser.add_argument('--model_save_interval', type=int, help='Save model with every interval epochs.', default=1)
     parser.add_argument('--model_save_latest_path', type=str, help='Save latest saved model path.', default=None)
