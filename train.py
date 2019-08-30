@@ -37,12 +37,20 @@ except ModuleNotFoundError:
 '''
 EXAMPLES:
 python3 train.py \
+--model_type IR_50 \
+--data_dir ./data/CASIA_Webface_160 \
 --batch_size 128 \
 --batch_size_test 128 \
 --validate_batch_size 128 \
---criterion_type centerloss \
---lr 0.01 \
---lr_step 10
+--criterion_type arcface \
+--total_loss_type softmax \
+--optimizer_type sgd_bn \
+--margin_s 32.0 \
+--margin_m 0.5 \
+--validation_set_split_ratio 0.0 \
+--lr 0.1 \
+--lr_schedule_steps 30 55 75 \
+--apex_opt_level 2 
 
 '''
 

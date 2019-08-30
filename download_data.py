@@ -81,14 +81,10 @@ if __name__ == '__main__':
     if not os.path.isdir(out_dir):  # Create the out directory if it doesn't exist
         os.makedirs(out_dir)
 
-    # download_and_extract_file('LFW_112', out_dir)
-    # download_and_extract_file('CPLFW_112', out_dir)
-    # download_and_extract_file('CALFW_112', out_dir)
-    # download_and_extract_file('CFP_112', out_dir)
+    download_and_extract_file('LFW_112', out_dir)
+    download_and_extract_file('CPLFW_112', out_dir)
+    download_and_extract_file('CALFW_112', out_dir)
+    download_and_extract_file('CFP_112', out_dir)
 
-    # download_and_extract_file('CASIA_and_Golovan_160', out_dir)
     download_and_extract_file('CASIA_Webface_160', out_dir)
-
-    # download_and_extract_file('Deepglint_112', out_dir)
-    # download_and_extract_file('Vggface2_raw', out_dir)
 
