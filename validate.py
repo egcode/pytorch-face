@@ -12,7 +12,7 @@ import torchvision
 from sklearn import metrics
 from scipy.optimize import brentq
 from scipy import interpolate
-
+import argparse
 from validate_helpers import *
 
 from models.resnet import *
@@ -21,72 +21,8 @@ from models.irse import *
 from pdb import set_trace as bp
 
 """
-##########################################################################
-###### Arcface not Eugene  backbone_ir50_ms1m_epoch120.pth
-
-============================================================
-Validation TYPE: lfw
-Accuracy: 0.99150+-0.00565
-Validation rate: 0.97267+-0.01373 @ FAR=0.00133
-Area Under Curve (AUC): 0.998
-============================================================
-============================================================
-Validation TYPE: calfw
-Accuracy: 0.91500+-0.04036
-Validation rate: 0.34517+-0.34530 @ FAR=0.00050
-Area Under Curve (AUC): 0.240
-============================================================
-============================================================
-Validation TYPE: cplfw
-Accuracy: 0.71550+-0.09986
-Validation rate: 0.09717+-0.09788 @ FAR=0.00067
-Area Under Curve (AUC): 0.209
-============================================================
-============================================================
-Validation TYPE: cfp_ff
-Accuracy: 0.97686+-0.00861
-Validation rate: 0.91000+-0.02771 @ FAR=0.00114
-Area Under Curve (AUC): 0.994
-============================================================
-============================================================
-Validation TYPE: cfp_fp
-Accuracy: 0.72129+-0.01555
-Validation rate: 0.08543+-0.02215 @ FAR=0.00143
-Area Under Curve (AUC): 0.791
-============================================================
-
-##########################################################################
-###### Cosface Eugene IR_50_MODEL_cosface_casia_epoch51.pth
-============================================================
-Validation TYPE: lfw
-Accuracy: 0.98483+-0.00589
-Validation rate: 0.91733+-0.02546 @ FAR=0.00100
-Area Under Curve (AUC): 0.998
-============================================================
-============================================================
-Validation TYPE: calfw
-Accuracy: 0.84600+-0.04564
-Validation rate: 0.14983+-0.15049 @ FAR=0.00050
-Area Under Curve (AUC): 0.233
-============================================================
-============================================================
-Validation TYPE: cplfw
-Accuracy: 0.73817+-0.05919
-Validation rate: 0.02567+-0.02676 @ FAR=0.00050
-Area Under Curve (AUC): 0.218
-============================================================
-============================================================
-Validation TYPE: cfp_ff
-Accuracy: 0.98657+-0.00351
-Validation rate: 0.93086+-0.01456 @ FAR=0.00086
-Area Under Curve (AUC): 0.999
-============================================================
-============================================================
-Validation TYPE: cfp_fp
-Accuracy: 0.93800+-0.01239
-Validation rate: 0.69343+-0.03101 @ FAR=0.00114
-Area Under Curve (AUC): 0.981
-============================================================
+EXAMPLE:
+python3 validate.py --model_path ./pth/IR_50_MODEL_arcface_casia_epoch49_lfw9923.pth
 """
 
 class ValidateDataset(data.Dataset):
@@ -310,17 +246,22 @@ def print_validate_result(tpr, fpr, accuracy, val, val_std, far):
 
 
 
-if __name__ == '__main__':
+def main(ARGS):
+
+    if ARGS.model_path == None:
+        raise AssertionError("Path should not be None")
 
     ######### distance_metric = 1 #### if CenterLoss = 0, If Cosface = 1
-
+    use_cuda = torch.cuda.is_available()
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     ####### Model setup
     model = IR_50([112, 112])
-    # model.load_state_dict(torch.load("./pth/IR_50_MODEL_cosface_casia_epoch51.pth", map_location='cpu'))
-    # model.load_state_dict(torch.load("./pth/backbone_ir50_ms1m_epoch120.pth", map_location='cpu'))
-    model.load_state_dict(torch.load("./pth/IR_50_MODEL_arcface_casia_epoch49_lfw9923.pth"))
+    if use_cuda:
+        model.load_state_dict(torch.load(ARGS.model_path))
+    else:
+        model.load_state_dict(torch.load(ARGS.model_path, map_location='cpu'))
+
     model.to(device)
     embedding_size = 512
     model.eval()
@@ -452,3 +393,12 @@ if __name__ == '__main__':
     print_validate_result(tpr, fpr, accuracy, val, val_std, far)
     #### End of Validate CFP_FP Example
     ##########################################################################################
+
+
+def parse_arguments(argv):
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--model_path', type=str, help='Model weights.', default=None)
+    return parser.parse_args(argv)
+
+if __name__ == '__main__':
+    main(parse_arguments(sys.argv[1:]))
