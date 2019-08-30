@@ -22,7 +22,10 @@ from pdb import set_trace as bp
 
 """
 EXAMPLE:
-python3 validate.py --model_path ./pth/IR_50_MODEL_arcface_casia_epoch49_lfw9923.pth
+python3 validate.py  \
+--model_path ./pth/IR_50_MODEL_arcface_casia_epoch49_lfw9923.pth \
+--num_workers 8 \
+--batch_size 100
 """
 
 class ValidateDataset(data.Dataset):
@@ -272,9 +275,9 @@ def main(ARGS):
     root_dir='./data/lfw_112'
     dataset, loader = get_validate_dataset_and_loader(root_dir=root_dir, 
                                                             type=type, 
-                                                            num_workers=2, 
+                                                            num_workers=ARGS.num_workers, 
                                                             input_size=[112, 112], 
-                                                            batch_size=100)
+                                                            batch_size=ARGS.batch_size)
 
     print('Runnning forward pass on {} images'.format(type))
 
@@ -298,9 +301,9 @@ def main(ARGS):
     root_dir='./data/calfw_112'
     dataset, loader = get_validate_dataset_and_loader(root_dir=root_dir, 
                                                             type=type, 
-                                                            num_workers=2, 
+                                                            num_workers=ARGS.num_workers, 
                                                             input_size=[112, 112], 
-                                                            batch_size=100)
+                                                            batch_size=ARGS.batch_size)
 
     print('Runnning forward pass on {} images'.format(type))
 
@@ -323,9 +326,9 @@ def main(ARGS):
     root_dir='./data/cplfw_112'
     dataset, loader = get_validate_dataset_and_loader(root_dir=root_dir, 
                                                             type=type, 
-                                                            num_workers=2, 
+                                                            num_workers=ARGS.num_workers, 
                                                             input_size=[112, 112], 
-                                                            batch_size=100)
+                                                            batch_size=ARGS.batch_size)
 
     print('Runnning forward pass on {} images'.format(type))
 
@@ -349,9 +352,9 @@ def main(ARGS):
     root_dir='./data/cfp_112'
     dataset, loader = get_validate_dataset_and_loader(root_dir=root_dir, 
                                                             type=type, 
-                                                            num_workers=2, 
+                                                            num_workers=ARGS.num_workers, 
                                                             input_size=[112, 112], 
-                                                            batch_size=100)
+                                                            batch_size=ARGS.batch_size)
 
     print('Runnning forward pass on {} images'.format(type))
 
@@ -375,9 +378,9 @@ def main(ARGS):
     root_dir='./data/cfp_112'
     dataset, loader = get_validate_dataset_and_loader(root_dir=root_dir, 
                                                             type=type, 
-                                                            num_workers=2, 
+                                                            num_workers=ARGS.num_workers, 
                                                             input_size=[112, 112], 
-                                                            batch_size=100)
+                                                            batch_size=ARGS.batch_size)
 
     print('Runnning forward pass on {} images'.format(type))
 
@@ -398,6 +401,8 @@ def main(ARGS):
 def parse_arguments(argv):
     parser = argparse.ArgumentParser()
     parser.add_argument('--model_path', type=str, help='Model weights.', default=None)
+    parser.add_argument('--num_workers', type=int, help='Number of threads to use for data pipeline.', default=8)
+    parser.add_argument('--batch_size', type=int, help='Number of batches while validating model.', default=100)
     return parser.parse_args(argv)
 
 if __name__ == '__main__':
