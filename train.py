@@ -12,9 +12,11 @@ import numpy as np
 import math
 import argparse
 from sklearn import metrics
-from losses.Arcface_loss import Arcface_loss
-from losses.Cosface_loss import Cosface_loss
-from losses.Center_loss import Center_loss
+from losses.ArcFaceLossMargin import ArcFaceLossMargin
+from losses.CosFaceLossMargin import CosFaceLossMargin
+from losses.CombinedLossMargin import CombinedLossMargin
+from losses.CenterLoss import CenterLoss
+from losses.FocalLoss import FocalLoss
 from dataset.get_data import get_data
 from models.resnet import *
 from models.irse import *
@@ -45,7 +47,7 @@ python3 train.py \
 '''
 
 
-def train(ARGS, model, device, train_loader, loss_softmax, loss_criterion, optimizer, log_file_path, model_dir, logger, epoch):
+def train(ARGS, model, device, train_loader, total_loss, loss_criterion, optimizer, log_file_path, model_dir, logger, epoch):
     model.train()
     t = time.time()
     log_loss = 0
@@ -59,18 +61,20 @@ def train(ARGS, model, device, train_loader, loss_softmax, loss_criterion, optim
 
         if ARGS.criterion_type == 'arcface':
             logits = loss_criterion(features, target)
-            loss = loss_softmax(logits, target)
+            loss = total_loss(logits, target)
         elif ARGS.criterion_type == 'cosface':
             logits, mlogits = loss_criterion(features, target)
-            loss = loss_softmax(mlogits, target)
+            loss = total_loss(mlogits, target)
+        if ARGS.criterion_type == 'combined':
+            logits = loss_criterion(features, target)
+            loss = total_loss(logits, target)
         elif ARGS.criterion_type == 'centerloss':
             weight_cent = 1.
             loss_cent, outputs = loss_criterion(features, target)
             loss_cent *= weight_cent
-            los_softm = loss_softmax(outputs, target)
+            los_softm = total_loss(outputs, target)
             loss = los_softm + loss_cent
 
-        # Back prop.
         optimizer.zero_grad()
 
         if APEX_AVAILABLE:
@@ -109,9 +113,8 @@ def train(ARGS, model, device, train_loader, loss_softmax, loss_criterion, optim
     if epoch % ARGS.model_save_interval == 0 or epoch == ARGS.epochs:
         save_model(ARGS, ARGS.model_type, model_dir, model, log_file_path, epoch)
         save_model(ARGS, ARGS.criterion_type, model_dir, loss_criterion, log_file_path, epoch)
-        # removePercentTaggedFile(ARGS.model_save_interval_percent_tag, model_dir)
 
-def test(ARGS, model, device, test_loader, loss_softmax, loss_criterion, log_file_path, logger, epoch):
+def test(ARGS, model, device, test_loader, total_loss, loss_criterion, log_file_path, logger, epoch):
 
     model.eval()
     correct = 0
@@ -129,6 +132,9 @@ def test(ARGS, model, device, test_loader, loss_softmax, loss_criterion, log_fil
                     outputs = logits
                 elif ARGS.criterion_type == 'cosface':
                     logits, _ = loss_criterion(feats, target)
+                    outputs = logits
+                if ARGS.criterion_type == 'combined':
+                    logits = loss_criterion(feats, target)
                     outputs = logits
                 elif ARGS.criterion_type == 'centerloss':
                     _, outputs = loss_criterion(feats, target)
@@ -186,9 +192,6 @@ def validate(ARGS, validation_data_dic, model, device, log_file_path, logger, di
             print("\n")
                 
             logger.scalar_summary(val_type +"_accuracy", np.mean(accuracy), epoch)
-            # logger.scalar_summary("Validation_rate", val, epoch)
-            # logger.scalar_summary("FAR", far, epoch)
-            # logger.scalar_summary("Area_under_curve", auc, epoch)
 
 
 def main(ARGS):
@@ -255,23 +258,24 @@ def main(ARGS):
     print('Model type: %s' % ARGS.model_type)
     if ARGS.model_type == 'ResNet_50':
         model = ResNet_50(ARGS.input_size)
-    if ARGS.model_type == 'ResNet_101':
+    elif ARGS.model_type == 'ResNet_101':
         model = ResNet_101(ARGS.input_size)
-    if ARGS.model_type == 'ResNet_152':
+    elif ARGS.model_type == 'ResNet_152':
         model = ResNet_152(ARGS.input_size)
-    if ARGS.model_type == 'IR_50':
+    elif ARGS.model_type == 'IR_50':
         model = IR_50(ARGS.input_size)
-    if ARGS.model_type == 'IR_101':
+    elif ARGS.model_type == 'IR_101':
         model = IR_101(ARGS.input_size)
-    if ARGS.model_type == 'IR_152':
+    elif ARGS.model_type == 'IR_152':
         model = IR_152(ARGS.input_size)
-    if ARGS.model_type == 'IR_SE_50':
+    elif ARGS.model_type == 'IR_SE_50':
         model = IR_SE_50(ARGS.input_size)
-    if ARGS.model_type == 'IR_SE_101':
+    elif ARGS.model_type == 'IR_SE_101':
         model = IR_SE_101(ARGS.input_size)
-    if ARGS.model_type == 'IR_SE_152':
+    elif ARGS.model_type == 'IR_SE_152':
         model = IR_SE_152(ARGS.input_size)
-
+    else:
+        raise AssertionError('Unsuported model_type {}. We only support: [\'ResNet_50\', \'ResNet_101\', \'ResNet_152\', \'IR_50\', \'IR_101\', \'IR_152\', \'IR_SE_50\', \'IR_SE_101\', \'IR_SE_152\']'.format(ARGS.model_type))
 
     if ARGS.model_path != None:
         if use_cuda:
@@ -281,19 +285,29 @@ def main(ARGS):
 
     model = model.to(device)
 
-    loss_softmax = nn.CrossEntropyLoss().to(device)
+    if ARGS.total_loss_type == 'softmax':
+        total_loss = nn.CrossEntropyLoss().to(device)
+    elif ARGS.total_loss_type == 'focal':
+        total_loss = FocalLoss().to(device)
+    else:
+        raise AssertionError('Unsuported total_loss_type {}. We only support:  [\'softmax\', \'focal\']'.format(ARGS.total_loss_type))
 
     ####### Criterion setup
     print('Criterion type: %s' % ARGS.criterion_type)
     if ARGS.criterion_type == 'arcface':
         distance_metric = 1
-        loss_criterion = Arcface_loss(num_classes=train_loader.dataset.num_classes, feat_dim=ARGS.features_dim, device=device, s=ARGS.margin_s, m=ARGS.margin_m).to(device)
+        loss_criterion = ArcFaceLossMargin(num_classes=train_loader.dataset.num_classes, feat_dim=ARGS.features_dim, device=device, s=ARGS.margin_s, m=ARGS.margin_m).to(device)
     elif ARGS.criterion_type == 'cosface':
         distance_metric = 1
-        loss_criterion = Cosface_loss(num_classes=train_loader.dataset.num_classes, feat_dim=ARGS.features_dim, device=device, s=ARGS.margin_s, m=ARGS.margin_m).to(device)
+        loss_criterion = CosFaceLossMargin(num_classes=train_loader.dataset.num_classes, feat_dim=ARGS.features_dim, device=device, s=ARGS.margin_s, m=ARGS.margin_m).to(device)
+    elif ARGS.criterion_type == 'combined':
+        distance_metric = 1
+        loss_criterion = CombinedLossMargin(num_classes=train_loader.dataset.num_classes, feat_dim=ARGS.features_dim, device=device, s=ARGS.margin_s, m=ARGS.margin_m).to(device)
     elif ARGS.criterion_type == 'centerloss':
         distance_metric = 0
-        loss_criterion = Center_loss(device=device, num_classes=train_loader.dataset.num_classes, feat_dim=ARGS.features_dim, use_gpu=use_cuda)
+        loss_criterion = CenterLoss(device=device, num_classes=train_loader.dataset.num_classes, feat_dim=ARGS.features_dim, use_gpu=use_cuda)
+    else:
+        raise AssertionError('Unsuported criterion_type {}. We only support:  [\'arcface\', \'cosface\', \'combined\', \'centerloss\']'.format(ARGS.criterion_type))
 
     if ARGS.loss_path != None:
         if use_cuda:
@@ -322,6 +336,8 @@ def main(ARGS):
     elif ARGS.optimizer_type == 'sgd':
         optimizer = torch.optim.SGD([{'params': model.parameters()}, {'params': loss_criterion.parameters()}],
                                         lr=ARGS.lr, momentum=ARGS.momentum, weight_decay=ARGS.weight_decay)
+    else:
+        raise AssertionError('Unsuported optimizer_type {}. We only support:  [\'sgd_bn\',\'adam\',\'sgd\']'.format(ARGS.optimizer_type))
 
 
     if APEX_AVAILABLE:
@@ -338,6 +354,8 @@ def main(ARGS):
                 model, optimizer, opt_level="O2", 
                 keep_batchnorm_fp32=True, loss_scale="dynamic"
             )
+        else:
+            raise AssertionError('Unsuported apex_opt_level {}. We only support:  [0, 1, 2]'.format(ARGS.apex_opt_level))
 
 
     #### Since StepLR and MultiStepLR are both buggy, use custom schedule_lr method
@@ -348,8 +366,8 @@ def main(ARGS):
         schedule_lr(ARGS, log_file_path, optimizer, epoch)
         logger.scalar_summary("lr", optimizer.param_groups[0]['lr'], epoch)
 
-        train(ARGS, model, device, train_loader, loss_softmax, loss_criterion, optimizer, log_file_path, model_dir, logger, epoch)
-        # test(ARGS, model, device, test_loader, loss_softmax, loss_criterion, log_file_path, logger, epoch)
+        train(ARGS, model, device, train_loader, total_loss, loss_criterion, optimizer, log_file_path, model_dir, logger, epoch)
+        # test(ARGS, model, device, test_loader, total_loss, loss_criterion, log_file_path, logger, epoch)
         validate(ARGS, validation_data_dic, model, device, log_file_path, logger, distance_metric, epoch)
 
 def parse_arguments(argv):
@@ -379,7 +397,8 @@ def parse_arguments(argv):
     parser.add_argument('--weight_decay', type=float, default=0.0005, help='weight decay')
     parser.add_argument('--momentum', type=float, default=0.9, help='momentum')
     # Loss 
-    parser.add_argument('--criterion_type', type=str, help='type of loss cosface or centerloss.', default='centerloss') # support ['arcface', 'cosface', 'centerloss']
+    parser.add_argument('--total_loss_type', type=str, help='type of loss cosface or centerloss.', default='softmax') # support ['softmax', 'focal']
+    parser.add_argument('--criterion_type', type=str, help='type of loss cosface or centerloss.', default='centerloss') # support ['arcface', 'cosface', 'combined', 'centerloss']
     parser.add_argument('--loss_path', type=str, help='Loss weights if needed.', default=None)
     parser.add_argument('--margin_s', type=float, help='scale for feature.', default=64.0)
     parser.add_argument('--margin_m', type=float, help='margin for loss.', default=0.5)
