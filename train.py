@@ -115,7 +115,8 @@ def train(ARGS, model, device, train_loader, total_loss, loss_criterion, optimiz
         save_model(ARGS, ARGS.criterion_type, model_dir, loss_criterion, log_file_path, epoch)
 
 def test(ARGS, model, device, test_loader, total_loss, loss_criterion, log_file_path, logger, epoch):
-
+    if test_loader == None:
+        return
     model.eval()
     correct = 0
     if epoch % ARGS.test_interval == 0 or epoch == ARGS.epochs:
@@ -367,7 +368,7 @@ def main(ARGS):
         logger.scalar_summary("lr", optimizer.param_groups[0]['lr'], epoch)
 
         train(ARGS, model, device, train_loader, total_loss, loss_criterion, optimizer, log_file_path, model_dir, logger, epoch)
-        # test(ARGS, model, device, test_loader, total_loss, loss_criterion, log_file_path, logger, epoch)
+        test(ARGS, model, device, test_loader, total_loss, loss_criterion, log_file_path, logger, epoch)
         validate(ARGS, validation_data_dic, model, device, log_file_path, logger, distance_metric, epoch)
 
 def parse_arguments(argv):
