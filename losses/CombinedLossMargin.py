@@ -5,16 +5,17 @@ from torch.nn import Parameter
 import torch.nn.functional as F
 
 class CombinedLossMargin(nn.Module):
-    def __init__(self, feat_dim, num_classes, s=32.0, m1=0.20, m2=0.35, easy_margin=False):
-
+    def __init__(self, feat_dim, num_classes, device, s=32.0, m1=0.20, m2=0.35, easy_margin=False):
         super(CombinedLossMargin, self).__init__()
         self.in_features = feat_dim
         self.out_features = num_classes
         self.s = s
         self.m1 = m1
         self.m2 = m2
-        self.weight = Parameter(torch.Tensor(out_feature, in_feature))
+        self.weight = Parameter(torch.Tensor(num_classes, feat_dim))
         nn.init.xavier_uniform_(self.weight)
+
+        self.device = device
 
         self.easy_margin = easy_margin
         self.cos_m1 = math.cos(m1)
@@ -37,10 +38,10 @@ class CombinedLossMargin(nn.Module):
             phi = torch.where((cosine - self.th) > 0, phi, cosine - self.mm)
 
 
-        one_hot = torch.zeros_like(cosine)
+        one_hot = torch.zeros_like(cosine).to(self.device)
         one_hot.scatter_(1, label.view(-1, 1), 1)
         output = (one_hot * phi) + ((1.0 - one_hot) * cosine) # additive angular margin
         output = output - one_hot * self.m2 # additive cosine margin
         output = output * self.s
 
-        return output
+        return output.to(self.device)

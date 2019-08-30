@@ -303,7 +303,7 @@ def main(ARGS):
         loss_criterion = CosFaceLossMargin(num_classes=train_loader.dataset.num_classes, feat_dim=ARGS.features_dim, device=device, s=ARGS.margin_s, m=ARGS.margin_m).to(device)
     elif ARGS.criterion_type == 'combined':
         distance_metric = 1
-        loss_criterion = CombinedLossMargin(num_classes=train_loader.dataset.num_classes, feat_dim=ARGS.features_dim, device=device, s=ARGS.margin_s, m=ARGS.margin_m).to(device)
+        loss_criterion = CombinedLossMargin(num_classes=train_loader.dataset.num_classes, feat_dim=ARGS.features_dim, device=device, s=ARGS.margin_s, m1=ARGS.margin_m1, m2=ARGS.margin_m2).to(device)
     elif ARGS.criterion_type == 'centerloss':
         distance_metric = 0
         loss_criterion = CenterLoss(device=device, num_classes=train_loader.dataset.num_classes, feat_dim=ARGS.features_dim, use_gpu=use_cuda)
@@ -402,7 +402,9 @@ def parse_arguments(argv):
     parser.add_argument('--criterion_type', type=str, help='type of loss cosface or centerloss.', default='arcface') # support ['arcface', 'cosface', 'combined', 'centerloss']
     parser.add_argument('--loss_path', type=str, help='Loss weights if needed.', default=None)
     parser.add_argument('--margin_s', type=float, help='scale for feature.', default=32.0)
-    parser.add_argument('--margin_m', type=float, help='margin for loss.', default=0.5)
+    parser.add_argument('--margin_m', type=float, help='margin for arcface loss.', default=0.5)
+    parser.add_argument('--margin_m1', type=float, help='combined margin m1.', default=0.2)
+    parser.add_argument('--margin_m2', type=float, help='combined margin m2.', default=0.35)
     parser.add_argument('--apex_opt_level', type=int, help='Apex opt level, 0=None,1=half,2=full.', default=2)    
     # Intervals
     parser.add_argument('--model_save_interval', type=int, help='Save model with every interval epochs.', default=1)
