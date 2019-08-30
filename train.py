@@ -35,7 +35,7 @@ except ModuleNotFoundError:
 
 
 '''
-EXAMPLES:
+EXAMPLE:
 python3 train.py \
 --model_type IR_50 \
 --data_dir ./data/CASIA_Webface_160 \
