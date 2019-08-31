@@ -106,7 +106,8 @@ def train(ARGS, model, device, train_loader, total_loss, loss_criterion, optimiz
         log = 'Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f} \tbatch_time: {}   Total time for epoch: {}'.format(
             epoch, batch_idx * len(data), len(train_loader.dataset),
             percent, loss.item(), timedelta(seconds=time_for_batch), timedelta(seconds=time_for_current_epoch))
-        print_and_log(log_file_path, log)
+        # print_and_log(log_file_path, log)
+        print(log)
 
         log_loss = loss.item()
 
