@@ -384,7 +384,7 @@ def parse_arguments(argv):
     # Out    
     parser.add_argument('--out_dir', type=str,  help='Directory where to trained models and event logs.', default='./out')
     # Training
-    parser.add_argument('--epochs', type=int, help='Training epochs training.', default=100)
+    parser.add_argument('--epochs', type=int, help='Training epochs training.', default=125)
     # Data
     parser.add_argument('--input_size', type=str, help='support: [112, 112] and [224, 224]', default=[112, 112])
     parser.add_argument('--data_dir', type=str, help='Path to the data directory containing aligned face patches.', default='./data/CASIA_Webface_160')
