@@ -23,7 +23,7 @@ from pdb import set_trace as bp
 """
 EXAMPLE:
 python3 validate.py  \
---model_path ./pth/IR_50_MODEL_arcface_casia_epoch49_lfw9923.pth \
+--model_path ./pth/IR_50_MODEL_arcface_casia_epoch56_lfw9925.pth \
 --num_workers 8 \
 --batch_size 100
 """

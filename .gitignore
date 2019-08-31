@@ -34,7 +34,7 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
-
+pth/
 # data
 #data/datasets
 #data/datasets/lfw_mtcnnpy_160_2/
