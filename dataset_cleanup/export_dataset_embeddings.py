@@ -65,22 +65,21 @@ COSFACE LOSS-Eugene Casia
 #################################################################################
 
 python3 dataset_cleanup/export_dataset_embeddings.py \
-./pth/IR_50_MODEL_cosface_casia_epoch26_lfw9895.pth \
+./pth/IR_50_MODEL_arcface_casia_epoch56_lfw9925.pth \
 ./data/embedding_test/ \
---image_size 112 \
+--model_type IR_50 \
 --image_batch 5 \
 --h5_name dataset.h5
 
 """
 
 class FacesDataset(data.Dataset):
-    def __init__(self, image_list, label_list, names_list, num_classes, image_size):
+    def __init__(self, image_list, label_list, names_list, num_classes):
         self.image_list = image_list
         self.label_list = label_list
         self.names_list = names_list
         self.num_classes = num_classes
 
-        self.image_size = image_size
         self.static = 0
 
     def __getitem__(self, index):
@@ -143,8 +142,7 @@ def main(ARGS):
     faces_dataset = FacesDataset(image_list=image_list, 
                                     label_list=label_list, 
                                     names_list=names_list, 
-                                    num_classes=len(train_set), 
-                                    image_size=ARGS.image_size)
+                                    num_classes=len(train_set))
     loader = torch.utils.data.DataLoader(faces_dataset, batch_size=ARGS.image_batch,
                                                 shuffle=False, num_workers=ARGS.num_workers)
 
@@ -159,13 +157,39 @@ def main(ARGS):
        os.path.isdir(os.path.join(path_exp, name))]
 
 
-    ####### Model setup
+    use_cuda = torch.cuda.is_available()
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    model = IR_50([112, 112])
-    model.load_state_dict(torch.load(ARGS.model, map_location='cpu'))
+
+    ####### Model setup
+    print('Model type: %s' % ARGS.model_type)
+    if ARGS.model_type == 'ResNet_50':
+        model = ResNet_50(ARGS.input_size)
+    elif ARGS.model_type == 'ResNet_101':
+        model = ResNet_101(ARGS.input_size)
+    elif ARGS.model_type == 'ResNet_152':
+        model = ResNet_152(ARGS.input_size)
+    elif ARGS.model_type == 'IR_50':
+        model = IR_50(ARGS.input_size)
+    elif ARGS.model_type == 'IR_101':
+        model = IR_101(ARGS.input_size)
+    elif ARGS.model_type == 'IR_152':
+        model = IR_152(ARGS.input_size)
+    elif ARGS.model_type == 'IR_SE_50':
+        model = IR_SE_50(ARGS.input_size)
+    elif ARGS.model_type == 'IR_SE_101':
+        model = IR_SE_101(ARGS.input_size)
+    elif ARGS.model_type == 'IR_SE_152':
+        model = IR_SE_152(ARGS.input_size)
+    else:
+        raise AssertionError('Unsuported model_type {}. We only support: [\'ResNet_50\', \'ResNet_101\', \'ResNet_152\', \'IR_50\', \'IR_101\', \'IR_152\', \'IR_SE_50\', \'IR_SE_101\', \'IR_SE_152\']'.format(ARGS.model_type))
+
+    if use_cuda:
+        model.load_state_dict(torch.load(ARGS.model_path))
+    else:
+        model.load_state_dict(torch.load(ARGS.model_path, map_location='cpu'))
+
     model.to(device)
     model.eval()
-
     embedding_size = 512
     # emb_array = np.zeros((nrof_images, embedding_size))
     start_time = time.time()
@@ -204,13 +228,14 @@ def main(ARGS):
 
 def parse_arguments(argv):
     parser = argparse.ArgumentParser()
-    parser.add_argument('model', type=str, help='pth model file')
+    parser.add_argument('model_path', type=str, help='pth model file')
     parser.add_argument('data_dir', type=str, help='Directory containing images.')
     parser.add_argument('--output_dir', type=str, help='Dir where to save dataset', default='data/')
-    parser.add_argument('--image_size', type=int, help='Image size (height, width) in pixels.', default=112)
     parser.add_argument('--image_batch', type=int, help='Number of images stored in memory at a time. Default 64.', default=64)
     parser.add_argument('--num_workers', type=int, help='Number of threads to use for data pipeline.', default=8)
     parser.add_argument('--h5_name', type=str, help='h5 file name', default='dataset.h5')
+    parser.add_argument('--model_type', type=str, help='Model type to use for training.', default='IR_50')# support: ['ResNet_50', 'ResNet_101', 'ResNet_152', 'IR_50', 'IR_101', 'IR_152', 'IR_SE_50', 'IR_SE_101', 'IR_SE_152']
+    parser.add_argument('--input_size', type=str, help='support: [112, 112] and [224, 224]', default=[112, 112])
     return parser.parse_args(argv)
 
 if __name__ == '__main__':
