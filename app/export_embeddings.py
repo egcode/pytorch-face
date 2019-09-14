@@ -32,40 +32,21 @@ from models.irse import *
 from helpers import *
 
 """
-
-
 #################################################################################
 #################################################################################
 #################################################################################
-CENTER LOSS
+ARCFACE LOSS MS1-Celeb
 #################################################################################
 
-## ALL FAMILY
-python3  app/export_embeddings.py ./pth/IR_50_MODEL_centerloss_casia_epoch16.pth ./data/golovan_160/ \
+python3 app/export_embeddings.py ./pth/IR_50_MODEL_arcface_ms1celeb_epoch88_lfw9957.pth ./data/golovan_112/ \
 --mean_per_class 1 \
 --is_aligned 1 \
 --with_demo_images 1 \
 --image_size 112 \
 --image_batch 5 \
---embeddings_name embeddings_center_1.npy \
---labels labels_center_1.npy \
---labels_strings label_strings_center_1.npy
-
-#################################################################################
-#################################################################################
-#################################################################################
-COSFACE LOSS-Eugene Casia
-#################################################################################
-
-python3 app/export_embeddings.py ./pth/IR_50_MODEL_cosface_casia_epoch26_lfw9895.pth ./data/golovan_112/ \
---mean_per_class 1 \
---is_aligned 1 \
---with_demo_images 1 \
---image_size 112 \
---image_batch 5 \
---embeddings_name embeddings_cosface_1.npy \
---labels labels_cosface_1.npy \
---labels_strings label_strings_cosface_1.npy
+--embeddings_name embeddings_arcface_1.npy \
+--labels labels_arcface_1.npy \
+--labels_strings label_strings_arcface_1.npy
 
 """
 

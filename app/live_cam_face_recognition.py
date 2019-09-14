@@ -4,44 +4,14 @@ from __future__ import division
 from __future__ import print_function
 
 '''
-
 #################################################################################
 #################################################################################
 #################################################################################
-COSFACE LOSS-Eugene Casia
-#################################################################################
-
-python3 app/live_cam_face_recognition.py \
---model ./pth/IR_50_MODEL_cosface_casia_epoch26_lfw9895.pth \
---embeddings_premade ./output_arrays/embeddings_cosface_1.npy \
---label_string_center ./output_arrays/label_strings_cosface_1.npy \
---labels_center ./output_arrays/labels_cosface_1.npy \
---show_distance 1 \
---distance_metric 1
-
-
-#################################################################################
-#################################################################################
-#################################################################################
-CENTER LOSS
+ARCFACE LOSS - MS1-Celeb
 #################################################################################
 
 python3 app/live_cam_face_recognition.py \
---model ./pth/IR_50_MODEL_centerloss_casia_epoch16.pth \
---embeddings_premade ./output_arrays/embeddings_center_1.npy \
---label_string_center ./output_arrays/label_strings_center_1.npy \
---labels_center ./output_arrays/labels_center_1.npy \
---distance_metric 0
-
-
-#################################################################################
-#################################################################################
-#################################################################################
-ARCFACE LOSS - face.evoLVe.PyTorch
-#################################################################################
-
-python3 app/live_cam_face_recognition.py \
---model ./pth/backbone_ir50_ms1m_epoch120.pth \
+--model ./pth/IR_50_MODEL_arcface_ms1celeb_epoch88_lfw9957.pth \
 --embeddings_premade ./output_arrays/embeddings_arcface_1.npy \
 --label_string_center ./output_arrays/label_strings_arcface_1.npy \
 --labels_center ./output_arrays/labels_arcface_1.npy \
