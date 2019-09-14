@@ -15,6 +15,7 @@ python3 app/live_cam_face_recognition.py \
 --embeddings_premade ./output_arrays/embeddings_arcface_1.npy \
 --labels_strings_array ./output_arrays/labels_strings_arcface_1.npy \
 --unknown_face unknown \
+--max_threshold 0.6 \
 --distance_metric 1
 
 '''
@@ -42,8 +43,6 @@ from models.irse import *
 from helpers import *
 from pdb import set_trace as bp
 
-max_threshold = 0.6 # if distance larger than this value, class labeled as 'unknown'
-
 class Face:
     def __init__(self):
         self.name = None
@@ -53,7 +52,7 @@ class Face:
         self.embedding = None
         self.all_results_dict = {}
 
-    def parse_all_results_dict(self):
+    def parse_all_results_dict(self, max_threshold):
         average_dist_dict = {}
         for key, distances_arr in self.all_results_dict.items():
             average_dist_dict[key] = np.mean(distances_arr)
@@ -193,7 +192,7 @@ def main(ARGS):
         for i in range(len(faces)):
             # print("FACE :" + str(i))
             # print(faces[i].all_results_dict)
-            faces[i].parse_all_results_dict()
+            faces[i].parse_all_results_dict(ARGS.max_threshold)
 
         add_overlays(frame, faces, ARGS)
 
@@ -248,6 +247,7 @@ def parse_arguments(argv):
     parser.add_argument('--show_distance', type=int, help='Show distance on label 0:False 1:True', default=0)
     parser.add_argument('--distance_metric', type=int, help='Type of distance metric to use. 0: Euclidian, 1:Cosine similarity distance.', default=0)
     parser.add_argument('--unknown_face', type=str, help='Unknown face will be labeled with this string', default='unknown')
+    parser.add_argument('--max_threshold', type=float, help='If distance larger than this value, class labeled as unknown_face parameter', default=0.6)
     return parser.parse_args(argv)
 
 if __name__ == '__main__':
