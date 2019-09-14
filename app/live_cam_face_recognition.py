@@ -14,6 +14,7 @@ python3 app/live_cam_face_recognition.py \
 --model ./pth/IR_50_MODEL_arcface_ms1celeb_epoch90_lfw9962.pth \
 --embeddings_premade ./output_arrays/embeddings_arcface_1.npy \
 --labels_strings_array ./output_arrays/labels_strings_arcface_1.npy \
+--unknown_face unknown \
 --distance_metric 1
 
 '''
@@ -41,9 +42,7 @@ from models.irse import *
 from helpers import *
 from pdb import set_trace as bp
 
-max_threshold = 0.6 # if distance larger than this value, class labeled as 'unknown_class'
-
-unknown_class = "unknown"  # unknown folder
+max_threshold = 0.6 # if distance larger than this value, class labeled as 'unknown'
 
 class Face:
     def __init__(self):
@@ -64,8 +63,6 @@ class Face:
 
         if average_dist_dict[name] < max_threshold: 
             self.name = name
-        else:
-            self.name = unknown_class
 
 class Detection:
     # face detection parameters
@@ -221,12 +218,10 @@ def add_overlays(frame, faces, ARGS):
             face_bb = face.bounding_box.astype(int)
 
             color = color_negative
-            name = unknown_class
-            if face.distance is not None:
-                if face.distance < max_threshold:
-                    if face.name != unknown_class:
-                        color = color_positive
-                        name = face.name
+            name = ARGS.unknown_face
+            if face.name is not None and face.distance is not None:
+                color = color_positive
+                name = face.name
 
             cv2.rectangle(frame,
                           (face_bb[0], face_bb[1]), (face_bb[2], face_bb[3]),
@@ -252,6 +247,7 @@ def parse_arguments(argv):
     parser.add_argument('--labels_strings_array', type=str, help='Premade label strings array .npy format')
     parser.add_argument('--show_distance', type=int, help='Show distance on label 0:False 1:True', default=0)
     parser.add_argument('--distance_metric', type=int, help='Type of distance metric to use. 0: Euclidian, 1:Cosine similarity distance.', default=0)
+    parser.add_argument('--unknown_face', type=str, help='Unknown face will be labeled with this string', default='unknown')
     return parser.parse_args(argv)
 
 if __name__ == '__main__':
