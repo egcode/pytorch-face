@@ -21,72 +21,72 @@ python3 app/compare_embeddings_with_image.py \
 #################################################################################
 #################################################################################
 #################################################################################
-COSFACE LOSS-Eugene Casia
+ARCFACE LOSS MS1-Celeb
 #################################################################################
 
 # Eugene Image
 python3 app/compare_embeddings_with_image.py \
---model ./pth/IR_50_MODEL_cosface_casia_epoch66_lfw9858.pth \
+--model ./pth/IR_50_MODEL_arcface_ms1celeb_epoch88_lfw9957.pth \
 --image_path ./data/test_images/eugene1.png \
---embeddings_premade ./output_arrays/embeddings_cosface_1.npy \
---label_strings ./output_arrays/label_strings_cosface_1.npy \
---labels ./output_arrays/labels_cosface_1.npy \
+--embeddings_premade ./output_arrays/embeddings_arcface_1.npy \
+--label_strings ./output_arrays/label_strings_arcface_1.npy \
+--labels ./output_arrays/labels_arcface_1.npy \
 --distance_metric 1
 
 # Liuba Image
 python3 app/compare_embeddings_with_image.py \
---model ./pth/IR_50_MODEL_cosface_casia_epoch66_lfw9858.pth \
+--model ./pth/IR_50_MODEL_arcface_ms1celeb_epoch88_lfw9957.pth \
 --image_path ./data/test_images/liuba1.jpg \
---embeddings_premade ./output_arrays/embeddings_cosface_1.npy \
---label_strings ./output_arrays/label_strings_cosface_1.npy \
---labels ./output_arrays/labels_cosface_1.npy \
+--embeddings_premade ./output_arrays/embeddings_arcface_1.npy \
+--label_strings ./output_arrays/label_strings_arcface_1.npy \
+--labels ./output_arrays/labels_arcface_1.npy \
 --distance_metric 1
 
 # Julia Image
 python3 app/compare_embeddings_with_image.py \
---model ./pth/IR_50_MODEL_cosface_casia_epoch66_lfw9858.pth \
+--model ./pth/IR_50_MODEL_arcface_ms1celeb_epoch88_lfw9957.pth \
 --image_path ./data/test_images/julia1.jpg \
---embeddings_premade ./output_arrays/embeddings_cosface_1.npy \
---label_strings ./output_arrays/label_strings_cosface_1.npy \
---labels ./output_arrays/labels_cosface_1.npy \
+--embeddings_premade ./output_arrays/embeddings_arcface_1.npy \
+--label_strings ./output_arrays/label_strings_arcface_1.npy \
+--labels ./output_arrays/labels_arcface_1.npy \
 --distance_metric 1
 
 
 # Curen Image
 python3 app/compare_embeddings_with_image.py \
---model ./pth/IR_50_MODEL_cosface_casia_epoch66_lfw9858.pth \
+--model ./pth/IR_50_MODEL_arcface_ms1celeb_epoch88_lfw9957.pth \
 --image_path ./data/test_images/curen1.jpg \
---embeddings_premade ./output_arrays/embeddings_cosface_1.npy \
---label_strings ./output_arrays/label_strings_cosface_1.npy \
---labels ./output_arrays/labels_cosface_1.npy \
+--embeddings_premade ./output_arrays/embeddings_arcface_1.npy \
+--label_strings ./output_arrays/label_strings_arcface_1.npy \
+--labels ./output_arrays/labels_arcface_1.npy \
 --distance_metric 1
 
 # Jeffrey Image
 python3 app/compare_embeddings_with_image.py \
---model ./pth/IR_50_MODEL_cosface_casia_epoch66_lfw9858.pth \
+--model ./pth/IR_50_MODEL_arcface_ms1celeb_epoch88_lfw9957.pth \
 --image_path ./data/test_images/jeffrey2.jpg \
---embeddings_premade ./output_arrays/embeddings_cosface_1.npy \
---label_strings ./output_arrays/label_strings_cosface_1.npy \
---labels ./output_arrays/labels_cosface_1.npy \
+--embeddings_premade ./output_arrays/embeddings_arcface_1.npy \
+--label_strings ./output_arrays/label_strings_arcface_1.npy \
+--labels ./output_arrays/labels_arcface_1.npy \
 --distance_metric 1
 
 
 # David Image
 python3 app/compare_embeddings_with_image.py \
---model ./pth/IR_50_MODEL_cosface_casia_epoch66_lfw9858.pth \
+--model ./pth/IR_50_MODEL_arcface_ms1celeb_epoch88_lfw9957.pth \
 --image_path ./data/test_images/david1.jpg \
---embeddings_premade ./output_arrays/embeddings_cosface_1.npy \
---label_strings ./output_arrays/label_strings_cosface_1.npy \
---labels ./output_arrays/labels_cosface_1.npy \
+--embeddings_premade ./output_arrays/embeddings_arcface_1.npy \
+--label_strings ./output_arrays/label_strings_arcface_1.npy \
+--labels ./output_arrays/labels_arcface_1.npy \
 --distance_metric 1
 
 # Alex Image
 python3 app/compare_embeddings_with_image.py \
---model ./pth/IR_50_MODEL_cosface_casia_epoch66_lfw9858.pth \
+--model ./pth/IR_50_MODEL_arcface_ms1celeb_epoch88_lfw9957.pth \
 --image_path ./data/test_images/alex3.jpg \
---embeddings_premade ./output_arrays/embeddings_cosface_1.npy \
---label_strings ./output_arrays/label_strings_cosface_1.npy \
---labels ./output_arrays/labels_cosface_1.npy \
+--embeddings_premade ./output_arrays/embeddings_arcface_1.npy \
+--label_strings ./output_arrays/label_strings_arcface_1.npy \
+--labels ./output_arrays/labels_arcface_1.npy \
 --distance_metric 1
 
 
