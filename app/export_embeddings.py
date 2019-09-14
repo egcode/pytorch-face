@@ -38,15 +38,14 @@ from helpers import *
 ARCFACE LOSS MS1-Celeb
 #################################################################################
 
-python3 app/export_embeddings.py ./pth/IR_50_MODEL_arcface_ms1celeb_epoch88_lfw9957.pth ./data/golovan_112/ \
+python3 app/export_embeddings.py ./pth/IR_50_MODEL_arcface_ms1celeb_epoch90_lfw9962.pth ./data/golovan_112/ \
 --mean_per_class 1 \
 --is_aligned 1 \
 --with_demo_images 1 \
 --image_size 112 \
 --image_batch 5 \
 --embeddings_name embeddings_arcface_1.npy \
---labels labels_arcface_1.npy \
---labels_strings label_strings_arcface_1.npy
+--labels_strings_array labels_strings_arcface_1.npy
 
 """
 
@@ -257,19 +256,19 @@ def main(ARGS):
 
         #   export emedings and labels
         np.save(out_dir + ARGS.embeddings_name, emb_array_out)
-        np.save(out_dir + ARGS.labels, lab_array_out)
+        # np.save(out_dir + ARGS.labels, lab_array_out)
 
         label_strings = np.array(label_strings_out)
-        np.save(out_dir + ARGS.labels_strings, label_strings)
+        np.save(out_dir + ARGS.labels_strings_array, label_strings)
 
     else:
         print("Exporting All embeddings")
         #   export emedings and labels
         np.save(out_dir + ARGS.embeddings_name, emb_array)
-        np.save(out_dir + ARGS.labels, lab_array)
+        # np.save(out_dir + ARGS.labels, lab_array)
 
         label_strings = np.array(label_strings)
-        np.save(out_dir + ARGS.labels_strings, label_strings[label_list])
+        np.save(out_dir + ARGS.labels_strings_array, label_strings[label_list])
 
     total_time = timedelta(seconds=int(time.time() - start_time))
     print(60*"=")
@@ -321,8 +320,7 @@ def parse_arguments(argv):
     parser.add_argument('--num_workers', type=int, help='Number of threads to use for data pipeline.', default=8)
     #   numpy file Names
     parser.add_argument('--embeddings_name', type=str, help='Enter string of which the embeddings numpy array is saved as.', default='embeddings.npy')
-    parser.add_argument('--labels', type=str, help='Enter string of which the labels numpy array is saved as.', default='labels.npy')
-    parser.add_argument('--labels_strings', type=str, help='Enter string of which the labels as strings numpy array is saved as.', default='label_strings.npy')
+    parser.add_argument('--labels_strings_array', type=str, help='Enter string of which the labels as strings numpy array is saved as.', default='label_strings.npy')
     return parser.parse_args(argv)
 
 if __name__ == '__main__':

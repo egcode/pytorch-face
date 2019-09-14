@@ -11,10 +11,9 @@ ARCFACE LOSS - MS1-Celeb
 #################################################################################
 
 python3 app/live_cam_face_recognition.py \
---model ./pth/IR_50_MODEL_arcface_ms1celeb_epoch88_lfw9957.pth \
+--model ./pth/IR_50_MODEL_arcface_ms1celeb_epoch90_lfw9962.pth \
 --embeddings_premade ./output_arrays/embeddings_arcface_1.npy \
---label_string_center ./output_arrays/label_strings_arcface_1.npy \
---labels_center ./output_arrays/labels_arcface_1.npy \
+--labels_strings_array ./output_arrays/labels_strings_arcface_1.npy \
 --distance_metric 1
 
 '''
@@ -125,9 +124,7 @@ def main(ARGS):
     # vs = VideoStream(usePiCamera=True).start() # raspberry pi camera 
 
     embeddings_premade = np.load(ARGS.embeddings_premade, allow_pickle=True)
-    label_string_center = np.load(ARGS.label_string_center, allow_pickle=True)
-    labels_center = np.load(ARGS.labels_center, allow_pickle=True)
-
+    labels_strings_array = np.load(ARGS.labels_strings_array, allow_pickle=True)
 
     detect = Detection()
       
@@ -188,13 +185,13 @@ def main(ARGS):
                 dist = distance(face.embedding, embeddings_premade[j,:].reshape((1, 512)), ARGS.distance_metric)
                 # print("Distance: {}".format(dist))
 
-                label = label_string_center[j]
+                label = labels_strings_array[j]
                 if label in face.all_results_dict: # if label value in dictionary
                     arr = face.all_results_dict.get(label)
                     arr.append(dist)
                 else:
                     face.all_results_dict[label] = [dist]
-                # print("candidate: " + str(i) + " distance: " + str(dist) + " with " + label_string_center[j])
+                # print("candidate: " + str(i) + " distance: " + str(dist) + " with " + labels_strings_array[j])
         
         for i in range(len(faces)):
             # print("FACE :" + str(i))
@@ -252,8 +249,7 @@ def parse_arguments(argv):
     parser.add_argument('--margin', type=int, help='Margin for the crop around the bounding box (height, width) in pixels.', default=44)
     parser.add_argument('--gpu_memory_fraction', type=float, help='Upper bound on the amount of GPU memory that will be used by the process.', default=1.0)
     parser.add_argument('--embeddings_premade', type=str, help='Premade embeddings array .npy format')
-    parser.add_argument('--label_string_center', type=str, help='Premade label strings array .npy format')
-    parser.add_argument('--labels_center', type=str, help='Premade labels integers array .npy format')
+    parser.add_argument('--labels_strings_array', type=str, help='Premade label strings array .npy format')
     parser.add_argument('--show_distance', type=int, help='Show distance on label 0:False 1:True', default=0)
     parser.add_argument('--distance_metric', type=int, help='Type of distance metric to use. 0: Euclidian, 1:Cosine similarity distance.', default=0)
     return parser.parse_args(argv)
