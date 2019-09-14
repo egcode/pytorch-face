@@ -7,212 +7,70 @@ from __future__ import print_function
 #################################################################################
 #################################################################################
 #################################################################################
-ARCFACE LOSS - face.evoLVe.PyTorch
+ARCFACE LOSS - MS-Celeb
 #################################################################################
 
-##### NOT SAME        without extract_feature distance = [1.043365702033043] 
+##### NOT SAME        without extract_feature distance = [0.9698452893644571] 
 python3 app/compare_images.py \
---model ./pth/backbone_ir50_ms1m_epoch120.pth \
---image_one_path ./data/golovan_112/Liuba/IMG_0179.jpg \
---image_two_path ./data/golovan_112/Julia/0001.jpg \
+--model ./pth/IR_50_MODEL_arcface_ms1celeb_epoch88_lfw9957.pth \
+--image_one_path ./data/golovan_112/Liuba/l2.jpg \
+--image_two_path ./data/golovan_112/Julia/j6.jpg \
 --distance_metric 1
 
-##### NOT SAME        without extract_feature distance = [1.0594086982309818]
+##### NOT SAME        without extract_feature distance = [0.9670979678630829]
 python3 app/compare_images.py \
---model ./pth/backbone_ir50_ms1m_epoch120.pth \
---image_one_path ./data/golovan_112/Alex/haweF.jpg \
---image_two_path ./data/golovan_112/Julia/0001.jpg \
+--model ./pth/IR_50_MODEL_arcface_ms1celeb_epoch88_lfw9957.pth \
+--image_one_path ./data/golovan_112/Alex/a8.jpg \
+--image_two_path ./data/golovan_112/Julia/j2.jpg \
 --distance_metric 1
 
-##### NOT SAME        without extract_feature distance = [0.9408659227192402]
+##### NOT SAME        without extract_feature distance = [0.997516609262675]
 python3 app/compare_images.py \
---model ./pth/backbone_ir50_ms1m_epoch120.pth \
---image_one_path ./data/golovan_112/Eugene/hawfd.jpg \
---image_two_path ./data/golovan_112/Julia/IMG_1922.jpg \
---distance_metric 1
-
-
-##### NOT SAME        without extract_feature distance = [0.8103613704442978]
-python3 app/compare_images.py \
---model ./pth/backbone_ir50_ms1m_epoch120.pth \
---image_one_path ./data/golovan_112/Eugene/IMG_0083.jpg \
---image_two_path ./data/golovan_112/Alex/hawefds.jpg \
+--model ./pth/IR_50_MODEL_arcface_ms1celeb_epoch88_lfw9957.pth \
+--image_one_path ./data/golovan_112/Eugene/e5.jpg \
+--image_two_path ./data/golovan_112/Julia/j12.jpg \
 --distance_metric 1
 
 
-
-
-
-##### SAME            without extract_feature distance = [0.4351288080215454]
+##### NOT SAME        without extract_feature distance = [0.8797276243567467]
 python3 app/compare_images.py \
---model ./pth/backbone_ir50_ms1m_epoch120.pth \
---image_one_path ./data/golovan_112/Julia/0003.jpg \
---image_two_path ./data/golovan_112/Julia/0001.jpg \
---distance_metric 1
-
-##### SAME            without extract_feature distance = [0.9727675095200539]
-python3 app/compare_images.py \
---model ./pth/backbone_ir50_ms1m_epoch120.pth \
---image_one_path ./data/golovan_112/Julia/0003.jpg \
---image_two_path ./data/golovan_112/Julia/0004.jpg \
---distance_metric 1
-
-##### SAME            without extract_feature distance = [0.7395100891590118]
-python3 app/compare_images.py \
---model ./pth/backbone_ir50_ms1m_epoch120.pth \
---image_one_path ./data/golovan_112/Eugene/IMG_9489.jpg \
---image_two_path ./data/golovan_112/Eugene/IMG_E7066.jpg \
---distance_metric 1
-
-##### SAME            without extract_feature distance = [0.37082868814468384]
-python3 app/compare_images.py \
---model ./pth/backbone_ir50_ms1m_epoch120.pth \
---image_one_path ./data/golovan_112/Alex/harfds.jpg \
---image_two_path ./data/golovan_112/Alex/hawefd.jpg \
---distance_metric 1
-
-
-#################################################################################
-#################################################################################
-#################################################################################
-COSFACE LOSS-Eugene Casia
-#################################################################################
-
-
-##### NOT SAME        without extract_feature distance = [1.0327684432268143] 
-python3 app/compare_images.py \
---model ./pth/IR_50_MODEL_cosface_casia_epoch26_lfw9895.pth \
---image_one_path ./data/golovan_112/Liuba/IMG_0179.jpg \
---image_two_path ./data/golovan_112/Julia/0001.jpg \
---distance_metric 1
-
-##### NOT SAME        without extract_feature distance = [0.7779765576124191]
-python3 app/compare_images.py \
---model ./pth/IR_50_MODEL_cosface_casia_epoch26_lfw9895.pth \
---image_one_path ./data/golovan_112/Alex/haweF.jpg \
---image_two_path ./data/golovan_112/Julia/0001.jpg \
---distance_metric 1
-
-##### NOT SAME        without extract_feature distance = [0.9319485202431679]
-python3 app/compare_images.py \
---model ./pth/IR_50_MODEL_cosface_casia_epoch26_lfw9895.pth \
---image_one_path ./data/golovan_112/Eugene/hawfd.jpg \
---image_two_path ./data/golovan_112/Julia/IMG_1922.jpg \
---distance_metric 1
-
-
-##### NOT SAME        without extract_feature distance = [0.9556785896420479]
-python3 app/compare_images.py \
---model ./pth/IR_50_MODEL_cosface_casia_epoch26_lfw9895.pth \
---image_one_path ./data/golovan_112/Eugene/IMG_0083.jpg \
---image_two_path ./data/golovan_112/Alex/hawefds.jpg \
+--model ./pth/IR_50_MODEL_arcface_ms1celeb_epoch88_lfw9957.pth \
+--image_one_path ./data/golovan_112/Eugene/e14.jpg \
+--image_two_path ./data/golovan_112/Alex/a3.jpg \
 --distance_metric 1
 
 
 
 
 
-##### SAME            without extract_feature distance = [0.6051977872848511]
+
+##### SAME            without extract_feature distance = [0.4535517692565918]
 python3 app/compare_images.py \
---model ./pth/IR_50_MODEL_cosface_casia_epoch26_lfw9895.pth \
---image_one_path ./data/golovan_112/Julia/0003.jpg \
---image_two_path ./data/golovan_112/Julia/0001.jpg \
+--model ./pth/IR_50_MODEL_arcface_ms1celeb_epoch88_lfw9957.pth \
+--image_one_path ./data/golovan_112/Julia/j5.jpg \
+--image_two_path ./data/golovan_112/Julia/j14.jpg \
 --distance_metric 1
 
-##### SAME            without extract_feature distance = [0.6651143133640289]
+##### SAME            without extract_feature distance = [0.659491240978241]
 python3 app/compare_images.py \
---model ./pth/IR_50_MODEL_cosface_casia_epoch26_lfw9895.pth \
---image_one_path ./data/golovan_112/Julia/0003.jpg \
---image_two_path ./data/golovan_112/Julia/0004.jpg \
+--model ./pth/IR_50_MODEL_arcface_ms1celeb_epoch88_lfw9957.pth \
+--image_one_path ./data/golovan_112/Julia/j2.jpg \
+--image_two_path ./data/golovan_112/Julia/j3.jpg \
 --distance_metric 1
 
-##### SAME            without extract_feature distance = [0.45191264152526855]
+##### SAME            without extract_feature distance = [0.3201570510864258]
 python3 app/compare_images.py \
---model ./pth/IR_50_MODEL_cosface_casia_epoch26_lfw9895.pth \
---image_one_path ./data/golovan_112/Eugene/IMG_9489.jpg \
---image_two_path ./data/golovan_112/Eugene/IMG_E7066.jpg \
+--model ./pth/IR_50_MODEL_arcface_ms1celeb_epoch88_lfw9957.pth \
+--image_one_path ./data/golovan_112/Eugene/e8.jpg \
+--image_two_path ./data/golovan_112/Eugene/e1.jpg \
 --distance_metric 1
 
-##### SAME            without extract_feature distance = [0.3767945170402527]
+##### SAME            without extract_feature distance = [0.42241138219833374]
 python3 app/compare_images.py \
---model ./pth/IR_50_MODEL_cosface_casia_epoch26_lfw9895.pth \
---image_one_path ./data/golovan_112/Alex/harfds.jpg \
---image_two_path ./data/golovan_112/Alex/hawefd.jpg \
+--model ./pth/IR_50_MODEL_arcface_ms1celeb_epoch88_lfw9957.pth \
+--image_one_path ./data/golovan_112/Alex/a9.jpg \
+--image_two_path ./data/golovan_112/Alex/a2.jpg \
 --distance_metric 1
-
-
-
-#################################################################################
-#################################################################################
-#################################################################################
-CENTER LOSS
-#################################################################################
-
-
-
-##### NOT SAME        without extract_feature distance = [1.1721499] 
-python3 app/compare_images.py \
---model ./pth/IR_50_MODEL_centerloss_casia_epoch16.pth \
---image_one_path ./data/golovan_112/Liuba/IMG_0179.jpg \
---image_two_path ./data/golovan_112/Julia/0001.jpg \
---distance_metric 0
-
-##### NOT SAME        without extract_feature distance = [1.2014594]
-python3 app/compare_images.py \
---model ./pth/IR_50_MODEL_centerloss_casia_epoch16.pth \
---image_one_path ./data/golovan_112/Alex/haweF.jpg \
---image_two_path ./data/golovan_112/Julia/0001.jpg \
---distance_metric 0
-
-##### NOT SAME        without extract_feature distance = [1.2041703]
-python3 app/compare_images.py \
---model ./pth/IR_50_MODEL_centerloss_casia_epoch16.pth \
---image_one_path ./data/golovan_112/Eugene/hawfd.jpg \
---image_two_path ./data/golovan_112/Julia/IMG_1922.jpg \
---distance_metric 0
-
-
-##### NOT SAME        without extract_feature distance = [0.86273426]
-python3 app/compare_images.py \
---model ./pth/IR_50_MODEL_centerloss_casia_epoch16.pth \
---image_one_path ./data/golovan_112/Eugene/IMG_0083.jpg \
---image_two_path ./data/golovan_112/Alex/hawefds.jpg \
---distance_metric 0
-
-
-
-
-
-##### SAME            without extract_feature distance = [0.58154285]
-python3 app/compare_images.py \
---model ./pth/IR_50_MODEL_centerloss_casia_epoch16.pth \
---image_one_path ./data/golovan_112/Julia/0003.jpg \
---image_two_path ./data/golovan_112/Julia/0001.jpg \
---distance_metric 0
-
-##### SAME            without extract_feature distance = [0.8795128]
-python3 app/compare_images.py \
---model ./pth/IR_50_MODEL_centerloss_casia_epoch16.pth \
---image_one_path ./data/golovan_112/Julia/0003.jpg \
---image_two_path ./data/golovan_112/Julia/0004.jpg \
---distance_metric 0
-
-##### SAME            without extract_feature distance = [0.50008076]
-python3 app/compare_images.py \
---model ./pth/IR_50_MODEL_centerloss_casia_epoch16.pth \
---image_one_path ./data/golovan_112/Eugene/IMG_9489.jpg \
---image_two_path ./data/golovan_112/Eugene/IMG_E7066.jpg \
---distance_metric 0
-
-##### SAME            without extract_feature distance = [0.25166833]
-python3 app/compare_images.py \
---model ./pth/IR_50_MODEL_centerloss_casia_epoch16.pth \
---image_one_path ./data/golovan_112/Alex/harfds.jpg \
---image_two_path ./data/golovan_112/Alex/hawefd.jpg \
---distance_metric 0
-
-
-
 
 '''
 import tensorflow as tf
