@@ -10,7 +10,7 @@ from __future__ import print_function
 ARCFACE LOSS - MS1-Celeb
 #################################################################################
 
-python3 app/live_cam_face_recognition.py \
+python3 app/live_cam_face_recognition_npy.py \
 --model ./pth/IR_50_MODEL_arcface_ms1celeb_epoch90_lfw9962.pth \
 --embeddings_premade ./output_arrays/embeddings_arcface_1.npy \
 --labels_strings_array ./output_arrays/labels_strings_arcface_1.npy \

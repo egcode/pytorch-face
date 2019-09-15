@@ -38,7 +38,7 @@ from helpers import *
 ARCFACE LOSS MS1-Celeb
 #################################################################################
 
-python3 app/export_embeddings.py ./pth/IR_50_MODEL_arcface_ms1celeb_epoch90_lfw9962.pth ./data/golovan_112/ \
+python3 app/export_embeddings_npy.py ./pth/IR_50_MODEL_arcface_ms1celeb_epoch90_lfw9962.pth ./data/golovan_112/ \
 --mean_per_class 1 \
 --is_aligned 1 \
 --with_demo_images 1 \
