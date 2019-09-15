@@ -7,86 +7,65 @@ from __future__ import print_function
 #################################################################################
 #################################################################################
 #################################################################################
-CENTER LOSS
-#################################################################################
-
-python3 app/compare_embeddings_with_image.py \
---model ./pth/IR_50_MODEL_centerloss_casia_epoch16.pth \
---image_path ./data/test_images/eugene1.png \
---embeddings_premade ./output_arrays/embeddings_center_1.npy \
---label_strings ./output_arrays/label_strings_center_1.npy \
---labels ./output_arrays/labels_center_1.npy \
---distance_metric 0
-
-#################################################################################
-#################################################################################
-#################################################################################
 ARCFACE LOSS MS1-Celeb
 #################################################################################
 
 # Eugene Image
-python3 app/compare_embeddings_with_image.py \
+python3 app/compare_embeddings_with_image_npy.py \
 --model ./pth/IR_50_MODEL_arcface_ms1celeb_epoch88_lfw9957.pth \
 --image_path ./data/test_images/eugene1.png \
 --embeddings_premade ./output_arrays/embeddings_arcface_1.npy \
---label_strings ./output_arrays/label_strings_arcface_1.npy \
---labels ./output_arrays/labels_arcface_1.npy \
+--label_strings ./output_arrays/labels_strings_arcface_1.npy \
 --distance_metric 1
 
 # Liuba Image
-python3 app/compare_embeddings_with_image.py \
+python3 app/compare_embeddings_with_image_npy.py \
 --model ./pth/IR_50_MODEL_arcface_ms1celeb_epoch88_lfw9957.pth \
 --image_path ./data/test_images/liuba1.jpg \
 --embeddings_premade ./output_arrays/embeddings_arcface_1.npy \
---label_strings ./output_arrays/label_strings_arcface_1.npy \
---labels ./output_arrays/labels_arcface_1.npy \
+--label_strings ./output_arrays/labels_strings_arcface_1.npy \
 --distance_metric 1
 
 # Julia Image
-python3 app/compare_embeddings_with_image.py \
+python3 app/compare_embeddings_with_image_npy.py \
 --model ./pth/IR_50_MODEL_arcface_ms1celeb_epoch88_lfw9957.pth \
 --image_path ./data/test_images/julia1.jpg \
 --embeddings_premade ./output_arrays/embeddings_arcface_1.npy \
---label_strings ./output_arrays/label_strings_arcface_1.npy \
---labels ./output_arrays/labels_arcface_1.npy \
+--label_strings ./output_arrays/labels_strings_arcface_1.npy \
 --distance_metric 1
 
 
 # Curen Image
-python3 app/compare_embeddings_with_image.py \
+python3 app/compare_embeddings_with_image_npy.py \
 --model ./pth/IR_50_MODEL_arcface_ms1celeb_epoch88_lfw9957.pth \
 --image_path ./data/test_images/curen1.jpg \
 --embeddings_premade ./output_arrays/embeddings_arcface_1.npy \
---label_strings ./output_arrays/label_strings_arcface_1.npy \
---labels ./output_arrays/labels_arcface_1.npy \
+--label_strings ./output_arrays/labels_strings_arcface_1.npy \
 --distance_metric 1
 
 # Jeffrey Image
-python3 app/compare_embeddings_with_image.py \
+python3 app/compare_embeddings_with_image_npy.py \
 --model ./pth/IR_50_MODEL_arcface_ms1celeb_epoch88_lfw9957.pth \
 --image_path ./data/test_images/jeffrey2.jpg \
 --embeddings_premade ./output_arrays/embeddings_arcface_1.npy \
---label_strings ./output_arrays/label_strings_arcface_1.npy \
---labels ./output_arrays/labels_arcface_1.npy \
+--label_strings ./output_arrays/labels_strings_arcface_1.npy \
 --distance_metric 1
 
 
 # David Image
-python3 app/compare_embeddings_with_image.py \
+python3 app/compare_embeddings_with_image_npy.py \
 --model ./pth/IR_50_MODEL_arcface_ms1celeb_epoch88_lfw9957.pth \
 --image_path ./data/test_images/david1.jpg \
 --embeddings_premade ./output_arrays/embeddings_arcface_1.npy \
---label_strings ./output_arrays/label_strings_arcface_1.npy \
---labels ./output_arrays/labels_arcface_1.npy \
+--label_strings ./output_arrays/labels_strings_arcface_1.npy \
 --distance_metric 1
 
 # Alex Image
-python3 app/compare_embeddings_with_image.py \
+python3 app/compare_embeddings_with_image_npy.py \
 --model ./pth/IR_50_MODEL_arcface_ms1celeb_epoch88_lfw9957.pth \
 --image_path ./data/test_images/alex3.jpg \
 --embeddings_premade ./output_arrays/embeddings_arcface_1.npy \
---label_strings ./output_arrays/label_strings_arcface_1.npy \
---labels ./output_arrays/labels_arcface_1.npy \
+--label_strings ./output_arrays/labels_strings_arcface_1.npy \
 --distance_metric 1
 
 
@@ -133,8 +112,6 @@ def main(ARGS):
     ###### EMBEDDINGS
     embeddings_premade = np.load(ARGS.embeddings_premade, allow_pickle=True)
     label_strings = np.load(ARGS.label_strings, allow_pickle=True)
-    labels = np.load(ARGS.labels, allow_pickle=True)
-
     
     ####### Model setup
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -183,7 +160,6 @@ def parse_arguments(argv):
     parser.add_argument('--image_path', type=str, help='image to compare')
     parser.add_argument('--embeddings_premade', type=str, help='Premade embeddings array .npy format')
     parser.add_argument('--label_strings', type=str, help='Premade label strings array .npy format')
-    parser.add_argument('--labels', type=str, help='Premade labels integers array .npy format')
     parser.add_argument('--distance_metric', type=int, help='Type of distance metric to use. 0: Euclidian, 1:Cosine similarity distance.', default=0)
     return parser.parse_args(argv)
 
